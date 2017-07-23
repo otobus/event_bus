@@ -1,13 +1,15 @@
 defmodule EventBus.SubscriptionManagerTest do
-  use ExUnit.Case, async: false
-  alias Helper.{InputLogger, Calculator, MemoryLeakerOne}
+  use ExUnit.Case
+  alias EventBus.Support.Helper.{InputLogger, Calculator, MemoryLeakerOne}
   alias EventBus.SubscriptionManager
   doctest EventBus.SubscriptionManager
 
   setup do
-    Enum.each(SubscriptionManager.subscribers(), fn subscriber ->
+    subscribers = SubscriptionManager.subscribers()
+    Enum.each(subscribers, fn subscriber ->
       SubscriptionManager.unsubscribe(subscriber)
     end)
+    :ok
   end
 
   test "subscribe" do
@@ -18,6 +20,15 @@ defmodule EventBus.SubscriptionManagerTest do
 
     assert [MemoryLeakerOne, Calculator, InputLogger] ==
       SubscriptionManager.subscribers()
+  end
+
+  test "does not subscribe same listener" do
+    SubscriptionManager.subscribe(InputLogger)
+    SubscriptionManager.subscribe(InputLogger)
+    SubscriptionManager.subscribe(InputLogger)
+    Process.sleep(1_000)
+
+    assert [InputLogger] == SubscriptionManager.subscribers()
   end
 
   test "unsubscribe" do
