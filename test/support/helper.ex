@@ -6,7 +6,7 @@ defmodule EventBus.Support.Helper do
     def process({event_type, event_key}) do
       inputs = EventBus.fetch_event_data({event_type, event_key})
       Logger.info(fn -> "Event log '#{event_type}' for #{inspect(inputs)}" end)
-      EventBus.complete({__MODULE__, event_type, event_key})
+      EventBus.mark_as_completed({__MODULE__, event_type, event_key})
     end
   end
 
@@ -19,10 +19,10 @@ defmodule EventBus.Support.Helper do
       sum = Enum.reduce(inputs, 0, &(&1 + &2))
       # create a new event if necessary
       EventBus.notify({:metrics_summed, {sum, inputs}})
-      EventBus.complete({__MODULE__, :metrics_received, event_key})
+      EventBus.mark_as_completed({__MODULE__, :metrics_received, event_key})
     end
     def process({event_type, event_key}) do
-      EventBus.skip({__MODULE__, event_type, event_key})
+      EventBus.mark_as_skipped({__MODULE__, event_type, event_key})
     end
   end
 
@@ -42,13 +42,13 @@ defmodule EventBus.Support.Helper do
       GenServer.cast(__MODULE__, {:metrics_summed, event_key})
     end
     def process({event_type, event_key}) do
-      EventBus.skip({__MODULE__, event_type, event_key})
+      EventBus.mark_as_skipped({__MODULE__, event_type, event_key})
     end
 
     def handle_cast({:metrics_summed, event_key}, state) do
       inputs = EventBus.fetch_event_data({:metrics_summed, event_key})
       new_state = [inputs | state]
-      EventBus.complete({__MODULE__, :metrics_summed, inputs})
+      EventBus.mark_as_completed({__MODULE__, :metrics_summed, inputs})
       {:noreply, new_state}
     end
   end

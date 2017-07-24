@@ -31,15 +31,15 @@ defmodule EventBus.EventWatcher do
   end
 
   @doc false
-  @spec complete(tuple()) :: no_return()
-  def complete({processor, type, key}) do
-    GenServer.cast(__MODULE__, {:complete, {processor, type, key}})
+  @spec mark_as_completed(tuple()) :: no_return()
+  def mark_as_completed({processor, type, key}) do
+    GenServer.cast(__MODULE__, {:mark_as_completed, {processor, type, key}})
   end
 
   @doc false
-  @spec skip(tuple()) :: no_return()
-  def skip({processor, type, key}) do
-    GenServer.cast(__MODULE__, {:skip, {processor, type, key}})
+  @spec mark_as_skipped(tuple()) :: no_return()
+  def mark_as_skipped({processor, type, key}) do
+    GenServer.cast(__MODULE__, {:mark_as_skipped, {processor, type, key}})
   end
 
   @doc false
@@ -58,16 +58,16 @@ defmodule EventBus.EventWatcher do
     {:noreply, state}
   end
   @doc false
-  @spec handle_cast({:complete, tuple()}, nil) :: no_return()
-  def handle_cast({:complete, {processor, type, key}}, state) do
+  @spec handle_cast({:mark_as_completed, tuple()}, nil) :: no_return()
+  def handle_cast({:mark_as_completed, {processor, type, key}}, state) do
     {processors, completers, skippers} = fetch({type, key})
     save_or_delete({type, key}, {processors, [processor | completers],
       skippers})
     {:noreply, state}
   end
   @doc false
-  @spec handle_cast({:skip, tuple()}, nil) :: no_return()
-  def handle_cast({:skip, {processor, type, key}}, state) do
+  @spec handle_cast({:mark_as_skipped, tuple()}, nil) :: no_return()
+  def handle_cast({:mark_as_skipped, {processor, type, key}}, state) do
     {processors, completers, skippers} = fetch({type, key})
     save_or_delete({type, key}, {processors, completers,
       [processor | skippers]})

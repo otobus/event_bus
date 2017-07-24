@@ -44,7 +44,7 @@ defmodule EventBus.EventWatcherTest do
 
     EventWatcher.create({processors, type, key})
     Process.sleep(100)
-    EventWatcher.complete({InputLogger, type, key})
+    EventWatcher.mark_as_completed({InputLogger, type, key})
     Process.sleep(100)
 
     assert {processors, [InputLogger], []} == EventWatcher.fetch({type, key})
@@ -61,7 +61,7 @@ defmodule EventBus.EventWatcherTest do
 
     EventWatcher.create({processors, type, key})
     Process.sleep(100)
-    EventWatcher.skip({InputLogger, type, key})
+    EventWatcher.mark_as_skipped({InputLogger, type, key})
     Process.sleep(100)
 
     assert {processors, [], [InputLogger]} == EventWatcher.fetch({type, key})

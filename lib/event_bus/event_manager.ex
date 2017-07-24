@@ -47,7 +47,7 @@ defmodule EventBus.EventManager do
       err ->
         Logger.log(@logging_level,
           fn -> "#{listener}.process/1 raised an error!\n#{inspect(err)}" end)
-        EventWatcher.skip({listener, topic, key})
+        EventWatcher.mark_as_skipped({listener, topic, key})
     end
   end
 

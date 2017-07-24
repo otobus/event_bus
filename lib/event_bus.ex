@@ -75,20 +75,22 @@ defmodule EventBus do
 
   ## Examples
 
-      EventBus.complete({MyEventListener, :hello_received, "123"})
+      EventBus.mark_as_completed({MyEventListener, :hello_received, "123"})
 
   """
-  @spec complete(tuple()) :: no_return()
-  defdelegate complete(event_with_listener), to: EventWatcher, as: :complete
+  @spec mark_as_completed(tuple()) :: no_return()
+  defdelegate mark_as_completed(event_with_listener),
+    to: EventWatcher, as: :mark_as_completed
 
   @doc """
   Send the event processing skipped to the watcher
 
   ## Examples
 
-      EventBus.skip({MyEventListener, :unmatched_occurred, "124"})
+      EventBus.mark_as_skipped({MyEventListener, :unmatched_occurred, "124"})
 
   """
-  @spec skip(tuple()) :: no_return()
-  defdelegate skip(event_with_listener), to: EventWatcher, as: :skip
+  @spec mark_as_skipped(tuple()) :: no_return()
+  defdelegate mark_as_skipped(event_with_listener),
+    to: EventWatcher, as: :mark_as_skipped
 end

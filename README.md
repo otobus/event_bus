@@ -59,12 +59,12 @@ EventBus.fetch_event_data({:bye_received, event_key})
 
 Mark as completed on Event Watcher
 ```elixir
-EventBus.complete({MyEventListener, :bye_received, event_key})
+EventBus.mark_as_completed({MyEventListener, :bye_received, event_key})
 ```
 
 Mark as skipped on Event Watcher
 ```elixir
-EventBus.skip({MyEventListener, :bye_received, event_key})
+EventBus.mark_as_skipped({MyEventListener, :bye_received, event_key})
 ```
 
 ### Sample Listener Implementation
@@ -86,7 +86,7 @@ defmodule MyEventListener do
     # do sth with event_data
 
     # update the watcher!
-    EventWatcher.complete({__MODULE__, :hello_received, event_key})
+    EventWatcher.mark_as_completed({__MODULE__, :hello_received, event_key})
     ...
     {:noreply, state}
   end
@@ -95,12 +95,12 @@ defmodule MyEventListener do
     # do sth with event_data
 
     # update the watcher!
-    EventWatcher.complete({__MODULE__, :hello_received, event_key})
+    EventWatcher.mark_as_completed({__MODULE__, :hello_received, event_key})
     ...
     {:noreply, state}
   end
   def handle_cast({_, _}, state) do
-    EventBus.skip({__MODULE__, event_type, event_key})
+    EventBus.mark_as_skipped({__MODULE__, event_type, event_key})
     {:noreply, state}
   end
 
