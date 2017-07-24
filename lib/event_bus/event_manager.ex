@@ -5,6 +5,8 @@ defmodule EventBus.EventManager do
 
   require Logger
   use GenServer
+  alias EventBus.EventStore
+  alias EventBus.EventWatcher
 
   @logging_level :info
 
@@ -19,20 +21,31 @@ defmodule EventBus.EventManager do
   end
 
   @doc false
-  def handle_cast({:notify, listeners, event}, state) do
-    Enum.each(listeners, fn listener ->
-      notify_listener(listener, event)
-    end)
+  @spec handle_cast(tuple(), nil) :: no_return()
+  def handle_cast({:notify, listeners, {type, data} = _event}, state) do
+    key = UUID.uuid1()
+    :ok = EventStore.save({type, key, data})
+    EventWatcher.create({listeners, type, key})
+    notify_listeners(listeners, {type, key})
     {:noreply, state}
   end
 
-  defp notify_listener(listener, event) do
+  @spec notify_listeners(list(module()), tuple()) :: no_return()
+  defp notify_listeners(listeners, event_shadow) do
+    Enum.each(listeners, fn listener ->
+      notify_listener(listener, event_shadow)
+    end)
+  end
+
+  @spec notify_listener(module(), tuple()) :: no_return()
+  defp notify_listener(listener, {type, key}) do
     try do
-      listener.process(event)
+      listener.process({type, key})
     rescue
       err ->
         Logger.log(@logging_level,
           fn -> "#{listener}.process/1 raised an error!\n#{inspect(err)}" end)
+        EventWatcher.skip({listener, type, key})
     end
   end
 end
