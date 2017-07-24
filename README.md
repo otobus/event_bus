@@ -48,22 +48,52 @@ EventBus.notify(:hello_received, %{message: "Hello"})
 EventBus.notify(:bye_received, [user_id: 1, goal: "exit"])
 ```
 
+Fetch event data
+```elixir
+EventBus.fetch_event_data({:bye_received, event_key})
+```
+
+Mark as completed on Event Watcher
+```elixir
+EventBus.complete({MyEventListener, :bye_received, event_key})
+```
+
+Mark as skipped on Event Watcher
+```elixir
+EventBus.skip({MyEventListener, :bye_received, event_key})
+```
+
 ### Sample Listener Implementation
 
 ```elixir
 defmodule MyEventListener do
   ...
 
-  def process({:hello_received, _event_data} = event) do
-    GenServer.cast(__MODULE__, event)
+  def process({:hello_received, event_key} = event_shadow) do
+    GenServer.cast(__MODULE__, event_shadow)
   end
-  def process({:bye_received, event_data}) do
-    # do sth
+  def process({:bye_received, event_key}) do
+    event_data = EventBus.fetch_event_data({:bye_received, event_key})
+    # do sth with event_data
+
+    # update the watcher!
+    EventBus.complete({__MODULE__, :bye_received, event_key})
     :ok
   end
-  def process({event_type, event_data}) do
-    # this one matches all events
+  def process({event_type, event_key}) do
+    EventBus.skip({__MODULE__, event_type, event_key})
     :ok
+  end
+
+
+  def handle_cast({:hello_received, event_key}, state) do
+    event_data = EventBus.fetch_event_data({:hello_received, event_key})
+    # do sth with event_data
+
+    # update the watcher!
+    EventWatcher.complete({__MODULE__, :hello_received, event_key})
+    ...
+    {:noreply, state}
   end
 
   ...
