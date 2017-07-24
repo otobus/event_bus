@@ -27,9 +27,13 @@ Register events on demand
 EventBus.register_event(:my_test_event_occured)
 ```
 
-Subscribe to the 'event bus'
+Subscribe to the 'event bus' with listener and list of given topics, EventManager will match with Regex
 ```elixir
-EventBus.subscribe(MyEventListener)
+# to catch every event topic
+EventBus.subscribe({MyEventListener, [".*"]})
+
+# to catch specific topics
+EventBus.subscribe({MyEventListener, ["purchase_", booking_confirmed$", "fligt_passed$"]})
 ```
 
 Unsubscribe from the 'event bus'
@@ -69,24 +73,23 @@ EventBus.skip({MyEventListener, :bye_received, event_key})
 defmodule MyEventListener do
   ...
 
-  def process({:hello_received, event_key} = event_shadow) do
-    GenServer.cast(__MODULE__, event_shadow)
-  end
-  def process({:bye_received, event_key}) do
-    event_data = EventBus.fetch_event_data({:bye_received, event_key})
-    # do sth with event_data
-
-    # update the watcher!
-    EventBus.complete({__MODULE__, :bye_received, event_key})
-    :ok
-  end
   def process({event_type, event_key}) do
-    EventBus.skip({__MODULE__, event_type, event_key})
+    GenServer.cast(__MODULE__, event_shadow)
     :ok
   end
 
   ...
 
+
+  def handle_cast({:bye_received, event_key}, state) do
+    event_data = EventBus.fetch_event_data({:hello_received, event_key})
+    # do sth with event_data
+
+    # update the watcher!
+    EventWatcher.complete({__MODULE__, :hello_received, event_key})
+    ...
+    {:noreply, state}
+  end
   def handle_cast({:hello_received, event_key}, state) do
     event_data = EventBus.fetch_event_data({:hello_received, event_key})
     # do sth with event_data
@@ -94,6 +97,10 @@ defmodule MyEventListener do
     # update the watcher!
     EventWatcher.complete({__MODULE__, :hello_received, event_key})
     ...
+    {:noreply, state}
+  end
+  def handle_cast({_, _}, state) do
+    EventBus.skip({__MODULE__, event_type, event_key})
     {:noreply, state}
   end
 

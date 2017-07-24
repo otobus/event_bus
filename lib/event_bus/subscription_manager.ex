@@ -15,8 +15,8 @@ defmodule EventBus.SubscriptionManager do
   end
 
   @doc false
-  def subscribe(listener) do
-    GenServer.cast(__MODULE__, {:subscribe, listener})
+  def subscribe({listener, topics}) do
+    GenServer.cast(__MODULE__, {:subscribe, {listener, topics}})
   end
 
   @doc false
@@ -30,19 +30,19 @@ defmodule EventBus.SubscriptionManager do
   end
 
   @doc false
-  def handle_cast({:subscribe, listener}, state) do
+  def handle_cast({:subscribe, {listener, topics}}, state) do
     state =
-      if Enum.any?(state, fn old_listener -> old_listener == listener end) do
-        state
+      if List.keymember?(state, listener, 0) do
+        List.keyreplace(state, listener, 0, {listener, topics})
       else
-        [listener | state]
+        [{listener, topics} | state]
       end
     {:noreply, state}
   end
 
   @doc false
   def handle_cast({:unsubscribe, listener}, state) do
-    {:noreply, List.delete(state, listener)}
+    {:noreply, List.keydelete(state, listener, 0)}
   end
 
   @doc false
