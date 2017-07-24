@@ -58,7 +58,7 @@ defmodule EventBus.EventStoreTest do
     :ok = EventStore.save({type, key2, data2})
     EventStore.delete({type, key1})
     Process.sleep(100)
-    assert is_nil(EventStore.fetch({type, key1}))
 
+    assert is_nil(EventStore.fetch({type, key1}))
   end
 end

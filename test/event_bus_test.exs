@@ -15,10 +15,10 @@ defmodule EventBusrTest do
   end
 
   test "notify" do
-    EventBus.subscribe(InputLogger)
-    EventBus.subscribe(BadOne)
-    EventBus.subscribe(Calculator)
-    EventBus.subscribe(MemoryLeakerOne)
+    EventBus.subscribe({InputLogger, [".*"]})
+    EventBus.subscribe({BadOne, [".*"]})
+    EventBus.subscribe({Calculator, ["metrics_received"]})
+    EventBus.subscribe({MemoryLeakerOne, [".*"]})
 
     logs =
       capture_log(fn ->

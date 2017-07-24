@@ -27,12 +27,13 @@ defmodule EventBus do
 
   ## Examples
 
-      EventBus.subscribe(MyEventListener)
+      EventBus.subscribe({MyEventListener, [".*"]})
       :ok
 
   """
-  @spec subscribe(any()) :: :ok
-  defdelegate subscribe(listener), to: SubscriptionManager, as: :subscribe
+  @spec subscribe(tuple()) :: :ok
+  defdelegate subscribe(subscriber),
+    to: SubscriptionManager, as: :subscribe
 
   @doc """
   Unsubscribe from the bus.

@@ -16,10 +16,10 @@ defmodule EventBus.EventManagerTest do
   end
 
   test "notify" do
-    SubscriptionManager.subscribe(InputLogger)
-    SubscriptionManager.subscribe(BadOne)
-    SubscriptionManager.subscribe(Calculator)
-    SubscriptionManager.subscribe(MemoryLeakerOne)
+    SubscriptionManager.subscribe({InputLogger, [".*"]})
+    SubscriptionManager.subscribe({BadOne, [".*"]})
+    SubscriptionManager.subscribe({Calculator, [".*"]})
+    SubscriptionManager.subscribe({MemoryLeakerOne, [".*"]})
     listeners = SubscriptionManager.subscribers()
 
     logs =
