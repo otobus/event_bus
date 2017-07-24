@@ -3,7 +3,7 @@ defmodule EventBus.Mixfile do
 
   def project do
     [app: :event_bus,
-     version: "0.2.1",
+     version: "0.3.0",
      elixir: "~> 1.4",
      elixirc_paths: elixirc_paths(Mix.env),
      build_embedded: Mix.env == :prod,
@@ -50,7 +50,7 @@ defmodule EventBus.Mixfile do
 
   defp description do
     """
-    Simple event bus
+    Simple event bus with event store
     """
   end
 
