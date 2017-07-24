@@ -27,7 +27,7 @@ defmodule EventBus.EventWatcher do
   @doc false
   @spec create(tuple()) :: no_return()
   def create({processors, type, key}) do
-    GenServer.cast(__MODULE__, {:save, {type, key}, {processors, [], []}})
+    GenServer.call(__MODULE__, {:save, {type, key}, {processors, [], []}})
   end
 
   @doc false
@@ -52,6 +52,7 @@ defmodule EventBus.EventWatcher do
   end
 
   @doc false
+  @spec handle_cast({:register_event, String.t}, nil) :: no_return()
   def handle_cast({:register_event, name}, state) do
     table_name = table_name(name)
     Ets.new(table_name, [:set, :public, :named_table])
@@ -73,11 +74,12 @@ defmodule EventBus.EventWatcher do
       [processor | skippers]})
     {:noreply, state}
   end
+
   @doc false
-  @spec handle_cast({:save, tuple(), tuple()}, nil) :: no_return()
-  def handle_cast({:save, {type, key}, watcher}, state) do
+  @spec handle_call({:save, tuple(), tuple()}, any(), nil) :: no_return()
+  def handle_call({:save, {type, key}, watcher}, _from, state) do
     save_or_delete({type, key}, watcher)
-    {:noreply, state}
+    {:reply, :ok, state}
   end
 
   @spec complete?(tuple()) :: boolean()
