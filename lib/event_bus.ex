@@ -5,6 +5,8 @@ defmodule EventBus do
 
   alias EventBus.EventManager
   alias EventBus.SubscriptionManager
+  alias EventBus.EventStore
+  alias EventBus.EventWatcher
 
   @doc """
   Send event to all listeners.
@@ -55,4 +57,37 @@ defmodule EventBus do
   """
   @spec subscribers() :: list(any())
   defdelegate subscribers, to: SubscriptionManager, as: :subscribers
+
+  @doc """
+  Fetc event data
+
+  ## Examples
+
+      EventBus.fetch_event_data({:hello_received, "123"})
+
+  """
+  @spec fetch_event_data(tuple()) :: any()
+  defdelegate fetch_event_data(event_shadow), to: EventStore, as: :fetch
+
+  @doc """
+  Send the event processing completed to the watcher
+
+  ## Examples
+
+      EventBus.complete({MyEventListener, :hello_received, "123"})
+
+  """
+  @spec complete(tuple()) :: no_return()
+  defdelegate complete(event_with_listener), to: EventWatcher, as: :complete
+
+  @doc """
+  Send the event processing skipped to the watcher
+
+  ## Examples
+
+      EventBus.skip({MyEventListener, :unmatched_occurred, "124"})
+
+  """
+  @spec skip(tuple()) :: no_return()
+  defdelegate skip(event_with_listener), to: EventWatcher, as: :skip
 end

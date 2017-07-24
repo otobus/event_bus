@@ -85,6 +85,7 @@ defmodule MyEventListener do
     :ok
   end
 
+  ...
 
   def handle_cast({:hello_received, event_key}, state) do
     event_data = EventBus.fetch_event_data({:hello_received, event_key})
