@@ -59,7 +59,7 @@ defmodule EventBus do
   defdelegate subscribers, to: SubscriptionManager, as: :subscribers
 
   @doc """
-  Fetc event data
+  Fetch event data
 
   ## Examples
 
