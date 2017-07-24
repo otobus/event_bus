@@ -33,7 +33,7 @@ Subscribe to the 'event bus' with listener and list of given topics, EventManage
 EventBus.subscribe({MyEventListener, [".*"]})
 
 # to catch specific topics
-EventBus.subscribe({MyEventListener, ["purchase_", booking_confirmed$", "fligt_passed$"]})
+EventBus.subscribe({MyEventListener, ["purchase_", "booking_confirmed$", "flight_passed$"]})
 ```
 
 Unsubscribe from the 'event bus'
@@ -73,7 +73,7 @@ EventBus.mark_as_skipped({MyEventListener, :bye_received, event_key})
 defmodule MyEventListener do
   ...
 
-  def process({event_type, event_key}) do
+  def process({topic, key} = event_shadow) do
     GenServer.cast(__MODULE__, event_shadow)
     :ok
   end
@@ -82,11 +82,11 @@ defmodule MyEventListener do
 
 
   def handle_cast({:bye_received, event_key}, state) do
-    event_data = EventBus.fetch_event_data({:hello_received, event_key})
+    event_data = EventBus.fetch_event_data({:bye_received, event_key})
     # do sth with event_data
 
     # update the watcher!
-    EventWatcher.mark_as_completed({__MODULE__, :hello_received, event_key})
+    EventBus.mark_as_completed({__MODULE__, :bye_received, event_key})
     ...
     {:noreply, state}
   end
@@ -95,12 +95,12 @@ defmodule MyEventListener do
     # do sth with event_data
 
     # update the watcher!
-    EventWatcher.mark_as_completed({__MODULE__, :hello_received, event_key})
+    EventBus.mark_as_completed({__MODULE__, :hello_received, event_key})
     ...
     {:noreply, state}
   end
-  def handle_cast({_, _}, state) do
-    EventBus.mark_as_skipped({__MODULE__, event_type, event_key})
+  def handle_cast({topic, key}, state) do
+    EventBus.mark_as_skipped({__MODULE__, topic, key})
     {:noreply, state}
   end
 
