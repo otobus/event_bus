@@ -4,6 +4,8 @@
 
 Simple event bus implementation using ETS as an event store.
 
+![Event Bus](https://cdn-images-1.medium.com/max/1600/1*0fcfAiHvNeHCRYhp-a32YA.png)
+
 ## Installation
 
 The package can be installed by adding `event_bus` to your list of dependencies in `mix.exs`:
@@ -27,7 +29,7 @@ Register events on demand
 EventBus.register_event(:my_test_event_occured)
 ```
 
-Subscribe to the 'event bus' with listener and list of given topics, EventManager will match with Regex
+Subscribe to the 'event bus' with a listener and list of given topics, EventManager will match with Regex
 ```elixir
 # to catch every event topic
 EventBus.subscribe({MyEventListener, [".*"]})
@@ -48,8 +50,8 @@ EventBus.subscribers()
 
 Notify all subscribers with any type of data
 ```elixir
-EventBus.notify(:hello_received, %{message: "Hello"})
-EventBus.notify(:bye_received, [user_id: 1, goal: "exit"])
+EventBus.notify({:hello_received, %{message: "Hello"}})
+EventBus.notify({:bye_received, [user_id: 1, goal: "exit"]})
 ```
 
 Fetch event data
@@ -108,9 +110,10 @@ defmodule MyEventListener do
 end
 ```
 
-### Module Documentation
+### Documentation
 
 Module docs can be found at [https://hexdocs.pm/event_bus](https://hexdocs.pm/event_bus).
+Implementation detail can be found at: https://medium.com/@mustafaturan/event-bus-implementation-s-d2854a9fafd5
 
 ## Contributing
 
