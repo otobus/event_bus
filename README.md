@@ -125,9 +125,11 @@ end
 
 When an event configured in `config` file, 2 ETS tables will be created for the event on app start.
 
-All event data is temporarily saved to the ETS tables with the name `:eb_es_<<event_name>>` until all subscribers processed the data. This table is a read heavy table, when a subscriber need to process the event data, it queries this table to fetch event data.
+All event data is temporarily saved to the ETS tables with the name `:eb_es_<<event_name>>` until all subscribers processed the data. This table is a read heavy table. When a subscriber needs to process the event data, it queries this table to fetch event data.
 
-And a watcher table is created for the events with the name `:eb_ew_<<event_name>>` and these tables are used for keeping the trace of the status of events. EventWatcher is an active-writer actor for these table. When all subscribers process the event data, event data and watcher data automatically deleted by the EventWatcher. Usually, there is no read on this table but if you need to see status of events, it is one of the good places to query.
+To watch event status, a separate watcher table is created for each event type with the name `:eb_ew_<<event_name>>`. This table is used for keeping the status of the event. `EventWatcher` updates this table frequently with the notification of the event processors/subscribers.
+
+When all subscribers process the event data, data in the event store and watcher, automatically deleted by the `EventWatcher`. If you need to see the status of unprocessed events, event watcher table is one of the good places to query.
 
 For example; to get the list unprocessed events for `:hello_received` event:
 
@@ -161,7 +163,7 @@ defmodule MyDataStore do
     event_data = EventBus.fetch_event_data({topic, key})
     # write your logic to save event_data to a persistant store
 
-    EventBus.mark_as_comleted({__MODULE__, topic, key})
+    EventBus.mark_as_completed({__MODULE__, topic, key})
     {:noreply, state}
   end
 end
