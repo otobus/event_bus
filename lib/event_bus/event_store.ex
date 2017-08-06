@@ -44,7 +44,8 @@ defmodule EventBus.EventStore do
   @doc false
   def handle_cast({:register_event, name}, state) do
     table_name = table_name(name)
-    Ets.new(table_name, [:set, :public, :named_table])
+    opts = [:set, :public, :named_table, {:read_concurrency, true}]
+    Ets.new(table_name, opts)
     {:noreply, state}
   end
   @doc false

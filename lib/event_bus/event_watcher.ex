@@ -55,7 +55,8 @@ defmodule EventBus.EventWatcher do
   @spec handle_cast({:register_event, String.t}, nil) :: no_return()
   def handle_cast({:register_event, name}, state) do
     table_name = table_name(name)
-    Ets.new(table_name, [:set, :public, :named_table])
+    opts = [:set, :public, :named_table, {:write_concurrency, true}]
+    Ets.new(table_name, opts)
     {:noreply, state}
   end
   @doc false
