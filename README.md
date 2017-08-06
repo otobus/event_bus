@@ -18,7 +18,7 @@ end
 
 ## Usage
 
-Register events in `config.exs` (recommended way)
+Register events in `config.exs`
 In your config.exs you can register events
 ```elixir
 config :event_bus, events: [:message_received, :another_event_occured]
@@ -30,22 +30,33 @@ EventBus.register_event(:my_test_event_occured)
 ```
 
 Subscribe to the 'event bus' with a listener and list of given topics, EventManager will match with Regex
+
 ```elixir
 # to catch every event topic
 EventBus.subscribe({MyEventListener, [".*"]})
+> :ok
 
 # to catch specific topics
 EventBus.subscribe({MyEventListener, ["purchase_", "booking_confirmed$", "flight_passed$"]})
+> :ok
 ```
 
 Unsubscribe from the 'event bus'
 ```elixir
 EventBus.unsubscribe(MyEventListener)
+> :ok
 ```
 
 List subscribers
 ```elixir
 EventBus.subscribers()
+> [{MyEventListener, [".*"]}]
+```
+
+List subscribers of a specific event
+```elixir
+EventBus.subscribers(:hello_received)
+> [MyEventListener]
 ```
 
 Notify all subscribers with any type of data

@@ -6,7 +6,8 @@ defmodule EventBus.EventManagerTest do
     BadOne}
   doctest EventBus.EventManager
 
-  @event {:metrics_received, [1, 2]}
+  @event_type :metrics_received
+  @event {@event_type, [1, 2]}
 
   setup do
     Enum.each(SubscriptionManager.subscribers(), fn subscriber ->
@@ -16,11 +17,12 @@ defmodule EventBus.EventManagerTest do
   end
 
   test "notify" do
-    SubscriptionManager.subscribe({InputLogger, [".*"]})
+    SubscriptionManager.subscribe({InputLogger,
+      ["metrics_received$", "metrics_summed$"]})
     SubscriptionManager.subscribe({BadOne, [".*"]})
-    SubscriptionManager.subscribe({Calculator, [".*"]})
+    SubscriptionManager.subscribe({Calculator, ["metrics_received$"]})
     SubscriptionManager.subscribe({MemoryLeakerOne, [".*"]})
-    listeners = SubscriptionManager.subscribers()
+    listeners = SubscriptionManager.subscribers(@event_type)
 
     logs =
       capture_log(fn ->

@@ -25,10 +25,9 @@ defmodule EventBus.EventManager do
   def handle_cast({:notify, listeners, {topic, data} = _event}, state) do
     key = UUID.uuid1()
     :ok = EventStore.save({topic, key, data})
-    filtered_listeners = filter_listeners_by_topic(listeners, topic)
+    :ok = EventWatcher.create({listeners, topic, key})
 
-    EventWatcher.create({filtered_listeners, topic, key})
-    notify_listeners(filtered_listeners, {topic, key})
+    notify_listeners(listeners, {topic, key})
     {:noreply, state}
   end
 
@@ -48,30 +47,6 @@ defmodule EventBus.EventManager do
         Logger.log(@logging_level,
           fn -> "#{listener}.process/1 raised an error!\n#{inspect(err)}" end)
         EventWatcher.mark_as_skipped({listener, topic, key})
-    end
-  end
-
-  defp filter_listeners_by_topic(listener_tuples, topic) do
-    {_, new_listeners} =
-      Enum.map_reduce(listener_tuples, [], fn({listener, topics}, acc) ->
-        if subset?(topics, topic) do
-          {nil, [listener | acc]}
-        else
-          {nil, acc}
-        end
-      end)
-    new_listeners
-  end
-
-  defp subset?(topics, topic) do
-    topics_pattern =
-      topics
-      |> Enum.map(fn t -> "^(#{t})" end)
-      |> Enum.join("|")
-
-    case Regex.compile(topics_pattern) do
-      {:ok, pattern} -> Regex.match?(pattern, "#{topic}")
-      _ -> false
     end
   end
 end
