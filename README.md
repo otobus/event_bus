@@ -24,11 +24,6 @@ In your config.exs you can register events
 config :event_bus, events: [:message_received, :another_event_occured]
 ```
 
-Register events on demand
-```elixir
-EventBus.register_event(:my_test_event_occured)
-```
-
 Subscribe to the 'event bus' with a listener and list of given topics, EventManager will match with Regex
 
 ```elixir
