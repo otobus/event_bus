@@ -12,7 +12,7 @@ The package can be installed by adding `event_bus` to your list of dependencies 
 
 ```elixir
 def deps do
-  [{:event_bus, "~> 0.4.0"}]
+  [{:event_bus, "~> 0.4.1"}]
 end
 ```
 
