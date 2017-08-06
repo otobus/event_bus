@@ -29,6 +29,8 @@ defmodule EventBus.SubscriptionManager do
   def subscribers do
     GenServer.call(__MODULE__, {:subscribers})
   end
+
+  @doc false
   def subscribers(event_name) do
     GenServer.call(__MODULE__, {:subscribers, event_name})
   end
