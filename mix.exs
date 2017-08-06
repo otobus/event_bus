@@ -50,7 +50,7 @@ defmodule EventBus.Mixfile do
 
   defp description do
     """
-    Simple event bus with event store
+    Simple event bus with ETS as an event store
     """
   end
 

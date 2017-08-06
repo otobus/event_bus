@@ -2,6 +2,7 @@ defmodule EventBus.Application do
   @moduledoc false
 
   use Application
+  alias EventBus.Config
   alias EventBus.EventManager
   alias EventBus.EventStore
   alias EventBus.EventWatcher
@@ -24,10 +25,12 @@ defmodule EventBus.Application do
   end
 
   defp register_events do
-    events = Application.get_env(:event_bus, :events, [])
-    Enum.each(events, fn event_name ->
-      EventStore.register_event(event_name)
-      EventWatcher.register_event(event_name)
-    end)
+    events = Config.events()
+    Enum.each(events, fn event -> register_event(event) end)
+  end
+
+  defp register_event(event) do
+    EventStore.register_event(event)
+    EventWatcher.register_event(event)
   end
 end

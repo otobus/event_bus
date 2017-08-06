@@ -17,9 +17,9 @@ defmodule EventBus do
       :ok
 
   """
-  @spec notify({:atom, any()}) :: :ok
-  def notify({_event_type, _event_data} = event) do
-    EventManager.notify(subscribers(), event)
+  @spec notify({atom(), any()}) :: :ok
+  def notify({event_type, _event_data} = event) do
+    EventManager.notify(subscribers(event_type), event)
   end
 
   @doc """
@@ -58,6 +58,18 @@ defmodule EventBus do
   """
   @spec subscribers() :: list(any())
   defdelegate subscribers, to: SubscriptionManager, as: :subscribers
+
+  @doc """
+  List the subscribers to the bus with given event name.
+
+  ## Examples
+
+      EventBus.subscribers(:metrics_received)
+      [MyEventListener]
+
+  """
+  @spec subscribers(atom() | String.t) :: list(any())
+  defdelegate subscribers(event_name), to: SubscriptionManager, as: :subscribers
 
   @doc """
   Fetch event data
