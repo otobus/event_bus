@@ -20,17 +20,17 @@ defmodule EventBus.Application do
 
     opts = [strategy: :one_for_one, name: EventBus.Supervisor]
     link = Supervisor.start_link(children, opts)
-    register_events()
+    register_topics()
     link
   end
 
-  defp register_events do
-    events = Config.events()
-    Enum.each(events, fn event -> register_event(event) end)
+  defp register_topics do
+    topics = Config.topics()
+    Enum.each(topics, fn topic -> register_topic(topic) end)
   end
 
-  defp register_event(event) do
-    EventStore.register_event(event)
-    EventWatcher.register_event(event)
+  defp register_topic(topic) do
+    EventStore.register_topic(topic)
+    EventWatcher.register_topic(topic)
   end
 end

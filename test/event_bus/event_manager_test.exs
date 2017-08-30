@@ -1,13 +1,14 @@
 defmodule EventBus.EventManagerTest do
   use ExUnit.Case
   import ExUnit.CaptureLog
+  alias EventBus.Model.Event
   alias EventBus.{EventManager, SubscriptionManager}
   alias EventBus.Support.Helper.{InputLogger, Calculator, MemoryLeakerOne,
     BadOne}
   doctest EventBus.EventManager
 
-  @event_type :metrics_received
-  @event {@event_type, [1, 2]}
+  @topic :metrics_received
+  @event %Event{id: "E1", transaction_id: "T1", topic: @topic, data: [1, 2]}
 
   setup do
     Enum.each(SubscriptionManager.subscribers(), fn subscriber ->
@@ -22,7 +23,7 @@ defmodule EventBus.EventManagerTest do
     SubscriptionManager.subscribe({BadOne, [".*"]})
     SubscriptionManager.subscribe({Calculator, ["metrics_received$"]})
     SubscriptionManager.subscribe({MemoryLeakerOne, [".*"]})
-    listeners = SubscriptionManager.subscribers(@event_type)
+    listeners = SubscriptionManager.subscribers(@topic)
 
     logs =
       capture_log(fn ->
@@ -31,7 +32,7 @@ defmodule EventBus.EventManagerTest do
       end)
 
     assert String.contains?(logs, "BadOne.process/1 raised an error!")
-    assert String.contains?(logs, "Event log 'metrics_received' for [1, 2]")
-    assert String.contains?(logs, "Event log 'metrics_summed' for {3, [1, 2]")
+    assert String.contains?(logs, "Event log for %EventBus.Model.Event{data: [1, 2], id: \"E1\", topic: :metrics_received, transaction_id: \"T1\"}")
+    assert String.contains?(logs, "Event log for %EventBus.Model.Event{data: {3, [1, 2]}, id: \"E123\", topic: :metrics_summed, transaction_id: \"T1\"}")
   end
 end

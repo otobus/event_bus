@@ -41,8 +41,8 @@ defmodule EventBus.Mixfile do
   # Type "mix help deps" for more examples and options
   defp deps do
     [
-      {:uuid, "~> 1.1"},
-      {:dialyxir, "~> 0.5", only: [:dev], runtime: false},
+      {:credo, "~> 0.8.6", only: [:dev]},
+      {:dialyxir, "~> 0.5.1", only: [:dev], runtime: false},
       {:excoveralls, "~> 0.7", only: [:test]},
       {:ex_doc, "~> 0.16.2", only: [:dev]}
     ]

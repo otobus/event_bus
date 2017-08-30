@@ -31,8 +31,8 @@ defmodule EventBus.SubscriptionManager do
   end
 
   @doc false
-  def subscribers(event_name) do
-    GenServer.call(__MODULE__, {:subscribers, event_name})
+  def subscribers(topic) do
+    GenServer.call(__MODULE__, {:subscribers, topic})
   end
 
   @doc false
@@ -63,8 +63,8 @@ defmodule EventBus.SubscriptionManager do
   def handle_call({:subscribers}, _from, {listeners, _} = state) do
     {:reply, listeners, state}
   end
-  def handle_call({:subscribers, event_name}, _from, {_, event_map} = state) do
-    {:reply, event_map[event_name] || [], state}
+  def handle_call({:subscribers, topic}, _from, {_, event_map} = state) do
+    {:reply, event_map[topic] || [], state}
   end
 
   defp superset?(topics, topic) do
@@ -110,12 +110,12 @@ defmodule EventBus.SubscriptionManager do
   end
 
   defp load_state do
-    events = Config.events()
-    event_map =
-      events
-      |> Enum.map(fn event_name -> {event_name, []} end)
+    topics = Config.topics()
+    topic_map =
+      topics
+      |> Enum.map(fn topic -> {topic, []} end)
       |> Enum.into(%{})
 
-    Application.get_env(:event_bus, :subscriptions, {[], event_map})
+    Application.get_env(:event_bus, :subscriptions, {[], topic_map})
   end
 end

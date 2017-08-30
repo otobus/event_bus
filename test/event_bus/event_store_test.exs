@@ -1,5 +1,6 @@
 defmodule EventBus.EventStoreTest do
   use ExUnit.Case
+  alias EventBus.Model.Event
   alias EventBus.EventStore
   doctest EventBus.EventStore
 
@@ -7,58 +8,55 @@ defmodule EventBus.EventStoreTest do
     :ok
   end
 
-  test "register_event" do
-    name = :metrics_destroyed1
-    EventStore.register_event(name)
+  test "register_topic" do
+    topic = :metrics_received_1
+    EventStore.register_topic(topic)
     Process.sleep(100)
     all_tables = :ets.all()
 
-    assert Enum.any?(all_tables, fn t -> t == :"eb_es_#{name}" end)
+    assert Enum.any?(all_tables, fn t -> t == :"eb_es_#{topic}" end)
   end
 
   test "save" do
-    type = :metrics_destroyed2
-    EventStore.register_event(type)
+    topic = :metrics_received_2
+    EventStore.register_topic(topic)
     Process.sleep(100)
 
-    key = UUID.uuid1()
-    data = ["Mustafa", "Turan"]
+    event = %Event{id: "E1", transaction_id: "T1", data: ["Mustafa", "Turan"],
+      topic: topic}
 
-    assert :ok == EventStore.save({type, key, data})
+    assert :ok == EventStore.save(event)
   end
 
   test "fetch" do
-    type = :metrics_destroyed3
-    EventStore.register_event(type)
+    topic = :metrics_received_3
+    EventStore.register_topic(topic)
     Process.sleep(100)
 
-    key1 = UUID.uuid1()
-    data1 = ["Mustafa", "Turan"]
-    key2 = UUID.uuid1()
-    data2 = %{name: "Mustafa", surname: "Turan"}
+    first_event = %Event{id: "E1", transaction_id: "T1",
+      data: ["Mustafa", "Turan"], topic: topic}
+    second_event = %Event{id: "E2", transaction_id: "T1",
+      data: %{name: "Mustafa", surname: "Turan"}, topic: topic}
 
-    :ok = EventStore.save({type, key1, data1})
-    :ok = EventStore.save({type, key2, data2})
+    :ok = EventStore.save(first_event)
+    :ok = EventStore.save(second_event)
 
-    assert data1 == EventStore.fetch({type, key1})
-    assert data2 == EventStore.fetch({type, key2})
+    assert first_event == EventStore.fetch({topic, first_event.id})
+    assert second_event == EventStore.fetch({topic, second_event.id})
   end
 
   test "delete and fetch" do
-    type = :metrics_destroyed4
-    EventStore.register_event(type)
+    topic = :metrics_received_4
+    EventStore.register_topic(topic)
     Process.sleep(100)
 
-    key1 = UUID.uuid1()
-    data1 = ["Mustafa", "Turan"]
-    key2 = UUID.uuid1()
-    data2 = %{name: "Mustafa", surname: "Turan"}
+    event = %Event{id: "E1", transaction_id: "T1", data: ["Mustafa", "Turan"],
+      topic: topic}
 
-    :ok = EventStore.save({type, key1, data1})
-    :ok = EventStore.save({type, key2, data2})
-    EventStore.delete({type, key1})
+    :ok = EventStore.save(event)
+    EventStore.delete({topic, event.id})
     Process.sleep(100)
 
-    assert is_nil(EventStore.fetch({type, key1}))
+    assert is_nil(EventStore.fetch({topic, event.id}))
   end
 end
