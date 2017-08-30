@@ -4,8 +4,8 @@ defmodule EventBus.Config do
   """
 
   @doc """
-  Fetch list of registered events
+  Fetch list of registered event topics
   """
-  def events,
-    do: Application.get_env(:event_bus, :events, [])
+  def topics,
+    do: Application.get_env(:event_bus, :topics, [])
 end

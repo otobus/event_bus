@@ -9,61 +9,58 @@ defmodule EventBus.EventWatcherTest do
     :ok
   end
 
-  test "register_event" do
-    name = :metrics_destroyed
-    EventWatcher.register_event(name)
+  test "register_topic" do
+    topic = :metrics_destroyed
+    EventWatcher.register_topic(topic)
     Process.sleep(1_000)
     all_tables = :ets.all()
 
-    assert Enum.any?(all_tables, fn t -> t == :"eb_ew_#{name}" end)
+    assert Enum.any?(all_tables, fn t -> t == :"eb_ew_#{topic}" end)
   end
 
   test "create and fetch" do
-    name = :some_event_occurred1
-    EventWatcher.register_event(name)
+    topic = :some_event_occurred1
+    EventWatcher.register_topic(topic)
     Process.sleep(100)
 
     processors = [InputLogger, Calculator, MemoryLeakerOne, BadOne]
-    type = :some_event_occurred1
-    key = UUID.uuid1()
+    id = "E1"
 
-    EventWatcher.create({processors, type, key})
+    EventWatcher.create({processors, topic, id})
     Process.sleep(100)
 
-    assert {processors, [], []} == EventWatcher.fetch({type, key})
+    assert {processors, [], []} == EventWatcher.fetch({topic, id})
   end
 
   test "complete" do
-    name = :some_event_occurred2
-    EventWatcher.register_event(name)
+    topic = :some_event_occurred2
+    EventWatcher.register_topic(topic)
     Process.sleep(100)
 
     processors = [InputLogger, Calculator, MemoryLeakerOne, BadOne]
-    type = :some_event_occurred2
-    key = UUID.uuid1()
+    id = "E1"
 
-    EventWatcher.create({processors, type, key})
+    EventWatcher.create({processors, topic, id})
     Process.sleep(100)
-    EventWatcher.mark_as_completed({InputLogger, type, key})
+    EventWatcher.mark_as_completed({InputLogger, topic, id})
     Process.sleep(100)
 
-    assert {processors, [InputLogger], []} == EventWatcher.fetch({type, key})
+    assert {processors, [InputLogger], []} == EventWatcher.fetch({topic, id})
   end
 
   test "skip" do
-    name = :some_event_occurred3
-    EventWatcher.register_event(name)
+    topic = :some_event_occurred3
+    EventWatcher.register_topic(topic)
     Process.sleep(100)
 
     processors = [InputLogger, Calculator, MemoryLeakerOne, BadOne]
-    type = :some_event_occurred3
-    key = UUID.uuid1()
+    id = "E1"
 
-    EventWatcher.create({processors, type, key})
+    EventWatcher.create({processors, topic, id})
     Process.sleep(100)
-    EventWatcher.mark_as_skipped({InputLogger, type, key})
+    EventWatcher.mark_as_skipped({InputLogger, topic, id})
     Process.sleep(100)
 
-    assert {processors, [], [InputLogger]} == EventWatcher.fetch({type, key})
+    assert {processors, [], [InputLogger]} == EventWatcher.fetch({topic, id})
   end
 end

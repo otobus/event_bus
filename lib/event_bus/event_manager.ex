@@ -7,6 +7,7 @@ defmodule EventBus.EventManager do
   use GenServer
   alias EventBus.EventStore
   alias EventBus.EventWatcher
+  alias EventBus.Model.Event
 
   @logging_level :info
 
@@ -15,19 +16,20 @@ defmodule EventBus.EventManager do
     GenServer.start_link(__MODULE__, nil, name: __MODULE__)
   end
 
+  @spec notify(list(module()), Event.t) :: no_return()
   @doc false
-  def notify(listeners, {_event_type, _event_data} = event) do
+  def notify(listeners, event) do
     GenServer.cast(__MODULE__, {:notify, listeners, event})
   end
 
   @doc false
   @spec handle_cast(tuple(), nil) :: no_return()
-  def handle_cast({:notify, listeners, {topic, data} = _event}, state) do
-    key = UUID.uuid1()
-    :ok = EventStore.save({topic, key, data})
-    :ok = EventWatcher.create({listeners, topic, key})
+  def handle_cast({:notify, listeners, %Event{id: id, topic: topic} = event},
+    state) do
+    :ok = EventStore.save(event)
+    :ok = EventWatcher.create({listeners, topic, id})
 
-    notify_listeners(listeners, {topic, key})
+    notify_listeners(listeners, {topic, id})
     {:noreply, state}
   end
 
@@ -39,14 +41,12 @@ defmodule EventBus.EventManager do
   end
 
   @spec notify_listener(module(), tuple()) :: no_return()
-  defp notify_listener(listener, {topic, key}) do
-    try do
-      listener.process({topic, key})
-    rescue
-      err ->
-        Logger.log(@logging_level,
-          fn -> "#{listener}.process/1 raised an error!\n#{inspect(err)}" end)
-        EventWatcher.mark_as_skipped({listener, topic, key})
-    end
+  defp notify_listener(listener, {topic, id}) do
+    listener.process({topic, id})
+  rescue
+    err ->
+      Logger.log(@logging_level,
+        fn -> "#{listener}.process/1 raised an error!\n#{inspect(err)}" end)
+      EventWatcher.mark_as_skipped({listener, topic, id})
   end
 end

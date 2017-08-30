@@ -1,28 +1,32 @@
 defmodule EventBus.Support.Helper do
+  alias EventBus.Model.Event
 
   defmodule InputLogger do
     require Logger
 
-    def process({event_type, event_key}) do
-      inputs = EventBus.fetch_event_data({event_type, event_key})
-      Logger.info(fn -> "Event log '#{event_type}' for #{inspect(inputs)}" end)
-      EventBus.mark_as_completed({__MODULE__, event_type, event_key})
+    def process({topic, id}) do
+      event = EventBus.fetch_event({topic, id})
+      Logger.info(fn -> "Event log for #{inspect(event)}" end)
+      EventBus.mark_as_completed({__MODULE__, topic, id})
     end
   end
 
   defmodule Calculator do
     require Logger
 
-    def process({:metrics_received, event_key}) do
-      inputs = EventBus.fetch_event_data({:metrics_received, event_key})
+    def process({:metrics_received, id}) do
+      event = EventBus.fetch_event({:metrics_received, id})
+      inputs = event.data
       # handle an event
       sum = Enum.reduce(inputs, 0, &(&1 + &2))
       # create a new event if necessary
-      EventBus.notify({:metrics_summed, {sum, inputs}})
-      EventBus.mark_as_completed({__MODULE__, :metrics_received, event_key})
+      new_event = %Event{id: "E123", transaction_id: event.transaction_id,
+        topic: :metrics_summed, data: {sum, inputs}}
+      EventBus.notify(new_event)
+      EventBus.mark_as_completed({__MODULE__, :metrics_received, id})
     end
-    def process({event_type, event_key}) do
-      EventBus.mark_as_skipped({__MODULE__, event_type, event_key})
+    def process({topic, id}) do
+      EventBus.mark_as_skipped({__MODULE__, topic, id})
     end
   end
 
@@ -38,17 +42,17 @@ defmodule EventBus.Support.Helper do
       GenServer.start_link(__MODULE__, [], name: __MODULE__)
     end
 
-    def process({:metrics_summed, event_key}) do
-      GenServer.cast(__MODULE__, {:metrics_summed, event_key})
+    def process({:metrics_summed, id}) do
+      GenServer.cast(__MODULE__, {:metrics_summed, id})
     end
-    def process({event_type, event_key}) do
-      EventBus.mark_as_skipped({__MODULE__, event_type, event_key})
+    def process({topic, id}) do
+      EventBus.mark_as_skipped({__MODULE__, topic, id})
     end
 
-    def handle_cast({:metrics_summed, event_key}, state) do
-      inputs = EventBus.fetch_event_data({:metrics_summed, event_key})
-      new_state = [inputs | state]
-      EventBus.mark_as_completed({__MODULE__, :metrics_summed, inputs})
+    def handle_cast({:metrics_summed, id}, state) do
+      event = EventBus.fetch_event({:metrics_summed, id})
+      new_state = [event | state]
+      EventBus.mark_as_completed({__MODULE__, :metrics_summed, id})
       {:noreply, new_state}
     end
   end

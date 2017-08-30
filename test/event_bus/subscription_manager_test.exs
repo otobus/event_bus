@@ -58,9 +58,10 @@ defmodule EventBus.SubscriptionManagerTest do
   end
 
   test "state persistency to Application environment" do
-    SubscriptionManager.subscribe({InputLogger, [".*"]})
+    SubscriptionManager.subscribe({InputLogger, ["metrics_received",
+      "metrics_summed"]})
     Process.sleep(1_000)
-    expected = {[{InputLogger, [".*"]}],
+    expected = {[{InputLogger, ["metrics_received", "metrics_summed"]}],
       %{metrics_received: [InputLogger], metrics_summed: [InputLogger]}}
 
     assert expected == Application.get_env(:event_bus, :subscriptions)

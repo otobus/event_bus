@@ -7,19 +7,22 @@ defmodule EventBus do
   alias EventBus.SubscriptionManager
   alias EventBus.EventStore
   alias EventBus.EventWatcher
+  alias EventBus.Model.Event
 
   @doc """
   Send event to all listeners.
 
   ## Examples
 
-      EventBus.notify({:webhook_received, %{"message" => "Hi all!"}})
+      event = %Event{id: 1, type: :webhook_received,
+        data: %{"message" => "Hi all!"}}
+      EventBus.notify(event)
       :ok
 
   """
-  @spec notify({atom(), any()}) :: :ok
-  def notify({event_type, _event_data} = event) do
-    EventManager.notify(subscribers(event_type), event)
+  @spec notify(Event.t) :: :ok
+  def notify(%Event{topic: topic} = event) do
+    EventManager.notify(subscribers(topic), event)
   end
 
   @doc """
@@ -76,11 +79,11 @@ defmodule EventBus do
 
   ## Examples
 
-      EventBus.fetch_event_data({:hello_received, "123"})
+      EventBus.fetch_event({:hello_received, "123"})
 
   """
-  @spec fetch_event_data(tuple()) :: any()
-  defdelegate fetch_event_data(event_shadow), to: EventStore, as: :fetch
+  @spec fetch_event(tuple()) :: Event.t
+  defdelegate fetch_event(event_shadow), to: EventStore, as: :fetch
 
   @doc """
   Send the event processing completed to the watcher

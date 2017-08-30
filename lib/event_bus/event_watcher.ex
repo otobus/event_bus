@@ -19,41 +19,41 @@ defmodule EventBus.EventWatcher do
   end
 
   @doc false
-  @spec register_event(String.t) :: no_return()
-  def register_event(name) do
-    GenServer.cast(__MODULE__, {:register_event, name})
+  @spec register_topic(String.t) :: no_return()
+  def register_topic(topic) do
+    GenServer.cast(__MODULE__, {:register_topic, topic})
   end
 
   @doc false
   @spec create(tuple()) :: no_return()
-  def create({processors, type, key}) do
-    GenServer.call(__MODULE__, {:save, {type, key}, {processors, [], []}})
+  def create({processors, topic, id}) do
+    GenServer.call(__MODULE__, {:save, {topic, id}, {processors, [], []}})
   end
 
   @doc false
   @spec mark_as_completed(tuple()) :: no_return()
-  def mark_as_completed({processor, type, key}) do
-    GenServer.cast(__MODULE__, {:mark_as_completed, {processor, type, key}})
+  def mark_as_completed({processor, topic, id}) do
+    GenServer.cast(__MODULE__, {:mark_as_completed, {processor, topic, id}})
   end
 
   @doc false
   @spec mark_as_skipped(tuple()) :: no_return()
-  def mark_as_skipped({processor, type, key}) do
-    GenServer.cast(__MODULE__, {:mark_as_skipped, {processor, type, key}})
+  def mark_as_skipped({processor, topic, id}) do
+    GenServer.cast(__MODULE__, {:mark_as_skipped, {processor, topic, id}})
   end
 
   @doc false
   @spec fetch(tuple()) :: any()
-  def fetch({type, key}) do
-    case Ets.lookup(table_name(type), key) do
+  def fetch({topic, id}) do
+    case Ets.lookup(table_name(topic), id) do
       [{_, data}] -> data
       _ -> nil
     end
   end
 
   @doc false
-  @spec handle_cast({:register_event, String.t}, nil) :: no_return()
-  def handle_cast({:register_event, name}, state) do
+  @spec handle_cast({:register_topic, String.t}, nil) :: no_return()
+  def handle_cast({:register_topic, name}, state) do
     table_name = table_name(name)
     opts = [:set, :public, :named_table, {:write_concurrency, true},
       {:read_concurrency, true}]
@@ -62,25 +62,25 @@ defmodule EventBus.EventWatcher do
   end
   @doc false
   @spec handle_cast({:mark_as_completed, tuple()}, nil) :: no_return()
-  def handle_cast({:mark_as_completed, {processor, type, key}}, state) do
-    {processors, completers, skippers} = fetch({type, key})
-    save_or_delete({type, key}, {processors, [processor | completers],
+  def handle_cast({:mark_as_completed, {processor, topic, id}}, state) do
+    {processors, completers, skippers} = fetch({topic, id})
+    save_or_delete({topic, id}, {processors, [processor | completers],
       skippers})
     {:noreply, state}
   end
   @doc false
   @spec handle_cast({:mark_as_skipped, tuple()}, nil) :: no_return()
-  def handle_cast({:mark_as_skipped, {processor, type, key}}, state) do
-    {processors, completers, skippers} = fetch({type, key})
-    save_or_delete({type, key}, {processors, completers,
+  def handle_cast({:mark_as_skipped, {processor, topic, id}}, state) do
+    {processors, completers, skippers} = fetch({topic, id})
+    save_or_delete({topic, id}, {processors, completers,
       [processor | skippers]})
     {:noreply, state}
   end
 
   @doc false
   @spec handle_call({:save, tuple(), tuple()}, any(), nil) :: no_return()
-  def handle_call({:save, {type, key}, watcher}, _from, state) do
-    save_or_delete({type, key}, watcher)
+  def handle_call({:save, {topic, id}, watcher}, _from, state) do
+    save_or_delete({topic, id}, watcher)
     {:reply, :ok, state}
   end
 
@@ -90,18 +90,18 @@ defmodule EventBus.EventWatcher do
   end
 
   @spec save_or_delete(tuple(), tuple()) :: no_return()
-  defp save_or_delete({type, key}, watcher) do
+  defp save_or_delete({topic, id}, watcher) do
     if complete?(watcher) do
-      delete_with_relations({type, key})
+      delete_with_relations({topic, id})
     else
-      Ets.insert(table_name(type), {key, watcher})
+      Ets.insert(table_name(topic), {id, watcher})
     end
   end
 
   @spec delete_with_relations(tuple()) :: no_return()
-  defp delete_with_relations({type, key}) do
-    EventStore.delete({type, key})
-    Ets.delete(table_name(type), key)
+  defp delete_with_relations({topic, id}) do
+    EventStore.delete({topic, id})
+    Ets.delete(table_name(topic), id)
   end
 
   @spec table_name(String.t) :: atom()

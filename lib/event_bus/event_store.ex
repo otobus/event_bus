@@ -5,6 +5,7 @@ defmodule EventBus.EventStore do
 
   require Logger
   use GenServer
+  alias EventBus.Model.Event
   alias :ets, as: Ets
 
   @prefix "eb_es_"
@@ -15,52 +16,52 @@ defmodule EventBus.EventStore do
   end
 
   @doc false
-  @spec register_event(String.t) :: no_return()
-  def register_event(name) do
-    GenServer.cast(__MODULE__, {:register_event, name})
+  @spec register_topic(String.t) :: no_return()
+  def register_topic(topic) do
+    GenServer.cast(__MODULE__, {:register_topic, topic})
   end
 
   @doc false
   @spec fetch({atom(), String.t}) :: any()
-  def fetch({type, key}) do
-    case Ets.lookup(table_name(type), key) do
-      [{_, data}] -> data
+  def fetch({topic, id}) do
+    case Ets.lookup(table_name(topic), id) do
+      [{_, %Event{} = event}] -> event
       _ -> nil
     end
   end
 
   @doc false
   @spec delete({atom(), String.t}) :: no_return()
-  def delete({type, key}) do
-    GenServer.cast(__MODULE__, {:delete, {type, key}})
+  def delete({topic, id}) do
+    GenServer.cast(__MODULE__, {:delete, {topic, id}})
   end
 
   @doc false
-  @spec save({atom(), String.t, any()}) :: :ok
-  def save({type, key, data}) do
-    GenServer.call(__MODULE__, {:save, {type, key, data}})
+  @spec save(Event.t) :: :ok
+  def save(%Event{} = event) do
+    GenServer.call(__MODULE__, {:save, event})
   end
 
   @doc false
-  def handle_cast({:register_event, name}, state) do
-    table_name = table_name(name)
+  def handle_cast({:register_topic, topic}, state) do
+    table_name = table_name(topic)
     opts = [:set, :public, :named_table, {:read_concurrency, true}]
     Ets.new(table_name, opts)
     {:noreply, state}
   end
   @doc false
-  def handle_cast({:delete, {type, key}}, state) do
-    Ets.delete(table_name(type), key)
+  def handle_cast({:delete, {topic, id}}, state) do
+    Ets.delete(table_name(topic), id)
     {:noreply, state}
   end
 
   @doc false
-  def handle_call({:save, {type, key, data}}, _from, state) do
-    Ets.insert(table_name(type), {key, data})
+  def handle_call({:save, %Event{id: id, topic: topic} = event}, _from, state) do
+    Ets.insert(table_name(topic), {id, event})
     {:reply, :ok, state}
   end
 
-  defp table_name(type) do
-    :"#{@prefix}#{type}"
+  defp table_name(topic) do
+    :"#{@prefix}#{topic}"
   end
 end
