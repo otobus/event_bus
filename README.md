@@ -18,12 +18,12 @@ end
 
 ## Usage
 
-Register event topics in `config.exs`
+**Register event topics in `config.exs`**
 ```elixir
 config :event_bus, topics: [:message_received, :another_event_occured]
 ```
 
-Subscribe to the 'event bus' with a listener and list of given topics, EventManager will match with Regex
+**Subscribe to the 'event bus'** with a listener and list of given topics, `EventManager` will match with Regex
 
 ```elixir
 # to catch every event topic
@@ -35,19 +35,19 @@ EventBus.subscribe({MyEventListener, ["purchase_", "booking_confirmed$", "flight
 > :ok
 ```
 
-Unsubscribe from the 'event bus'
+**Unsubscribe from the 'event bus'**
 ```elixir
 EventBus.unsubscribe(MyEventListener)
 > :ok
 ```
 
-List subscribers
+**List subscribers**
 ```elixir
 EventBus.subscribers()
 > [{MyEventListener, [".*"]}]
 ```
 
-List subscribers of a specific event
+**List subscribers of a specific event**
 ```elixir
 EventBus.subscribers(:hello_received)
 > [MyEventListener]
@@ -79,7 +79,7 @@ Optional, but might to have field for all events to invalidate an event after a 
 
 Note: If you set this field, then `occurred_at` field is required.
 
-Define an event struct
+**Define an event struct**
 ```elixir
 alias EventBus.Model.Event
 event = %Event{id: "123", transaction_id: "1",
@@ -89,7 +89,7 @@ another_event = %Event{id: "124", transaction_id: "1",
 ```
 **Important Note:** It is important to have unique identifier for each event struct per topic. I recommend to use a unique id generator like `{:uuid, "~> 1.1"}`.
 
-Notify all subscribers with `EventBus.Model.Event` data
+**Notify all subscribers with `EventBus.Model.Event` data**
 ```elixir
 EventBus.notify(event)
 > :ok
@@ -97,7 +97,7 @@ EventBus.notify(another_event)
 > :ok
 ```
 
-Fetch an event from the store
+**Fetch an event from the store**
 ```elixir
 topic = :bye_received
 id = "124"
@@ -105,13 +105,13 @@ EventBus.fetch_event({topic, id})
 > %EventBus.Model.Event{data: [user_id: 1, goal: "exit"], id: "124", topic: :bye_received, transaction_id: "1"}
 ```
 
-Mark as completed on Event Watcher
+**Mark as completed on Event Watcher**
 ```elixir
 EventBus.mark_as_completed({MyEventListener, :bye_received, id})
 > :ok
 ```
 
-Mark as skipped on Event Watcher
+**Mark as skipped on Event Watcher**
 ```elixir
 EventBus.mark_as_skipped({MyEventListener, :bye_received, id})
 > :ok
