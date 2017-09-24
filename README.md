@@ -12,7 +12,7 @@ The package can be installed by adding `event_bus` to your list of dependencies 
 
 ```elixir
 def deps do
-  [{:event_bus, "~> 0.6.0"}]
+  [{:event_bus, "~> 0.6.1"}]
 end
 ```
 
@@ -115,6 +115,12 @@ EventBus.mark_as_completed({MyEventListener, :bye_received, id})
 ```elixir
 EventBus.mark_as_skipped({MyEventListener, :bye_received, id})
 > :ok
+```
+
+**Check if a topic exists?**
+```elixir
+EventBus.topic_exist?(:metrics_updated)
+> false
 ```
 
 ### Sample Listener Implementation
