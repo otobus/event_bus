@@ -36,4 +36,12 @@ defmodule EventBusrTest do
       " {8, [1, 7]}, id: \"E123\", occurred_at: nil, topic: :metrics_summed," <>
       " transaction_id: \"T1\", ttl: nil}")
   end
+
+  test "topic_exist? with an existent topic" do
+    assert EventBus.topic_exist? :metrics_received
+  end
+
+  test "topic_exist? with a non-existent topic" do
+    refute EventBus.topic_exist? :unknown_called
+  end
 end
