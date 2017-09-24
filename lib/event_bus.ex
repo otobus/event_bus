@@ -26,6 +26,21 @@ defmodule EventBus do
   end
 
   @doc """
+  Check if topic registered.
+
+  ## Examples
+
+      EventBus.topic_exist?(:demo_topic)
+      true
+
+  """
+  @spec topic_exist?(String.t) :: boolean()
+  def topic_exist?(topic) do
+    event_topics = Application.get_env(:event_bus, :topics, [])
+    Enum.any?(event_topics, fn event_topic -> event_topic == topic end)
+  end
+
+  @doc """
   Subscribe to the bus.
 
   ## Examples
