@@ -2,16 +2,17 @@ defmodule EventBus.Application do
   @moduledoc false
 
   use Application
-  alias EventBus.Config
   alias EventBus.EventManager
   alias EventBus.EventStore
   alias EventBus.EventWatcher
   alias EventBus.SubscriptionManager
+  alias EventBus.TopicManager
 
   def start(_type, _args) do
     import Supervisor.Spec, warn: false
 
     children = [
+      worker(TopicManager, [], id: make_ref(), restart: :permanent),
       worker(SubscriptionManager, [], id: make_ref(), restart: :permanent),
       worker(EventManager, [], id: make_ref(), restart: :permanent),
       worker(EventStore, [], id: make_ref(), restart: :permanent),
@@ -20,17 +21,7 @@ defmodule EventBus.Application do
 
     opts = [strategy: :one_for_one, name: EventBus.Supervisor]
     link = Supervisor.start_link(children, opts)
-    register_topics()
+    TopicManager.register_from_config()
     link
-  end
-
-  defp register_topics do
-    topics = Config.topics()
-    Enum.each(topics, fn topic -> register_topic(topic) end)
-  end
-
-  defp register_topic(topic) do
-    EventStore.register_topic(topic)
-    EventWatcher.register_topic(topic)
   end
 end

@@ -3,6 +3,8 @@ defmodule EventBus.Model.Event do
   Structure and type for Event model
   """
 
+  alias __MODULE__
+
   @enforce_keys [:id, :topic, :data]
 
   defstruct [
@@ -47,4 +49,44 @@ defmodule EventBus.Model.Event do
   end
   def duration(_),
     do: 0
+
+  @doc """
+  Dynamic event builder block with auto initialized_at and occurred_at fields
+  """
+  defmacro build(id, topic, transaction_id \\ nil, ttl \\ nil, do: yield) do
+    quote do
+      initialized_at = System.os_time(:milli_seconds)
+      data = unquote(yield)
+      %Event{
+        id: unquote(id),
+        topic: unquote(topic),
+        transaction_id: unquote(transaction_id),
+        data: data,
+        initialized_at: initialized_at,
+        occurred_at: System.os_time(:milli_seconds),
+        ttl: unquote(ttl)
+      }
+    end
+  end
+
+  @doc """
+  Dynamic event notifier block with auto initialized_at and occurred_at fields
+  """
+  defmacro notify(id, topic, transaction_id \\ nil, ttl \\ nil, do: yield) do
+    quote do
+      initialized_at = System.os_time(:milli_seconds)
+      data = unquote(yield)
+      event = %Event{
+        id: unquote(id),
+        topic: unquote(topic),
+        transaction_id: unquote(transaction_id),
+        data: data,
+        initialized_at: initialized_at,
+        occurred_at: System.os_time(:milli_seconds),
+        ttl: unquote(ttl)
+      }
+      EventBus.notify(event)
+      data
+    end
+  end
 end

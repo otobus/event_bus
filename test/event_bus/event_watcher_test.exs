@@ -1,5 +1,5 @@
 defmodule EventBus.EventWatcherTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: false
   alias EventBus.EventWatcher
   alias EventBus.Support.Helper.{InputLogger, Calculator, MemoryLeakerOne,
     BadOne}
@@ -16,6 +16,16 @@ defmodule EventBus.EventWatcherTest do
     all_tables = :ets.all()
 
     assert Enum.any?(all_tables, fn t -> t == :"eb_ew_#{topic}" end)
+  end
+
+  test "unregister_topic" do
+    topic = :metrics_destroyed
+    EventWatcher.register_topic(topic)
+    EventWatcher.unregister_topic(topic)
+    Process.sleep(1_000)
+    all_tables = :ets.all()
+
+    refute Enum.any?(all_tables, fn t -> t == :"eb_ew_#{topic}" end)
   end
 
   test "create and fetch" do

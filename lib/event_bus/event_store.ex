@@ -16,9 +16,15 @@ defmodule EventBus.EventStore do
   end
 
   @doc false
-  @spec register_topic(String.t) :: no_return()
+  @spec register_topic(String.t | atom()) :: no_return()
   def register_topic(topic) do
     GenServer.cast(__MODULE__, {:register_topic, topic})
+  end
+
+  @doc false
+  @spec unregister_topic(String.t | atom()) :: no_return()
+  def unregister_topic(topic) do
+    GenServer.cast(__MODULE__, {:unregister_topic, topic})
   end
 
   @doc false
@@ -43,10 +49,23 @@ defmodule EventBus.EventStore do
   end
 
   @doc false
+  @spec handle_cast({:register_topic, String.t | atom()}, nil) :: no_return()
   def handle_cast({:register_topic, topic}, state) do
     table_name = table_name(topic)
-    opts = [:set, :public, :named_table, {:read_concurrency, true}]
-    Ets.new(table_name, opts)
+    all_tables = :ets.all()
+    unless Enum.any?(all_tables, fn table -> table == table_name end) do
+      opts = [:set, :public, :named_table, {:read_concurrency, true}]
+      Ets.new(table_name, opts)
+    end
+    {:noreply, state}
+  end
+  @spec handle_cast({:unregister_topic, String.t | atom()}, nil) :: no_return()
+  def handle_cast({:unregister_topic, topic}, state) do
+    table_name = table_name(topic)
+    all_tables = :ets.all()
+    if Enum.any?(all_tables, fn table -> table == table_name end) do
+      Ets.delete(table_name)
+    end
     {:noreply, state}
   end
   @doc false

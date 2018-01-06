@@ -1,10 +1,14 @@
 defmodule EventBus.SubscriptionManagerTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: false
   alias EventBus.Support.Helper.{InputLogger, Calculator, MemoryLeakerOne}
   alias EventBus.SubscriptionManager
   doctest EventBus.SubscriptionManager
 
   setup do
+    on_exit fn ->
+      SubscriptionManager.unregister_topic(:auto_subscribed)
+    end
+
     subscribers = SubscriptionManager.subscribers()
     Enum.each(subscribers, fn {subscriber, _topics} ->
       SubscriptionManager.unsubscribe(subscriber)
@@ -16,7 +20,7 @@ defmodule EventBus.SubscriptionManagerTest do
     SubscriptionManager.subscribe({InputLogger, [".*"]})
     SubscriptionManager.subscribe({Calculator, [".*"]})
     SubscriptionManager.subscribe({MemoryLeakerOne, [".*"]})
-    Process.sleep(1_000)
+    Process.sleep(300)
 
     assert [{MemoryLeakerOne, [".*"]}, {Calculator, [".*"]},
       {InputLogger, [".*"]}] == SubscriptionManager.subscribers()
@@ -26,7 +30,7 @@ defmodule EventBus.SubscriptionManagerTest do
     SubscriptionManager.subscribe({InputLogger, [".*"]})
     SubscriptionManager.subscribe({InputLogger, [".*"]})
     SubscriptionManager.subscribe({InputLogger, [".*"]})
-    Process.sleep(1_000)
+    Process.sleep(300)
 
     assert [{InputLogger, [".*"]}] == SubscriptionManager.subscribers()
   end
@@ -36,22 +40,50 @@ defmodule EventBus.SubscriptionManagerTest do
     SubscriptionManager.subscribe({Calculator, [".*"]})
     SubscriptionManager.subscribe({MemoryLeakerOne, [".*"]})
     SubscriptionManager.unsubscribe(Calculator)
-    Process.sleep(1_000)
+    Process.sleep(300)
 
     assert [{MemoryLeakerOne, [".*"]}, {InputLogger, [".*"]}] ==
       SubscriptionManager.subscribers()
   end
 
+  test "register_topic auto subscribe workers" do
+    topic = :auto_subscribed
+
+    SubscriptionManager.subscribe({InputLogger, [".*"]})
+    SubscriptionManager.subscribe({Calculator, [".*"]})
+    SubscriptionManager.subscribe({MemoryLeakerOne, ["other_received$"]})
+
+    SubscriptionManager.register_topic(topic)
+
+    Process.sleep(300)
+
+    assert [InputLogger, Calculator] == SubscriptionManager.subscribers(topic)
+  end
+
+  test "unregister_topic delete subscribers" do
+    topic = :auto_subscribed
+
+    SubscriptionManager.subscribe({InputLogger, [".*"]})
+    SubscriptionManager.subscribe({Calculator, [".*"]})
+    SubscriptionManager.subscribe({MemoryLeakerOne, ["other_received$"]})
+
+    SubscriptionManager.register_topic(topic)
+    SubscriptionManager.unregister_topic(topic)
+    Process.sleep(300)
+
+    assert [] == SubscriptionManager.subscribers(topic)
+  end
+
   test "subscribers" do
     SubscriptionManager.subscribe({InputLogger, [".*"]})
-    Process.sleep(1_000)
+    Process.sleep(300)
 
     assert [{InputLogger, [".*"]}] == SubscriptionManager.subscribers()
   end
 
   test "subscribers with event type" do
     SubscriptionManager.subscribe({InputLogger, [".*"]})
-    Process.sleep(1_000)
+    Process.sleep(300)
 
     assert [InputLogger] == SubscriptionManager.subscribers(:metrics_received)
     assert [InputLogger] == SubscriptionManager.subscribers(:metrics_summed)
@@ -60,7 +92,7 @@ defmodule EventBus.SubscriptionManagerTest do
   test "state persistency to Application environment" do
     SubscriptionManager.subscribe({InputLogger, ["metrics_received",
       "metrics_summed"]})
-    Process.sleep(1_000)
+    Process.sleep(300)
     expected = {[{InputLogger, ["metrics_received", "metrics_summed"]}],
       %{metrics_received: [InputLogger], metrics_summed: [InputLogger]}}
 

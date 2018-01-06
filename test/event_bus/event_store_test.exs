@@ -1,7 +1,8 @@
 defmodule EventBus.EventStoreTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: false
   alias EventBus.Model.Event
   alias EventBus.EventStore
+
   doctest EventBus.EventStore
 
   setup do
@@ -15,6 +16,15 @@ defmodule EventBus.EventStoreTest do
     all_tables = :ets.all()
 
     assert Enum.any?(all_tables, fn t -> t == :"eb_es_#{topic}" end)
+  end
+
+  test "unregister_topic" do
+    topic = :metrics_received_1
+    EventStore.unregister_topic(topic)
+    Process.sleep(100)
+    all_tables = :ets.all()
+
+    refute Enum.any?(all_tables, fn t -> t == :"eb_es_#{topic}" end)
   end
 
   test "save" do

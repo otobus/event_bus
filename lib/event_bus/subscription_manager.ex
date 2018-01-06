@@ -26,6 +26,16 @@ defmodule EventBus.SubscriptionManager do
   end
 
   @doc false
+  def register_topic(topic) do
+    GenServer.cast(__MODULE__, {:register_topic, topic})
+  end
+
+  @doc false
+  def unregister_topic(topic) do
+    GenServer.cast(__MODULE__, {:unregister_topic, topic})
+  end
+
+  @doc false
   def subscribers do
     GenServer.call(__MODULE__, {:subscribers})
   end
@@ -57,6 +67,21 @@ defmodule EventBus.SubscriptionManager do
 
     save_state({listeners, event_map})
     {:noreply, {listeners, event_map}}
+  end
+
+  @doc false
+  def handle_cast({:register_topic, topic}, {listeners, event_map}) do
+    topic_subscribers =
+      Enum.reduce(listeners, [], fn({listener, topics}, acc) ->
+        if superset?(topics, topic), do: [listener | acc], else: acc
+      end)
+
+    {:noreply, {listeners, Map.put(event_map, topic, topic_subscribers)}}
+  end
+
+  @doc false
+  def handle_cast({:unregister_topic, topic}, {listeners, event_map}) do
+    {:noreply, {listeners, Map.drop(event_map, [topic])}}
   end
 
   @doc false
@@ -106,7 +131,7 @@ defmodule EventBus.SubscriptionManager do
   end
 
   defp save_state(state) do
-    Application.put_env(:event_bus, :subscriptions, state)
+    Application.put_env(:event_bus, :subscriptions, state, persistent: true)
   end
 
   defp load_state do

@@ -1,5 +1,5 @@
 defmodule EventBusrTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: false
   import ExUnit.CaptureLog
   alias EventBus.Model.Event
   alias EventBus.Support.Helper.{InputLogger, Calculator, MemoryLeakerOne,

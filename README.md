@@ -23,6 +23,18 @@ end
 config :event_bus, topics: [:message_received, :another_event_occured]
 ```
 
+**You can also register/unregister event topics on demand**
+```elixir
+# register
+EventBus.register_topic(:webhook_received)
+> :ok
+
+# unregister topic
+# Warning: It also deletes the related topic tables!
+EventBus.unregister_topic(:webhook_received)
+> :ok
+```
+
 **Subscribe to the 'event bus'** with a listener and list of given topics, `EventManager` will match with Regex
 
 ```elixir
@@ -126,6 +138,50 @@ EventBus.mark_as_skipped({MyEventListener, :bye_received, id})
 ```elixir
 EventBus.topic_exist?(:metrics_updated)
 > false
+```
+
+**Use block builder to build Event struct**
+Builder automatically sets initialized_at and occured_at attributes
+```elixir
+require EventBus.Model.Event
+alias EventBus.Model.Event
+
+id = "some unique id"
+topic = :user_created
+transaction_id = "tx"
+ttl = 600_000
+
+Event.build(id, topic, transaction_id, ttl) do
+  # do some calc in here
+  # as a result return only the event data
+  %{email: "jd@example.com", name: "John Doe"}
+end
+> %EventBus.Model.Event{data: %{email: "jd@example.com", name: "John Doe"},
+ id: "some unique id", initialized_at: 1515235365129,
+ occurred_at: 1515235365129, topic: :user_created, transaction_id: "tx",
+ ttl: 600000}
+```
+
+**Use block notifier to notify event data to given topic**
+Builder automatically sets initialized_at and occured_at attributes
+```elixir
+require EventBus.Model.Event
+alias EventBus.Model.Event
+
+id = "some unique id"
+topic = :user_created
+transaction_id = "tx" # optional
+ttl = 600_000 # optional
+
+EventBus.register_topic(topic) # incase you didn't register it in `config.exs`
+
+Event.notify(id, topic, transaction_id, ttl) do
+  # do some calc in here
+  # as a result return only the event data
+  %{email: "mrsjd@example.com", name: "Mrs Jane Doe"}
+end
+> # it automatically calls notify method with event data and return only event data as response
+> %{email: "mrsjd@example.com", name: "Mrs Jane Doe"}
 ```
 
 ### Sample Listener Implementation

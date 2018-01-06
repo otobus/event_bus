@@ -1,5 +1,5 @@
 defmodule EventBus.EventManagerTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: false
   import ExUnit.CaptureLog
   alias EventBus.Model.Event
   alias EventBus.{EventManager, SubscriptionManager}
@@ -11,6 +11,7 @@ defmodule EventBus.EventManagerTest do
   @event %Event{id: "E1", transaction_id: "T1", topic: @topic, data: [1, 2]}
 
   setup do
+    Process.sleep(100)
     Enum.each(SubscriptionManager.subscribers(), fn subscriber ->
       SubscriptionManager.unsubscribe(subscriber)
     end)
@@ -28,7 +29,7 @@ defmodule EventBus.EventManagerTest do
     logs =
       capture_log(fn ->
        EventManager.notify(listeners, @event)
-       Process.sleep(1_000)
+       Process.sleep(300)
       end)
 
     assert String.contains?(logs, "BadOne.process/1 raised an error!")

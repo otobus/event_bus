@@ -25,6 +25,12 @@ defmodule EventBus.EventWatcher do
   end
 
   @doc false
+  @spec unregister_topic(String.t | atom()) :: no_return()
+  def unregister_topic(topic) do
+    GenServer.cast(__MODULE__, {:unregister_topic, topic})
+  end
+
+  @doc false
   @spec create(tuple()) :: no_return()
   def create({processors, topic, id}) do
     GenServer.call(__MODULE__, {:save, {topic, id}, {processors, [], []}})
@@ -52,12 +58,24 @@ defmodule EventBus.EventWatcher do
   end
 
   @doc false
-  @spec handle_cast({:register_topic, String.t}, nil) :: no_return()
-  def handle_cast({:register_topic, name}, state) do
-    table_name = table_name(name)
-    opts = [:set, :public, :named_table, {:write_concurrency, true},
-      {:read_concurrency, true}]
-    Ets.new(table_name, opts)
+  @spec handle_cast({:register_topic, String.t | atom()}, nil) :: no_return()
+  def handle_cast({:register_topic, topic}, state) do
+    table_name = table_name(topic)
+    all_tables = :ets.all()
+    unless Enum.any?(all_tables, fn table -> table == table_name end) do
+      opts = [:set, :public, :named_table, {:write_concurrency, true},
+        {:read_concurrency, true}]
+      Ets.new(table_name, opts)
+    end
+    {:noreply, state}
+  end
+  @spec handle_cast({:unregister_topic, String.t | atom()}, nil) :: no_return()
+  def handle_cast({:unregister_topic, topic}, state) do
+    table_name = table_name(topic)
+    all_tables = :ets.all()
+    if Enum.any?(all_tables, fn table -> table == table_name end) do
+      Ets.delete(table_name)
+    end
     {:noreply, state}
   end
   @doc false
