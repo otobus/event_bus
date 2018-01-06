@@ -32,7 +32,7 @@ defmodule EventBus.EventManagerTest do
       end)
 
     assert String.contains?(logs, "BadOne.process/1 raised an error!")
-    assert String.contains?(logs, "Event log for %EventBus.Model.Event{data: [1, 2], id: \"E1\", occurred_at: nil, topic: :metrics_received, transaction_id: \"T1\", ttl: nil}")
-    assert String.contains?(logs, "Event log for %EventBus.Model.Event{data: {3, [1, 2]}, id: \"E123\", occurred_at: nil, topic: :metrics_summed, transaction_id: \"T1\", ttl: nil}")
+    assert String.contains?(logs, "Event log for %EventBus.Model.Event{data: [1, 2], id: \"E1\", initialized_at: nil, occurred_at: nil, topic: :metrics_received, transaction_id: \"T1\", ttl: nil}")
+    assert String.contains?(logs, "Event log for %EventBus.Model.Event{data: {3, [1, 2]}, id: \"E123\", initialized_at: nil, occurred_at: nil, topic: :metrics_summed, transaction_id: \"T1\", ttl: nil}")
   end
 end

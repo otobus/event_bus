@@ -12,7 +12,7 @@ The package can be installed by adding `event_bus` to your list of dependencies 
 
 ```elixir
 def deps do
-  [{:event_bus, "~> 0.6.1"}]
+  [{:event_bus, "~> 0.7"}]
 end
 ```
 
@@ -60,20 +60,25 @@ EventBus.subscribers(:hello_received)
   transaction_id: String.t | integer(), # optional
   topic: atom(), # required
   data: any() # required,
+  initialized_at: integer(), # optional, might be seconds, milliseconds or microseconds even nano seconds since Elixir does not have a limit on integer size
   occurred_at: integer(), # optional, might be seconds, milliseconds or microseconds even nano seconds since Elixir does not have a limit on integer size
   ttl: integer() # optional, might be seconds, milliseconds or microseconds even nano seconds since Elixir does not have a limit on integer size. If `tll` field is set, it is recommended to set `occurred_at` field too.
 }
 ```
 
-**About `transaction_id` attribute**
+**`transaction_id` attribute**
 
 Firstly, `transaction_id` attribute is an optional field, if you need to store any meta identifier related to event transaction, it is the place to store. Secondly, `transaction_id` is one of the good ways to track events related to the same transaction on a chain of events. If you have time, have a look to the [story](https://hackernoon.com/trace-monitor-chain-of-microservice-logs-in-the-same-transaction-f13420f2d42c).
 
-**About `occurred_at` attribute**
+**`initialized_at` attribute**
+
+Optional, but good to have field for all events to track when the event processor started to process generating this event.
+
+**`occurred_at` attribute**
 
 Optional, but good to have field for all events to track when the event occurred with unixtimestamp value. The library does not automatically set this value since the value depends on the timing choice.
 
-**About `ttl` attribute**
+**`ttl` attribute**
 
 Optional, but might to have field for all events to invalidate an event after a certain amount of time. Currently, the `event_bus` library does not do any specific thing using this field. If you need to discard an event in a certain amount of time, that field would be very useful.
 
