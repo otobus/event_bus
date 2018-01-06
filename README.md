@@ -74,6 +74,7 @@ EventBus.subscribers(:hello_received)
   data: any() # required,
   initialized_at: integer(), # optional, might be seconds, milliseconds or microseconds even nano seconds since Elixir does not have a limit on integer size
   occurred_at: integer(), # optional, might be seconds, milliseconds or microseconds even nano seconds since Elixir does not have a limit on integer size
+  source: String.t, # optional, source of the event, who created it
   ttl: integer() # optional, might be seconds, milliseconds or microseconds even nano seconds since Elixir does not have a limit on integer size. If `tll` field is set, it is recommended to set `occurred_at` field too.
 }
 ```
@@ -151,16 +152,18 @@ id = "some unique id"
 topic = :user_created
 transaction_id = "tx"
 ttl = 600_000
+source = "my event creator" # optional
 
-Event.build(id, topic, transaction_id, ttl) do
+Event.build(id, topic, transaction_id, ttl, source) do
   # do some calc in here
+  Process.sleep(1)
   # as a result return only the event data
   %{email: "jd@example.com", name: "John Doe"}
 end
 > %EventBus.Model.Event{data: %{email: "jd@example.com", name: "John Doe"},
- id: "some unique id", initialized_at: 1515235365129,
- occurred_at: 1515235365129, topic: :user_created, transaction_id: "tx",
- ttl: 600000}
+ id: "some unique id", initialized_at: 1515274599140,
+ occurred_at: 1515274599141, source: "my event creator", topic: :user_created,
+ transaction_id: "tx", ttl: 600000}
 ```
 
 **Use block notifier to notify event data to given topic**
@@ -174,10 +177,10 @@ id = "some unique id"
 topic = :user_created
 transaction_id = "tx" # optional
 ttl = 600_000 # optional
-
+source = "my event creator" # optional
 EventBus.register_topic(topic) # incase you didn't register it in `config.exs`
 
-Event.notify(id, topic, transaction_id, ttl) do
+Event.notify(id, topic, transaction_id, ttl, source) do
   # do some calc in here
   # as a result return only the event data
   %{email: "mrsjd@example.com", name: "Mrs Jane Doe"}
@@ -275,7 +278,13 @@ defmodule MyDataStore do
 end
 ```
 
-### Documentation
+## Traceability
+
+EventBus comes with a good enough data structure to track the event life cycle with its optional parameters. For a traceable system, it is highly recommend to fill optional fields on event data.
+
+Please refer to
+
+## Documentation
 
 Module docs can be found at [https://hexdocs.pm/event_bus](https://hexdocs.pm/event_bus).
 

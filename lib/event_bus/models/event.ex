@@ -14,6 +14,7 @@ defmodule EventBus.Model.Event do
     :data,
     :initialized_at,
     :occurred_at,
+    :source,
     :ttl
   ]
 
@@ -26,6 +27,7 @@ defmodule EventBus.Model.Event do
   * :data - Context
   * :initialized_at - When the process initialized to generate this event
   * :occurred_at - When it is occurred
+  * :source - Who created this event: module, function or service name are good
   * :ttl - Time to live value
   """
   @type t :: %__MODULE__{
@@ -35,6 +37,7 @@ defmodule EventBus.Model.Event do
     data: any,
     initialized_at: integer,
     occurred_at: integer,
+    source: String.t,
     ttl: integer
   }
 
@@ -53,7 +56,8 @@ defmodule EventBus.Model.Event do
   @doc """
   Dynamic event builder block with auto initialized_at and occurred_at fields
   """
-  defmacro build(id, topic, transaction_id \\ nil, ttl \\ nil, do: yield) do
+  defmacro build(id, topic, transaction_id \\ nil, ttl \\ nil, source \\ nil,
+    do: yield) do
     quote do
       initialized_at = System.os_time(:milli_seconds)
       data = unquote(yield)
@@ -64,6 +68,7 @@ defmodule EventBus.Model.Event do
         data: data,
         initialized_at: initialized_at,
         occurred_at: System.os_time(:milli_seconds),
+        source: unquote(source) || "#{__MODULE__}",
         ttl: unquote(ttl)
       }
     end
@@ -72,7 +77,8 @@ defmodule EventBus.Model.Event do
   @doc """
   Dynamic event notifier block with auto initialized_at and occurred_at fields
   """
-  defmacro notify(id, topic, transaction_id \\ nil, ttl \\ nil, do: yield) do
+  defmacro notify(id, topic, transaction_id \\ nil, ttl \\ nil, source \\ nil,
+    do: yield) do
     quote do
       initialized_at = System.os_time(:milli_seconds)
       data = unquote(yield)
@@ -83,6 +89,7 @@ defmodule EventBus.Model.Event do
         data: data,
         initialized_at: initialized_at,
         occurred_at: System.os_time(:milli_seconds),
+        source: unquote(source) || "#{__MODULE__}",
         ttl: unquote(ttl)
       }
       EventBus.notify(event)

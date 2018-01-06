@@ -33,7 +33,27 @@ defmodule EventBus.Model.EventTest do
     assert Event.duration(event) == 0
   end
 
-  test "build" do
+  test "build with source" do
+    id = 1
+    topic = "user_created"
+    data = %{id: 1, name: "me", email: "me@example.com"}
+    transaction_id = "t1"
+    ttl = 100
+    event =
+      Event.build(id, topic, transaction_id, ttl, "me") do
+        data
+      end
+    assert event.data == data
+    assert event.id == id
+    assert event.topic == topic
+    assert event.transaction_id == transaction_id
+    assert event.ttl == ttl
+    assert event.source == "me"
+    refute is_nil(event.initialized_at)
+    refute is_nil(event.occurred_at)
+  end
+
+  test "build without source" do
     id = 1
     topic = "user_created"
     data = %{id: 1, name: "me", email: "me@example.com"}
@@ -48,6 +68,7 @@ defmodule EventBus.Model.EventTest do
     assert event.topic == topic
     assert event.transaction_id == transaction_id
     assert event.ttl == ttl
+    assert event.source == "Elixir.EventBus.Model.EventTest"
     refute is_nil(event.initialized_at)
     refute is_nil(event.occurred_at)
   end
