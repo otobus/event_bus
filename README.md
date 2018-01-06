@@ -141,6 +141,7 @@ EventBus.topic_exist?(:metrics_updated)
 ```
 
 **Use block builder to build Event struct**
+
 Builder automatically sets initialized_at and occured_at attributes
 ```elixir
 require EventBus.Model.Event
@@ -163,6 +164,7 @@ end
 ```
 
 **Use block notifier to notify event data to given topic**
+
 Builder automatically sets initialized_at and occured_at attributes
 ```elixir
 require EventBus.Model.Event
