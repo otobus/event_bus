@@ -76,6 +76,11 @@ defmodule EventBus do
       EventBus.subscribe({MyEventListener, [".*"]})
       :ok
 
+      # For configurable listeners you can pass tuple of processor and config
+      my_config = %{}
+      EventBus.subscribe({{OtherListener, my_config}, [".*"]})
+      :ok
+
   """
   @spec subscribe(tuple()) :: :ok
   defdelegate subscribe(subscriber),
@@ -87,6 +92,11 @@ defmodule EventBus do
   ## Examples
 
       EventBus.unsubscribe(MyEventListener)
+      :ok
+
+      # For configurable listeners you must pass tuple of processor and config
+      my_config = %{}
+      EventBus.unsubscribe({{OtherListener, my_config}, [".*"]})
       :ok
 
   """
@@ -102,6 +112,10 @@ defmodule EventBus do
       EventBus.subscribers()
       [MyEventListener]
 
+      # One usual and one configured listener with its config
+      EventBus.subscribers()
+      [MyEventListener, {OtherListener, %{}}]
+
   """
   @spec subscribers() :: list(any())
   defdelegate subscribers,
@@ -114,6 +128,10 @@ defmodule EventBus do
 
       EventBus.subscribers(:metrics_received)
       [MyEventListener]
+
+      # One usual and one configured listener with its config
+      EventBus.subscribers(:metrics_received)
+      [MyEventListener, {OtherListener, %{}}]
 
   """
   @spec subscribers(atom() | String.t) :: list(any())
@@ -150,6 +168,12 @@ defmodule EventBus do
   ## Examples
 
       EventBus.mark_as_skipped({MyEventListener, :unmatched_occurred, "124"})
+
+      # For configurable listeners you must pass tuple of processor and config
+      my_config = %{}
+      listener = {OtherListener, my_config}
+      EventBus.mark_as_skipped({listener, :unmatched_occurred, "124"})
+      :ok
 
   """
   @spec mark_as_skipped(tuple()) :: no_return()

@@ -33,20 +33,29 @@ defmodule EventBus.EventManager do
     {:noreply, state}
   end
 
-  @spec notify_listeners(list(module()), tuple()) :: no_return()
+  @spec notify_listeners(list(), tuple()) :: no_return()
   defp notify_listeners(listeners, event_shadow) do
     Enum.each(listeners, fn listener ->
       notify_listener(listener, event_shadow)
     end)
   end
 
+  @spec notify_listener(tuple(), tuple()) :: no_return()
   @spec notify_listener(module(), tuple()) :: no_return()
-  defp notify_listener(listener, {topic, id}) do
-    listener.process({topic, id})
+  defp notify_listener({processor, config} = listener, {topic, id}) do
+    processor.process({config, topic, id})
   rescue
     err ->
       Logger.log(@logging_level,
-        fn -> "#{listener}.process/1 raised an error!\n#{inspect(err)}" end)
+        fn -> "#{processor}.process/1 raised an error!\n#{inspect(err)}" end)
       EventWatcher.mark_as_skipped({listener, topic, id})
+  end
+  defp notify_listener(processor, {topic, id}) do
+    processor.process({topic, id})
+  rescue
+    err ->
+      Logger.log(@logging_level,
+        fn -> "#{processor}.process/1 raised an error!\n#{inspect(err)}" end)
+      EventWatcher.mark_as_skipped({processor, topic, id})
   end
 end
