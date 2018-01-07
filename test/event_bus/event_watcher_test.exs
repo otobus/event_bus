@@ -33,7 +33,8 @@ defmodule EventBus.EventWatcherTest do
     EventWatcher.register_topic(topic)
     Process.sleep(100)
 
-    processors = [InputLogger, Calculator, MemoryLeakerOne, BadOne]
+    processors = [{InputLogger, %{}}, {Calculator, %{}}, {MemoryLeakerOne, %{}},
+      {BadOne, %{}}]
     id = "E1"
 
     EventWatcher.create({processors, topic, id})
@@ -47,15 +48,17 @@ defmodule EventBus.EventWatcherTest do
     EventWatcher.register_topic(topic)
     Process.sleep(100)
 
-    processors = [InputLogger, Calculator, MemoryLeakerOne, BadOne]
+    processors = [{InputLogger, %{}}, {Calculator, %{}}, {MemoryLeakerOne, %{}},
+      {BadOne, %{}}]
     id = "E1"
 
     EventWatcher.create({processors, topic, id})
     Process.sleep(100)
-    EventWatcher.mark_as_completed({InputLogger, topic, id})
+    EventWatcher.mark_as_completed({{InputLogger, %{}}, topic, id})
     Process.sleep(100)
 
-    assert {processors, [InputLogger], []} == EventWatcher.fetch({topic, id})
+    assert {processors, [{InputLogger, %{}}], []} ==
+      EventWatcher.fetch({topic, id})
   end
 
   test "skip" do
@@ -63,14 +66,16 @@ defmodule EventBus.EventWatcherTest do
     EventWatcher.register_topic(topic)
     Process.sleep(100)
 
-    processors = [InputLogger, Calculator, MemoryLeakerOne, BadOne]
+    processors = [{InputLogger, %{}}, {Calculator, %{}}, {MemoryLeakerOne, %{}},
+      {BadOne, %{}}]
     id = "E1"
 
     EventWatcher.create({processors, topic, id})
     Process.sleep(100)
-    EventWatcher.mark_as_skipped({InputLogger, topic, id})
+    EventWatcher.mark_as_skipped({{InputLogger, %{}}, topic, id})
     Process.sleep(100)
 
-    assert {processors, [], [InputLogger]} == EventWatcher.fetch({topic, id})
+    assert {processors, [], [{InputLogger, %{}}]} ==
+      EventWatcher.fetch({topic, id})
   end
 end
