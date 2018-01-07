@@ -166,8 +166,8 @@ alias EventBus.Model.Event
 
 id = "some unique id"
 topic = :user_created
-transaction_id = "tx"
-ttl = 600_000
+transaction_id = "tx" # optional
+ttl = 600_000 # optional
 source = "my event creator" # optional
 
 Event.build(id, topic, transaction_id, ttl, source) do
@@ -180,6 +180,15 @@ end
  id: "some unique id", initialized_at: 1515274599140,
  occurred_at: 1515274599141, source: "my event creator", topic: :user_created,
  transaction_id: "tx", ttl: 600000}
+
+# Without optional params
+Event.build(id, topic) do
+  %{email: "jd@example.com", name: "John Doe"}
+end
+> %EventBus.Model.Event{data: %{email: "jd@example.com", name: "John Doe"},
+ id: "some unique id", initialized_at: 1515274599140,
+ occurred_at: 1515274599141, source: nil, topic: :user_created,
+ transaction_id: nil, ttl: nil}
 ```
 
 **Use block notifier to notify event data to given topic**
@@ -333,8 +342,6 @@ end
 ## Traceability
 
 EventBus comes with a good enough data structure to track the event life cycle with its optional parameters. For a traceable system, it is highly recommend to fill optional fields on event data. It is also encouraged to use `Event.nofify` block/yield to automatically set the `initialized_at` and `occurred_at` values.
-
-Please refer to
 
 ## Documentation
 
