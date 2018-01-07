@@ -45,24 +45,34 @@ EventBus.subscribe({MyEventListener, [".*"]})
 # to catch specific topics
 EventBus.subscribe({MyEventListener, ["purchase_", "booking_confirmed$", "flight_passed$"]})
 > :ok
+
+# if your processor has a config
+config = %{}
+EventBus.subscribe({{MyEventListener, config}, [".*"]})
+> :ok
 ```
 
 **Unsubscribe from the 'event bus'**
 ```elixir
 EventBus.unsubscribe(MyEventListener)
 > :ok
+
+# if your processor has a config
+config = %{}
+EventBus.unsubscribe({MyEventListener, config})
+> :ok
 ```
 
 **List subscribers**
 ```elixir
 EventBus.subscribers()
-> [{MyEventListener, [".*"]}]
+> [{MyEventListener, [".*"]}, {{AnotherListener, %{}}, [".*"]]
 ```
 
 **List subscribers of a specific event**
 ```elixir
 EventBus.subscribers(:hello_received)
-> [MyEventListener]
+> [MyEventListener, {{AnotherListener, %{}}}]
 ```
 
 `EventBus.Model.Event` structure
@@ -125,13 +135,19 @@ EventBus.fetch_event({topic, id})
 
 **Mark as completed on Event Watcher**
 ```elixir
-EventBus.mark_as_completed({MyEventListener, :bye_received, id})
+processor = MyEventListener
+# If your processor has config then pass tuple
+processor = {MyEventListener, config}
+EventBus.mark_as_completed({processor, :bye_received, id})
 > :ok
 ```
 
 **Mark as skipped on Event Watcher**
 ```elixir
-EventBus.mark_as_skipped({MyEventListener, :bye_received, id})
+processor = MyEventListener
+# If your processor has config then pass tuple
+processor = {MyEventListener, config}
+EventBus.mark_as_skipped({processor, :bye_received, id})
 > :ok
 ```
 
@@ -189,12 +205,13 @@ end
 > %{email: "mrsjd@example.com", name: "Mrs Jane Doe"}
 ```
 
-### Sample Listener Implementation
+### Sample Processor/Listener Implementation
 
 ```elixir
 defmodule MyEventListener do
   ...
 
+  # if your listener does not have a config
   def process({topic, id} = event_shadow) do
     GenServer.cast(__MODULE__, event_shadow)
     :ok
@@ -202,7 +219,16 @@ defmodule MyEventListener do
 
   ...
 
+  # if your listener/processor has a config
+  def process({config, topic, id} = event_shadow_with_conf) do
+    GenServer.cast(__MODULE__, event_shadow_with_conf)
+    :ok
+  end
 
+  ...
+
+
+  # if your processor does not have a config
   def handle_cast({:bye_received, id}, state) do
     event = EventBus.fetch_event({:bye_received, id})
     # do sth with event
@@ -223,6 +249,32 @@ defmodule MyEventListener do
   end
   def handle_cast({topic, id}, state) do
     EventBus.mark_as_skipped({__MODULE__, topic, id})
+    {:noreply, state}
+  end
+
+  ...
+
+  # if your processor has a config
+  def handle_cast({config, :bye_received, id}, state) do
+    event = EventBus.fetch_event({:bye_received, id})
+    # do sth with event
+
+    # update the watcher!
+    EventBus.mark_as_completed({{__MODULE__, config}, :bye_received, id})
+    ...
+    {:noreply, state}
+  end
+  def handle_cast({config, :hello_received, id}, state) do
+    event = EventBus.fetch_event({:hello_received, id})
+    # do sth with EventBus.Model.Event
+
+    # update the watcher!
+    EventBus.mark_as_completed({{__MODULE__, config}, :hello_received, id})
+    ...
+    {:noreply, state}
+  end
+  def handle_cast({config, topic, id}, state) do
+    EventBus.mark_as_skipped({{__MODULE__, config}, topic, id})
     {:noreply, state}
   end
 
@@ -280,7 +332,7 @@ end
 
 ## Traceability
 
-EventBus comes with a good enough data structure to track the event life cycle with its optional parameters. For a traceable system, it is highly recommend to fill optional fields on event data.
+EventBus comes with a good enough data structure to track the event life cycle with its optional parameters. For a traceable system, it is highly recommend to fill optional fields on event data. It is also encouraged to use `Event.nofify` block/yield to automatically set the `initialized_at` and `occurred_at` values.
 
 Please refer to
 
