@@ -3,12 +3,8 @@ defmodule EventBus do
   Simple event bus implementation.
   """
 
-  alias EventBus.EventManager
-  alias EventBus.SubscriptionManager
-  alias EventBus.TopicManager
-  alias EventBus.EventStore
-  alias EventBus.EventWatcher
-  alias EventBus.Model.Event
+  alias EventBus.{Config, EventManager, EventStore, EventWatcher,
+    SubscriptionManager, TopicManager, Model.Event}
 
   @doc """
   Send event to all listeners.
@@ -37,10 +33,21 @@ defmodule EventBus do
   """
   @spec topic_exist?(String.t | atom()) :: boolean()
   def topic_exist?(topic) do
-    event_topics = Application.get_env(:event_bus, :topics, [])
-    Enum.any?(event_topics,
+    Enum.any?(topics(),
       fn event_topic -> event_topic == String.to_atom("#{topic}") end)
   end
+
+  @doc """
+  List all registered topics.
+
+  ## Examples
+
+      EventBus.topics()
+      [:metrics_summed]
+  """
+  @spec topics() :: list(atom())
+  defdelegate topics,
+    to: Config, as: :topics
 
   @doc """
   Register a topic
@@ -64,7 +71,7 @@ defmodule EventBus do
       :ok
 
   """
-  @spec register_topic(String.t | atom()) :: boolean()
+  @spec unregister_topic(String.t | atom()) :: boolean()
   defdelegate unregister_topic(topic),
     to: TopicManager, as: :unregister
 
@@ -83,7 +90,7 @@ defmodule EventBus do
 
   """
   @spec subscribe(tuple()) :: :ok
-  defdelegate subscribe(subscriber),
+  defdelegate subscribe(listener),
     to: SubscriptionManager, as: :subscribe
 
   @doc """
@@ -96,7 +103,7 @@ defmodule EventBus do
 
       # For configurable listeners you must pass tuple of processor and config
       my_config = %{}
-      EventBus.unsubscribe({{OtherListener, my_config}, [".*"]})
+      EventBus.unsubscribe({{OtherListener, my_config}})
       :ok
 
   """

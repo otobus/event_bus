@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/mustafaturan/event_bus.svg?branch=master)](https://travis-ci.org/mustafaturan/event_bus)
 
-Simple event bus implementation using ETS as an event store.
+Traceable, simple event bus library.
 
 ![Event Bus](https://cdn-images-1.medium.com/max/1600/1*0fcfAiHvNeHCRYhp-a32YA.png)
 
@@ -12,7 +12,7 @@ The package can be installed by adding `event_bus` to your list of dependencies 
 
 ```elixir
 def deps do
-  [{:event_bus, "~> 0.9.0"}]
+  [{:event_bus, "~> 1.0.0-beta1"}]
 end
 ```
 
@@ -161,8 +161,7 @@ EventBus.topic_exist?(:metrics_updated)
 
 Builder automatically sets initialized_at and occured_at attributes
 ```elixir
-require EventBus.Model.Event
-alias EventBus.Model.Event
+use EventBus.EventSource
 
 id = "some unique id"
 topic = :user_created
@@ -170,7 +169,8 @@ transaction_id = "tx" # optional
 ttl = 600_000 # optional
 source = "my event creator" # optional
 
-Event.build(id, topic, transaction_id, ttl, source) do
+params = %{id: id, topic: topic, transaction_id: transaction_id, ttl: ttl, source: source}
+EventSource.build(params) do
   # do some calc in here
   Process.sleep(1)
   # as a result return only the event data
@@ -181,8 +181,10 @@ end
  occurred_at: 1515274599141, source: "my event creator", topic: :user_created,
  transaction_id: "tx", ttl: 600000}
 
+
 # Without optional params
-Event.build(id, topic) do
+params = %{id: id, topic: topic}
+EventSource.build(params) do
   %{email: "jd@example.com", name: "John Doe"}
 end
 > %EventBus.Model.Event{data: %{email: "jd@example.com", name: "John Doe"},
@@ -195,8 +197,7 @@ end
 
 Builder automatically sets initialized_at and occured_at attributes
 ```elixir
-require EventBus.Model.Event
-alias EventBus.Model.Event
+use EventBus.EventSource
 
 id = "some unique id"
 topic = :user_created
@@ -205,7 +206,8 @@ ttl = 600_000 # optional
 source = "my event creator" # optional
 EventBus.register_topic(topic) # incase you didn't register it in `config.exs`
 
-Event.notify(id, topic, transaction_id, ttl, source) do
+params = %{id: id, topic: topic, transaction_id: transaction_id, ttl: ttl, source: source}
+EventSource.notify(metadata) do
   # do some calc in here
   # as a result return only the event data
   %{email: "mrsjd@example.com", name: "Mrs Jane Doe"}
