@@ -12,15 +12,13 @@ defmodule EventBus.EventManager do
   @logging_level :info
 
   @doc false
-  def start_link do
-    GenServer.start_link(__MODULE__, nil, name: __MODULE__)
-  end
+  def start_link,
+    do: GenServer.start_link(__MODULE__, nil, name: __MODULE__)
 
   @spec notify(list(module()), Event.t) :: no_return()
   @doc false
-  def notify(listeners, event) do
-    GenServer.cast(__MODULE__, {:notify, listeners, event})
-  end
+  def notify(listeners, event),
+    do: GenServer.cast(__MODULE__, {:notify, listeners, event})
 
   @doc false
   @spec handle_cast(tuple(), nil) :: no_return()
@@ -42,20 +40,20 @@ defmodule EventBus.EventManager do
 
   @spec notify_listener(tuple(), tuple()) :: no_return()
   @spec notify_listener(module(), tuple()) :: no_return()
-  defp notify_listener({processor, config} = listener, {topic, id}) do
-    processor.process({config, topic, id})
+  defp notify_listener({listener, config}, {topic, id}) do
+    listener.process({config, topic, id})
   rescue
     err ->
       Logger.log(@logging_level,
-        fn -> "#{processor}.process/1 raised an error!\n#{inspect(err)}" end)
-      EventWatcher.mark_as_skipped({listener, topic, id})
+        fn -> "#{listener}.process/1 raised an error!\n#{inspect(err)}" end)
+      EventWatcher.mark_as_skipped({{listener, config}, topic, id})
   end
-  defp notify_listener(processor, {topic, id}) do
-    processor.process({topic, id})
+  defp notify_listener(listener, {topic, id}) do
+    listener.process({topic, id})
   rescue
     err ->
       Logger.log(@logging_level,
-        fn -> "#{processor}.process/1 raised an error!\n#{inspect(err)}" end)
-      EventWatcher.mark_as_skipped({processor, topic, id})
+        fn -> "#{listener}.process/1 raised an error!\n#{inspect(err)}" end)
+      EventWatcher.mark_as_skipped({listener, topic, id})
   end
 end

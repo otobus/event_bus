@@ -18,9 +18,8 @@ defmodule EventBus do
 
   """
   @spec notify(Event.t) :: :ok
-  def notify(%Event{topic: topic} = event) do
-    EventManager.notify(subscribers(topic), event)
-  end
+  def notify(%Event{topic: topic} = event),
+    do: EventManager.notify(subscribers(topic), event)
 
   @doc """
   Check if topic registered.
@@ -107,7 +106,7 @@ defmodule EventBus do
       :ok
 
   """
-  @spec unsubscribe(any()) :: :ok
+  @spec unsubscribe({tuple() | module()}) :: :ok
   defdelegate unsubscribe(listener),
     to: SubscriptionManager, as: :unsubscribe
 
@@ -129,7 +128,7 @@ defmodule EventBus do
     to: SubscriptionManager, as: :subscribers
 
   @doc """
-  List the subscribers to the bus with given event name.
+  List the subscribers to the bus with given topic.
 
   ## Examples
 
@@ -142,7 +141,7 @@ defmodule EventBus do
 
   """
   @spec subscribers(atom() | String.t) :: list(any())
-  defdelegate subscribers(event_name),
+  defdelegate subscribers(topic),
     to: SubscriptionManager, as: :subscribers
 
   @doc """
@@ -153,7 +152,7 @@ defmodule EventBus do
       EventBus.fetch_event({:hello_received, "123"})
 
   """
-  @spec fetch_event(tuple()) :: Event.t
+  @spec fetch_event({atom(), String.t | integer()}) :: Event.t
   defdelegate fetch_event(event_shadow),
     to: EventStore, as: :fetch
 
@@ -165,8 +164,9 @@ defmodule EventBus do
       EventBus.mark_as_completed({MyEventListener, :hello_received, "123"})
 
   """
-  @spec mark_as_completed(tuple()) :: no_return()
-  defdelegate mark_as_completed(event_with_listener),
+  @spec mark_as_completed({tuple() | module(), atom(), String.t | integer()})
+    :: no_return()
+  defdelegate mark_as_completed(listener_with_event_shadow),
     to: EventWatcher, as: :mark_as_completed
 
   @doc """
@@ -176,14 +176,15 @@ defmodule EventBus do
 
       EventBus.mark_as_skipped({MyEventListener, :unmatched_occurred, "124"})
 
-      # For configurable listeners you must pass tuple of processor and config
+      # For configurable listeners you must pass tuple of listener and config
       my_config = %{}
       listener = {OtherListener, my_config}
       EventBus.mark_as_skipped({listener, :unmatched_occurred, "124"})
       :ok
 
   """
-  @spec mark_as_skipped(tuple()) :: no_return()
-  defdelegate mark_as_skipped(event_with_listener),
+  @spec mark_as_skipped({tuple() | module(), atom(), String.t | integer()})
+    :: no_return()
+  defdelegate mark_as_skipped(listener_with_event_shadow),
     to: EventWatcher, as: :mark_as_skipped
 end

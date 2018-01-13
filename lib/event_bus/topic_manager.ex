@@ -11,62 +11,69 @@ defmodule EventBus.TopicManager do
 
   @app :event_bus
   @namespace :topics
+  @modules [EventStore, EventWatcher, SubscriptionManager]
 
   @doc false
   def start_link,
     do: GenServer.start_link(__MODULE__, nil, name: __MODULE__)
 
-  def init(_) do
-    {:ok, nil}
-  end
+  @doc false
+  def init(_),
+    do: {:ok, nil}
 
   @doc """
   Register all topics from config
   """
+  @spec register_from_config() :: no_return()
   def register_from_config do
-    Enum.each(Config.topics(), fn topic ->
-      EventStore.register_topic(topic)
-      EventWatcher.register_topic(topic)
-      SubscriptionManager.register_topic(topic)
+    topics = Config.topics()
+    Enum.each(topics, fn topic ->
+      Enum.each(@modules, fn mod -> mod.register_topic(topic) end)
     end)
   end
 
   @doc """
   Register a topic
   """
+  @spec register(String.t | atom()) :: no_return()
   def register(topic),
     do: GenServer.cast(__MODULE__, {:register, topic})
 
+  @doc """
+  Unregister a topic
+  """
+  @spec unregister(String.t | atom()) :: no_return()
   def unregister(topic),
     do: GenServer.cast(__MODULE__, {:unregister, topic})
 
+  @doc false
+  @spec handle_cast({:register, String.t | atom()}, nil) :: no_return()
   def handle_cast({:register, topic}, state) do
     create(topic)
     {:noreply, state}
   end
+  @spec handle_cast({:unregister, String.t | atom()}, nil) :: no_return()
   def handle_cast({:unregister, topic}, state) do
     delete(topic)
     {:noreply, state}
   end
 
+  @spec create(String.t | atom()) :: no_return()
   defp create(topic) do
     topic  = :"#{topic}"
     topics = Config.topics()
     unless Enum.member?(topics, topic) do
       Application.put_env(@app, @namespace, [topic | topics], persistent: true)
-      EventStore.register_topic(topic)
-      EventWatcher.register_topic(topic)
-      SubscriptionManager.register_topic(topic)
+      Enum.each(@modules, fn mod -> mod.register_topic(topic) end)
     end
   end
 
+  @spec delete(String.t | atom()) :: no_return()
   defp delete(topic) do
     topic  = :"#{topic}"
     topics = Config.topics()
     if Enum.member?(topics, topic) do
-      EventStore.unregister_topic(topic)
-      EventWatcher.unregister_topic(topic)
-      SubscriptionManager.unregister_topic(topic)
+      Enum.each(@modules, fn mod -> mod.unregister_topic(topic) end)
       topics = List.delete(topics, topic)
       Application.put_env(@app, @namespace, topics, persistent: true)
     end
