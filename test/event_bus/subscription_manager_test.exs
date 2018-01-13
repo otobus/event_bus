@@ -10,10 +10,9 @@ defmodule EventBus.SubscriptionManagerTest do
       SubscriptionManager.unregister_topic(:auto_subscribed)
     end
 
-    subscribers = SubscriptionManager.subscribers()
-    Enum.each(subscribers, fn {subscriber, _topics} ->
+    for {subscriber, _topics} <- SubscriptionManager.subscribers() do
       SubscriptionManager.unsubscribe(subscriber)
-    end)
+    end
     :ok
   end
 

@@ -10,9 +10,9 @@ defmodule EventBusTest do
     topic: :metrics_received, source: "EventBusTest"}
 
   setup do
-    Enum.each(EventBus.subscribers(), fn subscriber ->
+    for subscriber <- EventBus.subscribers() do
       EventBus.unsubscribe(subscriber)
-    end)
+    end
     :ok
   end
 

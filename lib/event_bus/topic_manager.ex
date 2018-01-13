@@ -27,9 +27,9 @@ defmodule EventBus.TopicManager do
   @spec register_from_config() :: no_return()
   def register_from_config do
     topics = Config.topics()
-    Enum.each(topics, fn topic ->
+    for topic <- topics do
       Enum.each(@modules, fn mod -> mod.register_topic(topic) end)
-    end)
+    end
   end
 
   @doc """

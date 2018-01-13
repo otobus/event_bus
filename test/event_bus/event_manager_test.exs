@@ -13,9 +13,9 @@ defmodule EventBus.EventManagerTest do
 
   setup do
     Process.sleep(100)
-    Enum.each(SubscriptionManager.subscribers(), fn subscriber ->
+    for subscriber <- SubscriptionManager.subscribers() do
       SubscriptionManager.unsubscribe(subscriber)
-    end)
+    end
     :ok
   end
 
