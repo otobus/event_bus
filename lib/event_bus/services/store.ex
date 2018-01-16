@@ -1,7 +1,5 @@
 defmodule EventBus.Service.Store do
-  @moduledoc """
-  Store service
-  """
+  @moduledoc false
 
   alias EventBus.Model.Event
   alias :ets, as: Ets

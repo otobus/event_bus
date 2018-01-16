@@ -1,10 +1,12 @@
 defmodule EventBus.Watcher do
-  @moduledoc """
-  Event Watcher module is a helper to get info for the events and also an
-  organizer for the events happened in time. It automatically deletes processed
-  events from the ETS table. Event listeners are responsible for notifying the
-  Event Watcher on completions and skips.
-  """
+  @moduledoc false
+
+  ###########################################################################
+  # Event Watcher module is a helper to get info for the events and also an
+  # organizer for the events happened in time. It automatically deletes
+  # processed events from the ETS table. Event listeners are responsible for
+  # notifying the Event Watcher on completions and skips.
+  ###########################################################################
 
   use GenServer
 

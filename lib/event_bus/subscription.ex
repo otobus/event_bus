@@ -1,7 +1,9 @@
 defmodule EventBus.Subscription do
-  @moduledoc """
-  Subscription manager
-  """
+  @moduledoc false
+
+  ###########################################################################
+  # Subscription manager
+  ###########################################################################
 
   use GenServer
 

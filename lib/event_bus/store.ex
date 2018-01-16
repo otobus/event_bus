@@ -1,9 +1,11 @@
 defmodule EventBus.Store do
-  @moduledoc """
-  Event store is a storage handler for events. It allows to create and delete
-  stores for a topic. And allows fetching, deleting and saving events for the
-  topic.
-  """
+  @moduledoc false
+
+  ###########################################################################
+  # Event store is a storage handler for events. It allows to create and delete
+  # stores for a topic. And allows fetching, deleting and saving events for the
+  # topic.
+  ###########################################################################
 
   use GenServer
   alias EventBus.Model.Event

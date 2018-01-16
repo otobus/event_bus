@@ -1,6 +1,7 @@
 defmodule EventBus do
   @moduledoc """
-  Simple event bus implementation.
+  Traceable event bus implementation for Elixir with builtin event store and
+  event watcher based on ETS
   """
 
   alias EventBus.{Notifier, Store, Watcher, Subscription,

@@ -1,7 +1,9 @@
 defmodule EventBus.Topic do
-  @moduledoc """
-  Topic manager
-  """
+  @moduledoc false
+
+  ###########################################################################
+  # Topic manager
+  ###########################################################################
 
   use GenServer
 

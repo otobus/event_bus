@@ -1,8 +1,10 @@
 defmodule EventBus.Notifier do
-  @moduledoc """
-  Notifier is responsible for saving events, creating event watcher and
-  delivering events to listeners.
-  """
+  @moduledoc false
+
+  ###########################################################################
+  # Notifier is responsible for saving events, creating event watcher and
+  # delivering events to listeners.
+  ###########################################################################
 
   use GenServer
   alias EventBus.Model.Event
