@@ -207,7 +207,7 @@ source = "my event creator" # optional
 EventBus.register_topic(topic) # incase you didn't register it in `config.exs`
 
 params = %{id: id, topic: topic, transaction_id: transaction_id, ttl: ttl, source: source}
-EventSource.notify(metadata) do
+EventSource.notify(params) do
   # do some calc in here
   # as a result return only the event data
   %{email: "mrsjd@example.com", name: "Mrs Jane Doe"}
