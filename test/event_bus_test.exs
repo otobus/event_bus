@@ -4,7 +4,7 @@ defmodule EventBusTest do
   alias EventBus.Model.Event
   alias EventBus.Support.Helper.{InputLogger, Calculator, MemoryLeakerOne,
     BadOne}
-  doctest EventBus.EventManager
+  doctest EventBus.Notifier
 
   @event %Event{id: "M1", transaction_id: "T1", data: [1, 7],
     topic: :metrics_received, source: "EventBusTest"}
@@ -21,11 +21,12 @@ defmodule EventBusTest do
     EventBus.subscribe({{BadOne, %{}}, [".*"]})
     EventBus.subscribe({{Calculator, %{}}, ["metrics_received"]})
     EventBus.subscribe({{MemoryLeakerOne, %{}}, [".*"]})
+    Process.sleep(100) # Wait until listeners subscribed to
 
     logs =
       capture_log(fn ->
-       EventBus.notify(@event)
-       Process.sleep(1_000)
+        EventBus.notify(@event)
+        Process.sleep(300) # Wait until listeners process events
       end)
 
     assert String.contains?(logs, "BadOne.process/1 raised an error!")
@@ -37,13 +38,5 @@ defmodule EventBusTest do
       " {8, [1, 7]}, id: \"E123\", initialized_at: nil, occurred_at: nil," <>
       " source: \"Logger\", topic: :metrics_summed," <>
       " transaction_id: \"T1\", ttl: nil}")
-  end
-
-  test "topic_exist? with an existent topic" do
-    assert EventBus.topic_exist? :metrics_received
-  end
-
-  test "topic_exist? with a non-existent topic" do
-    refute EventBus.topic_exist? :unknown_called
   end
 end

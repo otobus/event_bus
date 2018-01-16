@@ -3,8 +3,8 @@ defmodule EventBus do
   Simple event bus implementation.
   """
 
-  alias EventBus.{Config, EventManager, EventStore, EventWatcher,
-    SubscriptionManager, TopicManager, Model.Event}
+  alias EventBus.{Notifier, Store, Watcher, Subscription,
+    Topic, Model.Event}
 
   @doc """
   Send event to all listeners.
@@ -18,8 +18,8 @@ defmodule EventBus do
 
   """
   @spec notify(Event.t) :: :ok
-  def notify(%Event{topic: topic} = event),
-    do: EventManager.notify(subscribers(topic), event)
+  defdelegate notify(event),
+    to: Notifier, as: :notify
 
   @doc """
   Check if topic registered.
@@ -31,10 +31,8 @@ defmodule EventBus do
 
   """
   @spec topic_exist?(String.t | atom()) :: boolean()
-  def topic_exist?(topic) do
-    Enum.any?(topics(),
-      fn event_topic -> event_topic == String.to_atom("#{topic}") end)
-  end
+  defdelegate topic_exist?(topic),
+    to: Topic, as: :exist?
 
   @doc """
   List all registered topics.
@@ -46,7 +44,7 @@ defmodule EventBus do
   """
   @spec topics() :: list(atom())
   defdelegate topics,
-    to: Config, as: :topics
+    to: Topic, as: :all
 
   @doc """
   Register a topic
@@ -59,7 +57,7 @@ defmodule EventBus do
   """
   @spec register_topic(String.t | atom()) :: boolean()
   defdelegate register_topic(topic),
-    to: TopicManager, as: :register
+    to: Topic, as: :register
 
   @doc """
   Unregister a topic
@@ -72,7 +70,7 @@ defmodule EventBus do
   """
   @spec unregister_topic(String.t | atom()) :: boolean()
   defdelegate unregister_topic(topic),
-    to: TopicManager, as: :unregister
+    to: Topic, as: :unregister
 
   @doc """
   Subscribe to the bus.
@@ -82,15 +80,15 @@ defmodule EventBus do
       EventBus.subscribe({MyEventListener, [".*"]})
       :ok
 
-      # For configurable listeners you can pass tuple of processor and config
+      # For configurable listeners you can pass tuple of listener and config
       my_config = %{}
       EventBus.subscribe({{OtherListener, my_config}, [".*"]})
       :ok
 
   """
   @spec subscribe(tuple()) :: :ok
-  defdelegate subscribe(listener),
-    to: SubscriptionManager, as: :subscribe
+  defdelegate subscribe(listener_with_topics),
+    to: Subscription, as: :subscribe
 
   @doc """
   Unsubscribe from the bus.
@@ -100,7 +98,7 @@ defmodule EventBus do
       EventBus.unsubscribe(MyEventListener)
       :ok
 
-      # For configurable listeners you must pass tuple of processor and config
+      # For configurable listeners you must pass tuple of listener and config
       my_config = %{}
       EventBus.unsubscribe({{OtherListener, my_config}})
       :ok
@@ -108,10 +106,10 @@ defmodule EventBus do
   """
   @spec unsubscribe({tuple() | module()}) :: :ok
   defdelegate unsubscribe(listener),
-    to: SubscriptionManager, as: :unsubscribe
+    to: Subscription, as: :unsubscribe
 
   @doc """
-  List the subscribers to the bus.
+  List the subscribers.
 
   ## Examples
 
@@ -125,10 +123,10 @@ defmodule EventBus do
   """
   @spec subscribers() :: list(any())
   defdelegate subscribers,
-    to: SubscriptionManager, as: :subscribers
+    to: Subscription, as: :subscribers
 
   @doc """
-  List the subscribers to the bus with given topic.
+  List the subscribers to the with given topic.
 
   ## Examples
 
@@ -142,7 +140,7 @@ defmodule EventBus do
   """
   @spec subscribers(atom() | String.t) :: list(any())
   defdelegate subscribers(topic),
-    to: SubscriptionManager, as: :subscribers
+    to: Subscription, as: :subscribers
 
   @doc """
   Fetch event data
@@ -154,7 +152,7 @@ defmodule EventBus do
   """
   @spec fetch_event({atom(), String.t | integer()}) :: Event.t
   defdelegate fetch_event(event_shadow),
-    to: EventStore, as: :fetch
+    to: Store, as: :fetch
 
   @doc """
   Send the event processing completed to the watcher
@@ -163,11 +161,17 @@ defmodule EventBus do
 
       EventBus.mark_as_completed({MyEventListener, :hello_received, "123"})
 
+      # For configurable listeners you must pass tuple of listener and config
+      my_config = %{}
+      listener = {OtherListener, my_config}
+      EventBus.mark_as_completed({listener, :hello_received, "124"})
+      :ok
+
   """
   @spec mark_as_completed({tuple() | module(), atom(), String.t | integer()})
     :: no_return()
   defdelegate mark_as_completed(listener_with_event_shadow),
-    to: EventWatcher, as: :mark_as_completed
+    to: Watcher, as: :mark_as_completed
 
   @doc """
   Send the event processing skipped to the watcher
@@ -186,5 +190,5 @@ defmodule EventBus do
   @spec mark_as_skipped({tuple() | module(), atom(), String.t | integer()})
     :: no_return()
   defdelegate mark_as_skipped(listener_with_event_shadow),
-    to: EventWatcher, as: :mark_as_skipped
+    to: Watcher, as: :mark_as_skipped
 end

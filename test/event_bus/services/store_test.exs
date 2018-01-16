@@ -1,9 +1,9 @@
-defmodule EventBus.EventStoreTest do
+defmodule EventBus.Service.StoreTest do
   use ExUnit.Case, async: false
   alias EventBus.Model.Event
-  alias EventBus.EventStore
+  alias EventBus.Service.Store
 
-  doctest EventBus.EventStore
+  doctest Store
 
   setup do
     :ok
@@ -11,7 +11,7 @@ defmodule EventBus.EventStoreTest do
 
   test "register_topic" do
     topic = :metrics_received_1
-    EventStore.register_topic(topic)
+    Store.register_topic(topic)
     Process.sleep(100)
     all_tables = :ets.all()
 
@@ -20,7 +20,7 @@ defmodule EventBus.EventStoreTest do
 
   test "unregister_topic" do
     topic = :metrics_received_1
-    EventStore.unregister_topic(topic)
+    Store.unregister_topic(topic)
     Process.sleep(100)
     all_tables = :ets.all()
 
@@ -29,18 +29,18 @@ defmodule EventBus.EventStoreTest do
 
   test "save" do
     topic = :metrics_received_2
-    EventStore.register_topic(topic)
+    Store.register_topic(topic)
     Process.sleep(100)
 
     event = %Event{id: "E1", transaction_id: "T1", data: ["Mustafa", "Turan"],
       topic: topic}
 
-    assert :ok == EventStore.save(event)
+    assert :ok == Store.save(event)
   end
 
   test "fetch" do
     topic = :metrics_received_3
-    EventStore.register_topic(topic)
+    Store.register_topic(topic)
     Process.sleep(100)
 
     first_event = %Event{id: "E1", transaction_id: "T1",
@@ -48,25 +48,25 @@ defmodule EventBus.EventStoreTest do
     second_event = %Event{id: "E2", transaction_id: "T1",
       data: %{name: "Mustafa", surname: "Turan"}, topic: topic}
 
-    :ok = EventStore.save(first_event)
-    :ok = EventStore.save(second_event)
+    :ok = Store.save(first_event)
+    :ok = Store.save(second_event)
 
-    assert first_event == EventStore.fetch({topic, first_event.id})
-    assert second_event == EventStore.fetch({topic, second_event.id})
+    assert first_event == Store.fetch({topic, first_event.id})
+    assert second_event == Store.fetch({topic, second_event.id})
   end
 
   test "delete and fetch" do
     topic = :metrics_received_4
-    EventStore.register_topic(topic)
+    Store.register_topic(topic)
     Process.sleep(100)
 
     event = %Event{id: "E1", transaction_id: "T1", data: ["Mustafa", "Turan"],
       topic: topic}
 
-    :ok = EventStore.save(event)
-    EventStore.delete({topic, event.id})
+    :ok = Store.save(event)
+    Store.delete({topic, event.id})
     Process.sleep(100)
 
-    assert is_nil(EventStore.fetch({topic, event.id}))
+    assert is_nil(Store.fetch({topic, event.id}))
   end
 end

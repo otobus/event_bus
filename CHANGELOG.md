@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 
 - Move build and notify blocks into EventSource
-- Add use keyword for EventStore for developer friendly require and aliases
+- Add use keyword for Store for developer friendly require and aliases
 
 ## [0.9.0] - 2018-01-06
 
