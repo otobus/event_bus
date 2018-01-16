@@ -1,9 +1,10 @@
-defmodule EventBus.EventWatcherTest do
+defmodule EventBus.Service.WatcherTest do
   use ExUnit.Case, async: false
-  alias EventBus.EventWatcher
+  alias EventBus.Service.Watcher
   alias EventBus.Support.Helper.{InputLogger, Calculator, MemoryLeakerOne,
     BadOne}
-  doctest EventBus.EventWatcher
+
+  doctest Watcher
 
   setup do
     :ok
@@ -11,7 +12,7 @@ defmodule EventBus.EventWatcherTest do
 
   test "register_topic" do
     topic = :metrics_destroyed
-    EventWatcher.register_topic(topic)
+    Watcher.register_topic(topic)
     Process.sleep(1_000)
     all_tables = :ets.all()
 
@@ -20,8 +21,8 @@ defmodule EventBus.EventWatcherTest do
 
   test "unregister_topic" do
     topic = :metrics_destroyed
-    EventWatcher.register_topic(topic)
-    EventWatcher.unregister_topic(topic)
+    Watcher.register_topic(topic)
+    Watcher.unregister_topic(topic)
     Process.sleep(1_000)
     all_tables = :ets.all()
 
@@ -29,53 +30,50 @@ defmodule EventBus.EventWatcherTest do
   end
 
   test "create and fetch" do
-    topic = :some_event_occurred1
-    EventWatcher.register_topic(topic)
-    Process.sleep(100)
-
+    topic      = :some_event_occurred1
+    id         = "E1"
     processors = [{InputLogger, %{}}, {Calculator, %{}}, {MemoryLeakerOne, %{}},
       {BadOne, %{}}]
-    id = "E1"
 
-    EventWatcher.create({processors, topic, id})
+    Watcher.register_topic(topic)
+    Process.sleep(100)
+    Watcher.save({topic, id}, {processors, [], []})
     Process.sleep(100)
 
-    assert {processors, [], []} == EventWatcher.fetch({topic, id})
+    assert {processors, [], []} == Watcher.fetch({topic, id})
   end
 
   test "complete" do
-    topic = :some_event_occurred2
-    EventWatcher.register_topic(topic)
-    Process.sleep(100)
-
+    topic      = :some_event_occurred2
+    id         = "E1"
     processors = [{InputLogger, %{}}, {Calculator, %{}}, {MemoryLeakerOne, %{}},
       {BadOne, %{}}]
-    id = "E1"
 
-    EventWatcher.create({processors, topic, id})
+    Watcher.register_topic(topic)
     Process.sleep(100)
-    EventWatcher.mark_as_completed({{InputLogger, %{}}, topic, id})
+    Watcher.save({topic, id}, {processors, [], []})
+    Process.sleep(100)
+    Watcher.mark_as_completed({{InputLogger, %{}}, topic, id})
     Process.sleep(100)
 
     assert {processors, [{InputLogger, %{}}], []} ==
-      EventWatcher.fetch({topic, id})
+      Watcher.fetch({topic, id})
   end
 
   test "skip" do
-    topic = :some_event_occurred3
-    EventWatcher.register_topic(topic)
-    Process.sleep(100)
-
+    id         = "E1"
+    topic      = :some_event_occurred3
     processors = [{InputLogger, %{}}, {Calculator, %{}}, {MemoryLeakerOne, %{}},
       {BadOne, %{}}]
-    id = "E1"
 
-    EventWatcher.create({processors, topic, id})
+    Watcher.register_topic(topic)
     Process.sleep(100)
-    EventWatcher.mark_as_skipped({{InputLogger, %{}}, topic, id})
+    Watcher.save({topic, id}, {processors, [], []})
+    Process.sleep(100)
+    Watcher.mark_as_skipped({{InputLogger, %{}}, topic, id})
     Process.sleep(100)
 
     assert {processors, [], [{InputLogger, %{}}]} ==
-      EventWatcher.fetch({topic, id})
+      Watcher.fetch({topic, id})
   end
 end

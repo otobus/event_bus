@@ -1,82 +1,85 @@
-defmodule EventBus.EventStore do
+defmodule EventBus.Store do
   @moduledoc """
-  Event Manager
+  Event store is a storage handler for events. It allows to create and delete
+  stores for a topic. And allows fetching, deleting and saving events for the
+  topic.
   """
 
-  require Logger
   use GenServer
   alias EventBus.Model.Event
-  alias :ets, as: Ets
 
-  @prefix "eb_es_"
+  @backend Application.get_env(:event_bus, :store_backend,
+    EventBus.Service.Store)
 
   @doc false
   def start_link,
     do: GenServer.start_link(__MODULE__, nil, name: __MODULE__)
 
-  @doc false
+  @doc """
+  Register a topic to the store
+  """
   @spec register_topic(String.t | atom()) :: no_return()
   def register_topic(topic),
     do: GenServer.cast(__MODULE__, {:register_topic, topic})
 
-  @doc false
+  @doc """
+  Unregister the topic from the store
+  """
   @spec unregister_topic(String.t | atom()) :: no_return()
   def unregister_topic(topic),
     do: GenServer.cast(__MODULE__, {:unregister_topic, topic})
 
-  @doc false
-  @spec fetch({atom(), String.t | integer()}) :: any()
-  def fetch({topic, id}) do
-    case Ets.lookup(table_name(topic), id) do
-      [{_, %Event{} = event}] -> event
-      _ -> nil
-    end
-  end
-
-  @doc false
+  @doc """
+  Delete an event from the store
+  """
   @spec delete({atom(), String.t | integer()}) :: no_return()
   def delete({topic, id}),
     do: GenServer.cast(__MODULE__, {:delete, {topic, id}})
 
-  @doc false
+  @doc """
+  Save an event to the store
+  """
   @spec save(Event.t) :: :ok
   def save(%Event{} = event),
     do: GenServer.call(__MODULE__, {:save, event})
 
+  ###########################################################################
+  # DELEGATIONS
+  ###########################################################################
+
+  @doc """
+  Fetch an event from the store
+  """
+  @spec fetch({atom(), String.t | integer()}) :: any()
+  defdelegate fetch(event_shadow),
+    to: @backend, as: :fetch
+
+  ###########################################################################
+  # PRIVATE API
+  ###########################################################################
+
   @doc false
   @spec handle_cast({:register_topic, String.t | atom()}, nil) :: no_return()
   def handle_cast({:register_topic, topic}, state) do
-    table_name = table_name(topic)
-    all_tables = :ets.all()
-    unless Enum.any?(all_tables, fn table -> table == table_name end) do
-      opts = [:set, :public, :named_table, {:read_concurrency, true}]
-      Ets.new(table_name, opts)
-    end
+    @backend.register_topic(topic)
     {:noreply, state}
   end
   @spec handle_cast({:unregister_topic, String.t | atom()}, nil) :: no_return()
   def handle_cast({:unregister_topic, topic}, state) do
-    table_name = table_name(topic)
-    all_tables = :ets.all()
-    if Enum.any?(all_tables, fn table -> table == table_name end) do
-      Ets.delete(table_name)
-    end
+    @backend.unregister_topic(topic)
     {:noreply, state}
   end
   @spec handle_cast({:delete, {atom(), String.t | integer()}}, nil)
     :: no_return()
   def handle_cast({:delete, {topic, id}}, state) do
-    Ets.delete(table_name(topic), id)
+    @backend.delete({topic, id})
     {:noreply, state}
   end
 
   @doc false
   @spec handle_call({:save, Event.t}, any(), nil) :: no_return()
-  def handle_call({:save, %Event{id: id, topic: topic} = event}, _from, state) do
-    Ets.insert(table_name(topic), {id, event})
+  def handle_call({:save, event}, _from, state) do
+    @backend.save(event)
     {:reply, :ok, state}
   end
-
-  defp table_name(topic),
-    do: :"#{@prefix}#{topic}"
 end
