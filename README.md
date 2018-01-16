@@ -351,6 +351,14 @@ Module docs can be found at [https://hexdocs.pm/event_bus](https://hexdocs.pm/ev
 
 Implementation details can be found at: https://medium.com/@mustafaturan/event-bus-implementation-s-d2854a9fafd5
 
+## Addons
+
+EventBus allows building generic and specific addons for your stack. Here are a few generic addons which I'm currently working on:
+
+- `event_bus_logger` allows you to log event bus events to your console with a generic configuration: https://github.com/mustafaturan/event_bus_logger
+
+- `event_bus_postgres` allows you to save event bus events to Postgres DB with a generic configuration: https://github.com/mustafaturan/event_bus_postgres
+
 ## Contributing
 
 ### Issues, Bugs, Documentation, Enhancements

@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Add use keyword for Source for developer friendly require and aliases
 - Split GenServers and Services
 - Move utility functions into its own module
+- Add addons section to README
 
 ## [0.9.0] - 2018-01-06
 
