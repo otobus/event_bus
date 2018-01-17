@@ -82,10 +82,10 @@ EventBus.subscribers(:hello_received)
   transaction_id: String.t | integer(), # optional
   topic: atom(), # required
   data: any() # required,
-  initialized_at: integer(), # optional, might be seconds, milliseconds or microseconds even nano seconds since Elixir does not have a limit on integer size
-  occurred_at: integer(), # optional, might be seconds, milliseconds or microseconds even nano seconds since Elixir does not have a limit on integer size
+  initialized_at: integer(), # optional, might be seconds, milliseconds or microseconds even nanoseconds since Elixir does not have a limit on integer size
+  occurred_at: integer(), # optional, might be seconds, milliseconds or microseconds even nanoseconds since Elixir does not have a limit on integer size
   source: String.t, # optional, source of the event, who created it
-  ttl: integer() # optional, might be seconds, milliseconds or microseconds even nano seconds since Elixir does not have a limit on integer size. If `tll` field is set, it is recommended to set `occurred_at` field too.
+  ttl: integer() # optional, might be seconds, milliseconds or microseconds even nanoseconds since Elixir does not have a limit on integer size. If `tll` field is set, it is recommended to set `occurred_at` field too.
 }
 ```
 
@@ -177,9 +177,8 @@ EventSource.build(params) do
   %{email: "jd@example.com", name: "John Doe"}
 end
 > %EventBus.Model.Event{data: %{email: "jd@example.com", name: "John Doe"},
- id: "some unique id", initialized_at: 1515274599140,
- occurred_at: 1515274599141, source: "my event creator", topic: :user_created,
- transaction_id: "tx", ttl: 600000}
+ id: "some unique id", initialized_at: 1515274599140491000,
+ occurred_at: 1515274599141211000, source: "my event creator", topic: :user_created, transaction_id: "tx", ttl: 600000}
 
 
 # Without optional params
@@ -188,8 +187,8 @@ EventSource.build(params) do
   %{email: "jd@example.com", name: "John Doe"}
 end
 > %EventBus.Model.Event{data: %{email: "jd@example.com", name: "John Doe"},
- id: "some unique id", initialized_at: 1515274599140,
- occurred_at: 1515274599141, source: nil, topic: :user_created,
+ id: "some unique id", initialized_at: 1515274599140491000,
+ occurred_at: 1515274599141211000, source: nil, topic: :user_created,
  transaction_id: nil, ttl: nil}
 ```
 

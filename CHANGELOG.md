@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Split GenServers and Services
 - Move utility functions into its own module
 - Add addons section to README
+- Switch to microseconds when auto event structuring with `EventSource` to increase compability with Zipkin and Datadog APM
 
 ## [0.9.0] - 2018-01-06
 
