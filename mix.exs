@@ -3,7 +3,7 @@ defmodule EventBus.Mixfile do
 
   def project do
     [app: :event_bus,
-     version: "1.0.0-beta2",
+     version: "1.0.0-beta3",
      elixir: "~> 1.5",
      elixirc_paths: elixirc_paths(Mix.env),
      build_embedded: Mix.env == :prod,
