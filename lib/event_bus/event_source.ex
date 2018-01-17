@@ -18,7 +18,7 @@ defmodule EventBus.EventSource do
   """
   defmacro build(params, do: yield) do
     quote do
-      initialized_at = System.os_time(:milli_seconds)
+      initialized_at = System.os_time(:micro_seconds)
       params         = unquote(params)
       data           = unquote(yield)
 
@@ -28,7 +28,7 @@ defmodule EventBus.EventSource do
         transaction_id: params[:transaction_id],
         data:           data,
         initialized_at: initialized_at,
-        occurred_at:    System.os_time(:milli_seconds),
+        occurred_at:    System.os_time(:micro_seconds),
         source:         params[:source] || "#{__MODULE__}",
         ttl:            params[:ttl]
       }
@@ -40,7 +40,7 @@ defmodule EventBus.EventSource do
   """
   defmacro notify(params, do: yield) do
     quote do
-      initialized_at = System.os_time(:milli_seconds)
+      initialized_at = System.os_time(:micro_seconds)
       params         = unquote(params)
       data           = unquote(yield)
       event          = %Event{
@@ -49,7 +49,7 @@ defmodule EventBus.EventSource do
         transaction_id: params[:transaction_id],
         data:           data,
         initialized_at: initialized_at,
-        occurred_at:    System.os_time(:milli_seconds),
+        occurred_at:    System.os_time(:micro_seconds),
         source:         params[:source] || "#{__MODULE__}",
         ttl:            params[:ttl]
       }
