@@ -5,11 +5,11 @@ defmodule EventBus.Service.TopicTest do
   doctest Topic
 
   setup do
-    on_exit fn ->
+    on_exit(fn ->
       Topic.unregister(:t1)
       Topic.unregister(:t2)
       Topic.unregister(:t3)
-    end
+    end)
 
     :ok
   end
@@ -57,10 +57,10 @@ defmodule EventBus.Service.TopicTest do
   end
 
   test "exist? with an existent topic" do
-    assert Topic.exist? :metrics_received
+    assert Topic.exist?(:metrics_received)
   end
 
   test "exist? with a non-existent topic" do
-    refute Topic.exist? :unknown_called
+    refute Topic.exist?(:unknown_called)
   end
 end

@@ -4,8 +4,7 @@ defmodule EventBus do
   event watcher based on ETS
   """
 
-  alias EventBus.{Notifier, Store, Watcher, Subscription,
-    Topic, Model.Event}
+  alias EventBus.{Notifier, Store, Watcher, Subscription, Topic, Model.Event}
 
   @doc """
   Send event to all listeners.
@@ -18,9 +17,10 @@ defmodule EventBus do
       :ok
 
   """
-  @spec notify(Event.t) :: :ok
+  @spec notify(Event.t()) :: :ok
   defdelegate notify(event),
-    to: Notifier, as: :notify
+    to: Notifier,
+    as: :notify
 
   @doc """
   Check if topic registered.
@@ -31,9 +31,10 @@ defmodule EventBus do
       true
 
   """
-  @spec topic_exist?(String.t | atom()) :: boolean()
+  @spec topic_exist?(String.t() | atom()) :: boolean()
   defdelegate topic_exist?(topic),
-    to: Topic, as: :exist?
+    to: Topic,
+    as: :exist?
 
   @doc """
   List all registered topics.
@@ -45,7 +46,8 @@ defmodule EventBus do
   """
   @spec topics() :: list(atom())
   defdelegate topics,
-    to: Topic, as: :all
+    to: Topic,
+    as: :all
 
   @doc """
   Register a topic
@@ -56,9 +58,10 @@ defmodule EventBus do
       :ok
 
   """
-  @spec register_topic(String.t | atom()) :: boolean()
+  @spec register_topic(String.t() | atom()) :: boolean()
   defdelegate register_topic(topic),
-    to: Topic, as: :register
+    to: Topic,
+    as: :register
 
   @doc """
   Unregister a topic
@@ -69,9 +72,10 @@ defmodule EventBus do
       :ok
 
   """
-  @spec unregister_topic(String.t | atom()) :: boolean()
+  @spec unregister_topic(String.t() | atom()) :: boolean()
   defdelegate unregister_topic(topic),
-    to: Topic, as: :unregister
+    to: Topic,
+    as: :unregister
 
   @doc """
   Subscribe to the bus.
@@ -89,7 +93,8 @@ defmodule EventBus do
   """
   @spec subscribe(tuple()) :: :ok
   defdelegate subscribe(listener_with_topics),
-    to: Subscription, as: :subscribe
+    to: Subscription,
+    as: :subscribe
 
   @doc """
   Unsubscribe from the bus.
@@ -107,7 +112,8 @@ defmodule EventBus do
   """
   @spec unsubscribe({tuple() | module()}) :: :ok
   defdelegate unsubscribe(listener),
-    to: Subscription, as: :unsubscribe
+    to: Subscription,
+    as: :unsubscribe
 
   @doc """
   List the subscribers.
@@ -124,7 +130,8 @@ defmodule EventBus do
   """
   @spec subscribers() :: list(any())
   defdelegate subscribers,
-    to: Subscription, as: :subscribers
+    to: Subscription,
+    as: :subscribers
 
   @doc """
   List the subscribers to the with given topic.
@@ -139,9 +146,10 @@ defmodule EventBus do
       [MyEventListener, {OtherListener, %{}}]
 
   """
-  @spec subscribers(atom() | String.t) :: list(any())
+  @spec subscribers(atom() | String.t()) :: list(any())
   defdelegate subscribers(topic),
-    to: Subscription, as: :subscribers
+    to: Subscription,
+    as: :subscribers
 
   @doc """
   Fetch event data
@@ -151,9 +159,10 @@ defmodule EventBus do
       EventBus.fetch_event({:hello_received, "123"})
 
   """
-  @spec fetch_event({atom(), String.t | integer()}) :: Event.t
+  @spec fetch_event({atom(), String.t() | integer()}) :: Event.t()
   defdelegate fetch_event(event_shadow),
-    to: Store, as: :fetch
+    to: Store,
+    as: :fetch
 
   @doc """
   Send the event processing completed to the watcher
@@ -169,10 +178,11 @@ defmodule EventBus do
       :ok
 
   """
-  @spec mark_as_completed({tuple() | module(), atom(), String.t | integer()})
+  @spec mark_as_completed({tuple() | module(), atom(), String.t() | integer()})
     :: no_return()
   defdelegate mark_as_completed(listener_with_event_shadow),
-    to: Watcher, as: :mark_as_completed
+    to: Watcher,
+    as: :mark_as_completed
 
   @doc """
   Send the event processing skipped to the watcher
@@ -188,8 +198,9 @@ defmodule EventBus do
       :ok
 
   """
-  @spec mark_as_skipped({tuple() | module(), atom(), String.t | integer()})
+  @spec mark_as_skipped({tuple() | module(), atom(), String.t() | integer()})
     :: no_return()
   defdelegate mark_as_skipped(listener_with_event_shadow),
-    to: Watcher, as: :mark_as_skipped
+    to: Watcher,
+    as: :mark_as_skipped
 end

@@ -15,7 +15,7 @@ defmodule EventBus.Service.Topic do
     do: Application.get_env(:event_bus, :topics, [])
 
   @doc false
-  @spec exist?(String.t | atom()) :: boolean()
+  @spec exist?(String.t() | atom()) :: boolean()
   def exist?(topic),
     do: Enum.any?(all(), fn event_topic -> event_topic == :"#{topic}" end)
 
@@ -28,10 +28,11 @@ defmodule EventBus.Service.Topic do
   end
 
   @doc false
-  @spec register(String.t | atom()) :: no_return()
+  @spec register(String.t() | atom()) :: no_return()
   def register(topic) do
-    topic  = :"#{topic}"
+    topic = :"#{topic}"
     topics = all()
+
     unless Enum.member?(topics, topic) do
       Application.put_env(@app, @namespace, [topic | topics], persistent: true)
       Enum.each(@modules, fn mod -> mod.register_topic(topic) end)
@@ -39,10 +40,11 @@ defmodule EventBus.Service.Topic do
   end
 
   @doc false
-  @spec unregister(String.t | atom()) :: no_return()
+  @spec unregister(String.t() | atom()) :: no_return()
   def unregister(topic) do
-    topic  = :"#{topic}"
+    topic = :"#{topic}"
     topics = all()
+
     if Enum.member?(topics, topic) do
       Enum.each(@modules, fn mod -> mod.unregister_topic(topic) end)
       topics = List.delete(topics, topic)

@@ -1,4 +1,3 @@
 use Mix.Config
 
-config :event_bus,
-  topics: [:metrics_received, :metrics_summed]
+config :event_bus, topics: [:metrics_received, :metrics_summed]

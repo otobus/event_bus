@@ -4,21 +4,32 @@ defmodule EventBus.Service.NotifierTest do
   alias EventBus.Model.Event
   alias EventBus.Service.Notifier
   alias EventBus.Subscription
-  alias EventBus.Support.Helper.{InputLogger, Calculator, AnotherCalculator,
-    MemoryLeakerOne, BadOne}
+
+  alias EventBus.Support.Helper.{
+    InputLogger,
+    Calculator,
+    AnotherCalculator,
+    MemoryLeakerOne,
+    BadOne
+  }
 
   doctest Notifier
 
   @topic :metrics_received
-  @event %Event{id: "E1", transaction_id: "T1", topic: @topic, data: [1, 2],
-    source: "NotifierTest"}
+  @event %Event{
+    id: "E1",
+    transaction_id: "T1",
+    topic: @topic,
+    data: [1, 2],
+    source: "NotifierTest"
+  }
 
   setup do
-    on_exit fn ->
+    on_exit(fn ->
       Subscription.unregister_topic(:metrics_received)
       Subscription.unregister_topic(:metrics_summed)
       Process.sleep(100)
-    end
+    end)
 
     Subscription.register_topic(:metrics_received)
     Subscription.register_topic(:metrics_summed)
@@ -33,8 +44,10 @@ defmodule EventBus.Service.NotifierTest do
   end
 
   test "notify" do
-    Subscription.subscribe({{InputLogger, %{}},
-      ["metrics_received$", "metrics_summed$"]})
+    Subscription.subscribe(
+      {{InputLogger, %{}}, ["metrics_received$", "metrics_summed$"]}
+    )
+
     Subscription.subscribe({{BadOne, %{}}, [".*"]})
     Subscription.subscribe({{Calculator, %{}}, ["metrics_received$"]})
     Subscription.subscribe({{MemoryLeakerOne, %{}}, [".*"]})
@@ -42,7 +55,8 @@ defmodule EventBus.Service.NotifierTest do
     # This processor/listener one has one config!!!
     Subscription.subscribe({AnotherCalculator, ["metrics_received$"]})
 
-    Process.sleep(400) # Sleep until subscriptions complete
+    # Sleep until subscriptions complete
+    Process.sleep(400)
 
     logs =
       capture_log(fn ->
@@ -51,8 +65,20 @@ defmodule EventBus.Service.NotifierTest do
       end)
 
     assert String.contains?(logs, "BadOne.process/1 raised an error!")
-    assert String.contains?(logs, "Event log for %EventBus.Model.Event{data: [1, 2], id: \"E1\", initialized_at: nil, occurred_at: nil, source: \"NotifierTest\", topic: :metrics_received, transaction_id: \"T1\", ttl: nil}")
-    assert String.contains?(logs, "Event log for %EventBus.Model.Event{data: {3, [1, 2]}, id: \"E123\", initialized_at: nil, occurred_at: nil, source: \"Logger\", topic: :metrics_summed, transaction_id: \"T1\", ttl: nil}")
-    assert String.contains?(logs, "Event log for %EventBus.Model.Event{data: {3, [1, 2]}, id: \"E123\", initialized_at: nil, occurred_at: nil, source: \"AnotherCalculator\", topic: :metrics_summed, transaction_id: \"T1\", ttl: nil}")
+
+    assert String.contains?(
+             logs,
+             "Event log for %EventBus.Model.Event{data: [1, 2], id: \"E1\", initialized_at: nil, occurred_at: nil, source: \"NotifierTest\", topic: :metrics_received, transaction_id: \"T1\", ttl: nil}"
+           )
+
+    assert String.contains?(
+             logs,
+             "Event log for %EventBus.Model.Event{data: {3, [1, 2]}, id: \"E123\", initialized_at: nil, occurred_at: nil, source: \"Logger\", topic: :metrics_summed, transaction_id: \"T1\", ttl: nil}"
+           )
+
+    assert String.contains?(
+             logs,
+             "Event log for %EventBus.Model.Event{data: {3, [1, 2]}, id: \"E123\", initialized_at: nil, occurred_at: nil, source: \"AnotherCalculator\", topic: :metrics_summed, transaction_id: \"T1\", ttl: nil}"
+           )
   end
 end

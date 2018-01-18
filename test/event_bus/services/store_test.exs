@@ -32,8 +32,12 @@ defmodule EventBus.Service.StoreTest do
     Store.register_topic(topic)
     Process.sleep(100)
 
-    event = %Event{id: "E1", transaction_id: "T1", data: ["Mustafa", "Turan"],
-      topic: topic}
+    event = %Event{
+      id: "E1",
+      transaction_id: "T1",
+      data: ["Mustafa", "Turan"],
+      topic: topic
+    }
 
     assert :ok == Store.save(event)
   end
@@ -43,10 +47,19 @@ defmodule EventBus.Service.StoreTest do
     Store.register_topic(topic)
     Process.sleep(100)
 
-    first_event = %Event{id: "E1", transaction_id: "T1",
-      data: ["Mustafa", "Turan"], topic: topic}
-    second_event = %Event{id: "E2", transaction_id: "T1",
-      data: %{name: "Mustafa", surname: "Turan"}, topic: topic}
+    first_event = %Event{
+      id: "E1",
+      transaction_id: "T1",
+      data: ["Mustafa", "Turan"],
+      topic: topic
+    }
+
+    second_event = %Event{
+      id: "E2",
+      transaction_id: "T1",
+      data: %{name: "Mustafa", surname: "Turan"},
+      topic: topic
+    }
 
     :ok = Store.save(first_event)
     :ok = Store.save(second_event)
@@ -60,8 +73,12 @@ defmodule EventBus.Service.StoreTest do
     Store.register_topic(topic)
     Process.sleep(100)
 
-    event = %Event{id: "E1", transaction_id: "T1", data: ["Mustafa", "Turan"],
-      topic: topic}
+    event = %Event{
+      id: "E1",
+      transaction_id: "T1",
+      data: ["Mustafa", "Turan"],
+      topic: topic
+    }
 
     :ok = Store.save(event)
     Store.delete({topic, event.id})

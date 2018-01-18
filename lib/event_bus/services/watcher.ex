@@ -7,22 +7,30 @@ defmodule EventBus.Service.Watcher do
   @prefix "eb_ew_"
 
   @doc false
-  @spec register_topic(String.t | atom()) :: no_return()
+  @spec register_topic(String.t() | atom()) :: no_return()
   def register_topic(topic) do
     table_name = table_name(topic)
     all_tables = :ets.all()
+
     unless Enum.any?(all_tables, fn table -> table == table_name end) do
-      opts = [:set, :public, :named_table, {:write_concurrency, true},
-        {:read_concurrency, true}]
+      opts = [
+        :set,
+        :public,
+        :named_table,
+        {:write_concurrency, true},
+        {:read_concurrency, true}
+      ]
+
       Ets.new(table_name, opts)
     end
   end
 
   @doc false
-  @spec unregister_topic(String.t | atom()) :: no_return()
+  @spec unregister_topic(String.t() | atom()) :: no_return()
   def unregister_topic(topic) do
     table_name = table_name(topic)
     all_tables = :ets.all()
+
     if Enum.any?(all_tables, fn table -> table == table_name end) do
       Ets.delete(table_name)
     end
@@ -32,16 +40,14 @@ defmodule EventBus.Service.Watcher do
   @spec mark_as_completed(tuple()) :: no_return()
   def mark_as_completed({listener, topic, id}) do
     {listeners, completers, skippers} = fetch({topic, id})
-    save_or_delete({topic, id}, {listeners, [listener | completers],
-      skippers})
+    save_or_delete({topic, id}, {listeners, [listener | completers], skippers})
   end
 
   @doc false
   @spec mark_as_skipped(tuple()) :: no_return()
   def mark_as_skipped({listener, topic, id}) do
     {listeners, completers, skippers} = fetch({topic, id})
-    save_or_delete({topic, id}, {listeners, completers,
-      [listener | skippers]})
+    save_or_delete({topic, id}, {listeners, completers, [listener | skippers]})
   end
 
   @doc false
@@ -79,7 +85,7 @@ defmodule EventBus.Service.Watcher do
     Ets.delete(table_name(topic), id)
   end
 
-  @spec table_name(String.t | atom()) :: atom()
+  @spec table_name(String.t() | atom()) :: atom()
   defp table_name(name),
     do: :"#{@prefix}#{name}"
 end

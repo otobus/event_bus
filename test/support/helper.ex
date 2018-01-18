@@ -20,11 +20,18 @@ defmodule EventBus.Support.Helper do
       # handle an event
       sum = Enum.reduce(inputs, 0, &(&1 + &2))
       # create a new event if necessary
-      new_event = %Event{id: "E123", transaction_id: event.transaction_id,
-        topic: :metrics_summed, data: {sum, inputs}, source: "Logger"}
+      new_event = %Event{
+        id: "E123",
+        transaction_id: event.transaction_id,
+        topic: :metrics_summed,
+        data: {sum, inputs},
+        source: "Logger"
+      }
+
       EventBus.notify(new_event)
       EventBus.mark_as_completed({{__MODULE__, config}, :metrics_received, id})
     end
+
     def process({config, topic, id}) do
       EventBus.mark_as_skipped({{__MODULE__, config}, topic, id})
     end
@@ -39,12 +46,18 @@ defmodule EventBus.Support.Helper do
       # handle an event
       sum = Enum.reduce(inputs, 0, &(&1 + &2))
       # create a new event if necessary
-      new_event = %Event{id: "E123", transaction_id: event.transaction_id,
-        topic: :metrics_summed, data: {sum, inputs},
-        source: "AnotherCalculator"}
+      new_event = %Event{
+        id: "E123",
+        transaction_id: event.transaction_id,
+        topic: :metrics_summed,
+        data: {sum, inputs},
+        source: "AnotherCalculator"
+      }
+
       EventBus.notify(new_event)
       EventBus.mark_as_completed({__MODULE__, :metrics_received, id})
     end
+
     def process({topic, id}) do
       EventBus.mark_as_skipped({__MODULE__, topic, id})
     end
@@ -65,6 +78,7 @@ defmodule EventBus.Support.Helper do
     def process({config, :metrics_summed, id}) do
       GenServer.cast(__MODULE__, {config, :metrics_summed, id})
     end
+
     def process({config, topic, id}) do
       EventBus.mark_as_skipped({{__MODULE__, config}, topic, id})
     end
@@ -79,7 +93,7 @@ defmodule EventBus.Support.Helper do
 
   defmodule BadOne do
     def process(_, _) do
-      throw "bad"
+      throw("bad")
     end
   end
 end

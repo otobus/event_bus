@@ -10,15 +10,20 @@ defmodule EventBus.EventSourceTest do
   end
 
   test "build with source" do
-    id             = 1
-    topic          = :user_created
-    data           = %{id: 1, name: "me", email: "me@example.com"}
+    id = 1
+    topic = :user_created
+    data = %{id: 1, name: "me", email: "me@example.com"}
     transaction_id = "t1"
-    ttl            = 100
+    ttl = 100
 
     event =
-      EventSource.build(%{id: id, topic: topic, transaction_id: transaction_id,
-        ttl: ttl, source: "me"}) do
+      EventSource.build %{
+        id: id,
+        topic: topic,
+        transaction_id: transaction_id,
+        ttl: ttl,
+        source: "me"
+      } do
         data
       end
 
@@ -33,15 +38,19 @@ defmodule EventBus.EventSourceTest do
   end
 
   test "build without source" do
-    id             = 1
-    topic          = :user_created
-    data           = %{id: 1, name: "me", email: "me@example.com"}
+    id = 1
+    topic = :user_created
+    data = %{id: 1, name: "me", email: "me@example.com"}
     transaction_id = "t1"
-    ttl            = 100
+    ttl = 100
 
     event =
-      EventSource.build(%{id: id, topic: topic, transaction_id: transaction_id,
-        ttl: ttl}) do
+      EventSource.build %{
+        id: id,
+        topic: topic,
+        transaction_id: transaction_id,
+        ttl: ttl
+      } do
         data
       end
 
@@ -50,22 +59,27 @@ defmodule EventBus.EventSourceTest do
     assert event.topic == topic
     assert event.transaction_id == transaction_id
     assert event.ttl == ttl
-    assert event.source == "Elixir.EventBus.EventSourceTest"
+    assert event.source == "EventBus.EventSourceTest"
     refute is_nil(event.initialized_at)
     refute is_nil(event.occurred_at)
   end
 
   test "build with error topic" do
-    id             = 1
-    topic          = :user_created
-    error_topic    = :user_create_erred
-    data           = %{email: "Invalid format"}
+    id = 1
+    topic = :user_created
+    error_topic = :user_create_erred
+    data = %{email: "Invalid format"}
     transaction_id = "t1"
-    ttl            = 100
+    ttl = 100
 
     event =
-      EventSource.build(%{id: id, topic: topic, transaction_id: transaction_id,
-        ttl: ttl, error_topic: error_topic}) do
+      EventSource.build %{
+        id: id,
+        topic: topic,
+        transaction_id: transaction_id,
+        ttl: ttl,
+        error_topic: error_topic
+      } do
         {:error, data}
       end
 
@@ -74,17 +88,18 @@ defmodule EventBus.EventSourceTest do
     assert event.topic == error_topic
     assert event.transaction_id == transaction_id
     assert event.ttl == ttl
-    assert event.source == "Elixir.EventBus.EventSourceTest"
+    assert event.source == "EventBus.EventSourceTest"
     refute is_nil(event.initialized_at)
     refute is_nil(event.occurred_at)
   end
 
   test "notify" do
-    id     = 1
-    topic  = :user_created
-    data   = %{id: 1, name: "me", email: "me@example.com"}
+    id = 1
+    topic = :user_created
+    data = %{id: 1, name: "me", email: "me@example.com"}
+
     result =
-      EventSource.notify(%{id: id, topic: topic}) do
+      EventSource.notify %{id: id, topic: topic} do
         data
       end
 

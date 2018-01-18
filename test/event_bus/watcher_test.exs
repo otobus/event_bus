@@ -1,8 +1,14 @@
 defmodule EventBus.WatcherTest do
   use ExUnit.Case, async: false
   alias EventBus.Watcher
-  alias EventBus.Support.Helper.{InputLogger, Calculator, MemoryLeakerOne,
-    BadOne}
+
+  alias EventBus.Support.Helper.{
+    InputLogger,
+    Calculator,
+    MemoryLeakerOne,
+    BadOne
+  }
+
   doctest EventBus.Watcher
 
   setup do
@@ -21,10 +27,15 @@ defmodule EventBus.WatcherTest do
   end
 
   test "create" do
-    topic      = :some_event_occurred1
-    id         = "E1"
-    processors = [{InputLogger, %{}}, {Calculator, %{}}, {MemoryLeakerOne, %{}},
-      {BadOne, %{}}]
+    topic = :some_event_occurred1
+    id = "E1"
+
+    processors = [
+      {InputLogger, %{}},
+      {Calculator, %{}},
+      {MemoryLeakerOne, %{}},
+      {BadOne, %{}}
+    ]
 
     Watcher.register_topic(topic)
 
@@ -32,10 +43,15 @@ defmodule EventBus.WatcherTest do
   end
 
   test "complete" do
-    topic      = :some_event_occurred2
-    id         = "E1"
-    processors = [{InputLogger, %{}}, {Calculator, %{}}, {MemoryLeakerOne, %{}},
-      {BadOne, %{}}]
+    topic = :some_event_occurred2
+    id = "E1"
+
+    processors = [
+      {InputLogger, %{}},
+      {Calculator, %{}},
+      {MemoryLeakerOne, %{}},
+      {BadOne, %{}}
+    ]
 
     Watcher.register_topic(topic)
     Watcher.create({processors, topic, id})
@@ -44,10 +60,15 @@ defmodule EventBus.WatcherTest do
   end
 
   test "skip" do
-    topic      = :some_event_occurred3
-    id         = "E1"
-    processors = [{InputLogger, %{}}, {Calculator, %{}}, {MemoryLeakerOne, %{}},
-      {BadOne, %{}}]
+    topic = :some_event_occurred3
+    id = "E1"
+
+    processors = [
+      {InputLogger, %{}},
+      {Calculator, %{}},
+      {MemoryLeakerOne, %{}},
+      {BadOne, %{}}
+    ]
 
     Watcher.register_topic(topic)
     Watcher.create({processors, topic, id})
