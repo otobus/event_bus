@@ -14,6 +14,16 @@ defmodule EventBus.Service.NotifierTest do
     source: "NotifierTest"}
 
   setup do
+    on_exit fn ->
+      Subscription.unregister_topic(:metrics_received)
+      Subscription.unregister_topic(:metrics_summed)
+      Process.sleep(100)
+    end
+
+    Subscription.register_topic(:metrics_received)
+    Subscription.register_topic(:metrics_summed)
+    Process.sleep(100)
+
     for subscriber <- Subscription.subscribers() do
       Subscription.unsubscribe(subscriber)
     end
@@ -32,7 +42,7 @@ defmodule EventBus.Service.NotifierTest do
     # This processor/listener one has one config!!!
     Subscription.subscribe({AnotherCalculator, ["metrics_received$"]})
 
-    Process.sleep(300) # Sleep until subscriptions complete
+    Process.sleep(400) # Sleep until subscriptions complete
 
     logs =
       capture_log(fn ->

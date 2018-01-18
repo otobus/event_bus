@@ -4,6 +4,7 @@ defmodule EventBus.EventSource do
   """
 
   alias EventBus.Model.Event
+  alias __MODULE__
 
   defmacro __using__(_) do
     quote do
@@ -20,16 +21,24 @@ defmodule EventBus.EventSource do
     quote do
       initialized_at = System.os_time(:micro_seconds)
       params         = unquote(params)
-      data           = unquote(yield)
+      source         = Map.get(params, :source,
+        String.replace("#{__MODULE__}", "Elixir.", ""))
+      {topic, data}  =
+      case unquote(yield) do
+        {:error, error} ->
+          {params[:error_topic] || params[:topic], {:error, error}}
+        result ->
+          {params[:topic], result}
+      end
 
       %Event{
         id:             params[:id],
-        topic:          params[:topic],
+        topic:          topic,
         transaction_id: params[:transaction_id],
         data:           data,
         initialized_at: initialized_at,
         occurred_at:    System.os_time(:micro_seconds),
-        source:         params[:source] || "#{__MODULE__}",
+        source:         source,
         ttl:            params[:ttl]
       }
     end
@@ -40,22 +49,13 @@ defmodule EventBus.EventSource do
   """
   defmacro notify(params, do: yield) do
     quote do
-      initialized_at = System.os_time(:micro_seconds)
-      params         = unquote(params)
-      data           = unquote(yield)
-      event          = %Event{
-        id:             params[:id],
-        topic:          params[:topic],
-        transaction_id: params[:transaction_id],
-        data:           data,
-        initialized_at: initialized_at,
-        occurred_at:    System.os_time(:micro_seconds),
-        source:         params[:source] || "#{__MODULE__}",
-        ttl:            params[:ttl]
-      }
+      event =
+        EventSource.build(unquote(params)) do
+          unquote(yield)
+        end
 
       EventBus.notify(event)
-      data
+      event.data
     end
   end
 end

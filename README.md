@@ -192,6 +192,16 @@ end
  transaction_id: nil, ttl: nil}
 ```
 
+# With optional error topic param
+params = %{id: id, topic: topic, error_topic: :user_create_erred}
+EventSource.build(params) do
+  {:error, %{email: "Invalid format"}}
+end
+> %EventBus.Model.Event{data: {:error, %{email: "Invalid format"}},
+ id: "some unique id", initialized_at: 1515274599140491000,
+ occurred_at: 1515274599141211000, source: nil, topic: :user_create_erred,
+ transaction_id: nil, ttl: nil}
+
 **Use block notifier to notify event data to given topic**
 
 Builder automatically sets initialized_at and occured_at attributes
@@ -200,12 +210,13 @@ use EventBus.EventSource
 
 id = "some unique id"
 topic = :user_created
+error_topic = :user_create_erred # optional (incase error tuple return in yield execution, it will use :error_topic value as :topic for event creation)
 transaction_id = "tx" # optional
 ttl = 600_000 # optional
 source = "my event creator" # optional
 EventBus.register_topic(topic) # incase you didn't register it in `config.exs`
 
-params = %{id: id, topic: topic, transaction_id: transaction_id, ttl: ttl, source: source}
+params = %{id: id, topic: topic, transaction_id: transaction_id, ttl: ttl, source: source, error_topic: error_topic}
 EventSource.notify(params) do
   # do some calc in here
   # as a result return only the event data

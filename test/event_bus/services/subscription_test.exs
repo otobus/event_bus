@@ -9,11 +9,21 @@ defmodule EventBus.Service.SubscriptionTest do
   setup do
     on_exit fn ->
       Subscription.unregister_topic(:auto_subscribed)
+      Subscription.unregister_topic(:metrics_received)
+      Subscription.unregister_topic(:metrics_summed)
+      Process.sleep(100)
     end
+
+    Subscription.register_topic(:auto_subscribed)
+    Subscription.register_topic(:metrics_received)
+    Subscription.register_topic(:metrics_summed)
+    Process.sleep(100)
 
     for {subscriber, _topics} <- Subscription.subscribers() do
       Subscription.unsubscribe(subscriber)
     end
+
+    Process.sleep(100)
     :ok
   end
 
@@ -124,8 +134,10 @@ defmodule EventBus.Service.SubscriptionTest do
       ],
       %{
         metrics_received: [AnotherCalculator, {InputLogger, %{}}],
-        metrics_summed: [{InputLogger, %{}}]}
+        metrics_summed: [{InputLogger, %{}}],
+        auto_subscribed: []
       }
+    }
 
     assert expected == Application.get_env(:event_bus, :subscriptions)
   end

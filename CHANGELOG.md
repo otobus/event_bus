@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Move utility functions into its own module
 - Add addons section to README
 - Switch to microseconds when auto event structuring with `EventSource` to increase compability with Zipkin and Datadog APM
+- Error topic introduced for dynamic event builder/notifier with `EventSource`. Now you can pass `:error_topic` key, EvetSource automatically check the result of execution block for `{:error, _}` tuple and create an event structure for the given `:error_topic`.
 
 ## [0.9.0] - 2018-01-06
 
