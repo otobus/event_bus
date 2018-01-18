@@ -5,10 +5,10 @@ defmodule EventBus.TopicTest do
   doctest EventBus.Topic
 
   setup do
-    on_exit fn ->
+    on_exit(fn ->
       Topic.unregister(:t1)
       Topic.unregister(:t2)
-    end
+    end)
 
     :ok
   end

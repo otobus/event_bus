@@ -10,11 +10,11 @@ defmodule EventBus.Service.Notifier do
   @logging_level :info
 
   @doc false
-  @spec notify(Event.t) :: no_return()
+  @spec notify(Event.t()) :: no_return()
   def notify(%Event{id: id, topic: topic} = event) do
     listeners = Subscription.subscribers(topic)
-    :ok       = Store.save(event)
-    :ok       = Watcher.create({listeners, topic, id})
+    :ok = Store.save(event)
+    :ok = Watcher.create({listeners, topic, id})
 
     notify_listeners(listeners, {topic, id})
   end
@@ -37,6 +37,7 @@ defmodule EventBus.Service.Notifier do
       log(listener, error)
       Watcher.mark_as_skipped({{listener, config}, topic, id})
   end
+
   defp notify_listener(listener, {topic, id}) do
     listener.process({topic, id})
   rescue

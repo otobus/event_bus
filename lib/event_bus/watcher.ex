@@ -10,24 +10,31 @@ defmodule EventBus.Watcher do
 
   use GenServer
 
-  @backend Application.get_env(:event_bus, :watcher_backend,
-    EventBus.Service.Watcher)
+  @backend Application.get_env(
+             :event_bus,
+             :watcher_backend,
+             EventBus.Service.Watcher
+           )
 
   @doc false
   def start_link,
     do: GenServer.start_link(__MODULE__, nil, name: __MODULE__)
 
+  @doc false
+  def init(args),
+    do: {:ok, args}
+
   @doc """
   Register a topic to the watcher
   """
-  @spec register_topic(String.t) :: no_return()
+  @spec register_topic(String.t()) :: no_return()
   def register_topic(topic),
     do: GenServer.cast(__MODULE__, {:register_topic, topic})
 
   @doc """
   Unregister a topic from the watcher
   """
-  @spec unregister_topic(String.t | atom()) :: no_return()
+  @spec unregister_topic(String.t() | atom()) :: no_return()
   def unregister_topic(topic),
     do: GenServer.cast(__MODULE__, {:unregister_topic, topic})
 
@@ -59,31 +66,36 @@ defmodule EventBus.Watcher do
   @doc """
   Fetch the watcher
   """
-  @spec fetch({atom(), String.t | integer()}) :: tuple() | nil
+  @spec fetch({atom(), String.t() | integer()}) :: tuple() | nil
   defdelegate fetch(event_shadow),
-    to: @backend, as: :fetch
+    to: @backend,
+    as: :fetch
 
   ###########################################################################
   # PRIVATE API
   ###########################################################################
 
   @doc false
-  @spec handle_cast({:register_topic, String.t | atom()}, nil) :: no_return()
+  @spec handle_cast({:register_topic, String.t() | atom()}, nil) :: no_return()
   def handle_cast({:register_topic, topic}, state) do
     @backend.register_topic(topic)
     {:noreply, state}
   end
-  @spec handle_cast({:unregister_topic, String.t | atom()}, nil) :: no_return()
+
+  @spec handle_cast({:unregister_topic, String.t() | atom()}, nil)
+    :: no_return()
   def handle_cast({:unregister_topic, topic}, state) do
     @backend.unregister_topic(topic)
     {:noreply, state}
   end
+
   @doc false
   @spec handle_cast({:mark_as_completed, tuple()}, nil) :: no_return()
   def handle_cast({:mark_as_completed, {listener, topic, id}}, state) do
     @backend.mark_as_completed({listener, topic, id})
     {:noreply, state}
   end
+
   @doc false
   @spec handle_cast({:mark_as_skipped, tuple()}, nil) :: no_return()
   def handle_cast({:mark_as_skipped, {listener, topic, id}}, state) do

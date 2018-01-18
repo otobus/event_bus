@@ -1,19 +1,35 @@
 defmodule EventBus.Service.SubscriptionTest do
   use ExUnit.Case, async: false
-  alias EventBus.Support.Helper.{InputLogger, Calculator, MemoryLeakerOne,
-    AnotherCalculator}
+
+  alias EventBus.Support.Helper.{
+    InputLogger,
+    Calculator,
+    MemoryLeakerOne,
+    AnotherCalculator
+  }
+
   alias EventBus.Service.Subscription
 
   doctest Subscription
 
   setup do
-    on_exit fn ->
+    on_exit(fn ->
       Subscription.unregister_topic(:auto_subscribed)
-    end
+      Subscription.unregister_topic(:metrics_received)
+      Subscription.unregister_topic(:metrics_summed)
+      Process.sleep(100)
+    end)
+
+    Subscription.register_topic(:auto_subscribed)
+    Subscription.register_topic(:metrics_received)
+    Subscription.register_topic(:metrics_summed)
+    Process.sleep(100)
 
     for {subscriber, _topics} <- Subscription.subscribers() do
       Subscription.unsubscribe(subscriber)
     end
+
+    Process.sleep(100)
     :ok
   end
 
@@ -25,11 +41,11 @@ defmodule EventBus.Service.SubscriptionTest do
     Process.sleep(300)
 
     assert [
-      {AnotherCalculator, [".*"]},
-      {{MemoryLeakerOne, %{}}, [".*"]},
-      {{Calculator, %{}}, [".*"]},
-      {{InputLogger, %{}}, [".*"]}
-    ] == Subscription.subscribers()
+             {AnotherCalculator, [".*"]},
+             {{MemoryLeakerOne, %{}}, [".*"]},
+             {{Calculator, %{}}, [".*"]},
+             {{InputLogger, %{}}, [".*"]}
+           ] == Subscription.subscribers()
   end
 
   test "does not subscribe same listener" do
@@ -51,7 +67,7 @@ defmodule EventBus.Service.SubscriptionTest do
     Process.sleep(300)
 
     assert [{{MemoryLeakerOne, %{}}, [".*"]}, {{InputLogger, %{}}, [".*"]}] ==
-      Subscription.subscribers()
+             Subscription.subscribers()
   end
 
   test "register_topic auto subscribe workers" do
@@ -67,7 +83,7 @@ defmodule EventBus.Service.SubscriptionTest do
     Process.sleep(300)
 
     assert [{InputLogger, %{}}, {Calculator, %{}}, AnotherCalculator] ==
-      Subscription.subscribers(topic)
+             Subscription.subscribers(topic)
   end
 
   test "unregister_topic delete subscribers" do
@@ -96,27 +112,26 @@ defmodule EventBus.Service.SubscriptionTest do
     Subscription.subscribe({{InputLogger, %{}}, [".*"]})
     Process.sleep(300)
 
-    assert [{InputLogger, %{}}] ==
-      Subscription.subscribers(:metrics_received)
-    assert [{InputLogger, %{}}] ==
-      Subscription.subscribers(:metrics_summed)
+    assert [{InputLogger, %{}}] == Subscription.subscribers(:metrics_received)
+    assert [{InputLogger, %{}}] == Subscription.subscribers(:metrics_summed)
   end
 
   test "subscribers with event type and without config" do
     Subscription.subscribe({AnotherCalculator, [".*"]})
     Process.sleep(300)
 
-    assert [AnotherCalculator] ==
-      Subscription.subscribers(:metrics_received)
-    assert [AnotherCalculator] ==
-      Subscription.subscribers(:metrics_summed)
+    assert [AnotherCalculator] == Subscription.subscribers(:metrics_received)
+    assert [AnotherCalculator] == Subscription.subscribers(:metrics_summed)
   end
 
   test "state persistency to Application environment" do
-    Subscription.subscribe({{InputLogger, %{}}, ["metrics_received",
-      "metrics_summed"]})
+    Subscription.subscribe(
+      {{InputLogger, %{}}, ["metrics_received", "metrics_summed"]}
+    )
+
     Subscription.subscribe({AnotherCalculator, ["metrics_received$"]})
     Process.sleep(300)
+
     expected = {
       [
         {AnotherCalculator, ["metrics_received$"]},
@@ -124,8 +139,10 @@ defmodule EventBus.Service.SubscriptionTest do
       ],
       %{
         metrics_received: [AnotherCalculator, {InputLogger, %{}}],
-        metrics_summed: [{InputLogger, %{}}]}
+        metrics_summed: [{InputLogger, %{}}],
+        auto_subscribed: []
       }
+    }
 
     assert expected == Application.get_env(:event_bus, :subscriptions)
   end

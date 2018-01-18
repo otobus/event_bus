@@ -6,9 +6,9 @@ defmodule EventBus.SubscriptionTest do
   doctest Subscription
 
   setup do
-    on_exit fn ->
+    on_exit(fn ->
       Subscription.unregister_topic(:auto_subscribed)
-    end
+    end)
 
     for {subscriber, _topics} <- Subscription.subscribers() do
       Subscription.unsubscribe(subscriber)

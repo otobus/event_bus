@@ -1,8 +1,13 @@
 defmodule EventBus.Service.WatcherTest do
   use ExUnit.Case, async: false
   alias EventBus.Service.Watcher
-  alias EventBus.Support.Helper.{InputLogger, Calculator, MemoryLeakerOne,
-    BadOne}
+
+  alias EventBus.Support.Helper.{
+    InputLogger,
+    Calculator,
+    MemoryLeakerOne,
+    BadOne
+  }
 
   doctest Watcher
 
@@ -30,10 +35,15 @@ defmodule EventBus.Service.WatcherTest do
   end
 
   test "create and fetch" do
-    topic      = :some_event_occurred1
-    id         = "E1"
-    processors = [{InputLogger, %{}}, {Calculator, %{}}, {MemoryLeakerOne, %{}},
-      {BadOne, %{}}]
+    topic = :some_event_occurred1
+    id = "E1"
+
+    processors = [
+      {InputLogger, %{}},
+      {Calculator, %{}},
+      {MemoryLeakerOne, %{}},
+      {BadOne, %{}}
+    ]
 
     Watcher.register_topic(topic)
     Process.sleep(100)
@@ -44,10 +54,15 @@ defmodule EventBus.Service.WatcherTest do
   end
 
   test "complete" do
-    topic      = :some_event_occurred2
-    id         = "E1"
-    processors = [{InputLogger, %{}}, {Calculator, %{}}, {MemoryLeakerOne, %{}},
-      {BadOne, %{}}]
+    topic = :some_event_occurred2
+    id = "E1"
+
+    processors = [
+      {InputLogger, %{}},
+      {Calculator, %{}},
+      {MemoryLeakerOne, %{}},
+      {BadOne, %{}}
+    ]
 
     Watcher.register_topic(topic)
     Process.sleep(100)
@@ -56,15 +71,19 @@ defmodule EventBus.Service.WatcherTest do
     Watcher.mark_as_completed({{InputLogger, %{}}, topic, id})
     Process.sleep(100)
 
-    assert {processors, [{InputLogger, %{}}], []} ==
-      Watcher.fetch({topic, id})
+    assert {processors, [{InputLogger, %{}}], []} == Watcher.fetch({topic, id})
   end
 
   test "skip" do
-    id         = "E1"
-    topic      = :some_event_occurred3
-    processors = [{InputLogger, %{}}, {Calculator, %{}}, {MemoryLeakerOne, %{}},
-      {BadOne, %{}}]
+    id = "E1"
+    topic = :some_event_occurred3
+
+    processors = [
+      {InputLogger, %{}},
+      {Calculator, %{}},
+      {MemoryLeakerOne, %{}},
+      {BadOne, %{}}
+    ]
 
     Watcher.register_topic(topic)
     Process.sleep(100)
@@ -73,7 +92,6 @@ defmodule EventBus.Service.WatcherTest do
     Watcher.mark_as_skipped({{InputLogger, %{}}, topic, id})
     Process.sleep(100)
 
-    assert {processors, [], [{InputLogger, %{}}]} ==
-      Watcher.fetch({topic, id})
+    assert {processors, [], [{InputLogger, %{}}]} == Watcher.fetch({topic, id})
   end
 end

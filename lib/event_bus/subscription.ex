@@ -7,12 +7,19 @@ defmodule EventBus.Subscription do
 
   use GenServer
 
-  @backend Application.get_env(:event_bus, :subscription_backend,
-    EventBus.Service.Subscription)
+  @backend Application.get_env(
+             :event_bus,
+             :subscription_backend,
+             EventBus.Service.Subscription
+           )
 
   @doc false
   def start_link,
     do: GenServer.start_link(__MODULE__, nil, name: __MODULE__)
+
+  @doc false
+  def init(args),
+    do: {:ok, args}
 
   @doc """
   Subscribe the listener to topics
@@ -51,38 +58,44 @@ defmodule EventBus.Subscription do
   """
   @spec subscribers() :: list(any())
   defdelegate subscribers,
-    to: @backend, as: :subscribers
+    to: @backend,
+    as: :subscribers
 
   @doc """
   Fetch listeners of the topic
   """
-  @spec subscribers(String.t | atom()) :: list(any())
+  @spec subscribers(String.t() | atom()) :: list(any())
   defdelegate subscribers(topic),
-    to: @backend, as: :subscribers
+    to: @backend,
+    as: :subscribers
 
   ###########################################################################
   # PRIVATE API
   ###########################################################################
 
   @doc false
+  @spec handle_cast({:subscribe, tuple()}, nil) :: no_return()
   def handle_cast({:subscribe, {listener, topics}}, state) do
     @backend.subscribe({listener, topics})
     {:noreply, state}
   end
 
   @doc false
+  @spec handle_cast({:unsubscribe, tuple() | module()}, nil) :: no_return()
   def handle_cast({:unsubscribe, listener}, state) do
     @backend.unsubscribe(listener)
     {:noreply, state}
   end
 
   @doc false
+  @spec handle_cast({:register_topic, atom()}, nil) :: no_return()
   def handle_cast({:register_topic, topic}, state) do
     @backend.register_topic(topic)
     {:noreply, state}
   end
 
   @doc false
+  @spec handle_cast({:unregister_topic, atom()}, nil) :: no_return()
   def handle_cast({:unregister_topic, topic}, state) do
     @backend.unregister_topic(topic)
     {:noreply, state}

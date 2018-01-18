@@ -6,8 +6,13 @@ defmodule EventBus.NotifierTest do
   doctest Notifier
 
   @topic :metrics_received
-  @event %Event{id: "E1", transaction_id: "T1", topic: @topic, data: [1, 2],
-    source: "NotifierTest"}
+  @event %Event{
+    id: "E1",
+    transaction_id: "T1",
+    topic: @topic,
+    data: [1, 2],
+    source: "NotifierTest"
+  }
 
   setup do
     refute is_nil(Process.whereis(Notifier))
