@@ -12,7 +12,7 @@ The package can be installed by adding `event_bus` to your list of dependencies 
 
 ```elixir
 def deps do
-  [{:event_bus, "~> 1.0.0-beta3"}]
+  [{:event_bus, "~> 1.0.0-beta4"}]
 end
 ```
 
@@ -190,7 +190,6 @@ end
  id: "some unique id", initialized_at: 1515274599140491000,
  occurred_at: 1515274599141211000, source: nil, topic: :user_created,
  transaction_id: nil, ttl: nil}
-```
 
 # With optional error topic param
 params = %{id: id, topic: topic, error_topic: :user_create_erred}
@@ -201,6 +200,7 @@ end
  id: "some unique id", initialized_at: 1515274599140491000,
  occurred_at: 1515274599141211000, source: nil, topic: :user_create_erred,
  transaction_id: nil, ttl: nil}
+```
 
 **Use block notifier to notify event data to given topic**
 
