@@ -38,7 +38,7 @@ defmodule EventBus.Service.WatcherTest do
     topic = :some_event_occurred1
     id = "E1"
 
-    processors = [
+    listeners = [
       {InputLogger, %{}},
       {Calculator, %{}},
       {MemoryLeakerOne, %{}},
@@ -47,17 +47,17 @@ defmodule EventBus.Service.WatcherTest do
 
     Watcher.register_topic(topic)
     Process.sleep(100)
-    Watcher.save({topic, id}, {processors, [], []})
+    Watcher.save({topic, id}, {listeners, [], []})
     Process.sleep(100)
 
-    assert {processors, [], []} == Watcher.fetch({topic, id})
+    assert {listeners, [], []} == Watcher.fetch({topic, id})
   end
 
   test "complete" do
     topic = :some_event_occurred2
     id = "E1"
 
-    processors = [
+    listeners = [
       {InputLogger, %{}},
       {Calculator, %{}},
       {MemoryLeakerOne, %{}},
@@ -66,19 +66,19 @@ defmodule EventBus.Service.WatcherTest do
 
     Watcher.register_topic(topic)
     Process.sleep(100)
-    Watcher.save({topic, id}, {processors, [], []})
+    Watcher.save({topic, id}, {listeners, [], []})
     Process.sleep(100)
     Watcher.mark_as_completed({{InputLogger, %{}}, topic, id})
     Process.sleep(100)
 
-    assert {processors, [{InputLogger, %{}}], []} == Watcher.fetch({topic, id})
+    assert {listeners, [{InputLogger, %{}}], []} == Watcher.fetch({topic, id})
   end
 
   test "skip" do
     id = "E1"
     topic = :some_event_occurred3
 
-    processors = [
+    listeners = [
       {InputLogger, %{}},
       {Calculator, %{}},
       {MemoryLeakerOne, %{}},
@@ -87,11 +87,11 @@ defmodule EventBus.Service.WatcherTest do
 
     Watcher.register_topic(topic)
     Process.sleep(100)
-    Watcher.save({topic, id}, {processors, [], []})
+    Watcher.save({topic, id}, {listeners, [], []})
     Process.sleep(100)
     Watcher.mark_as_skipped({{InputLogger, %{}}, topic, id})
     Process.sleep(100)
 
-    assert {processors, [], [{InputLogger, %{}}]} == Watcher.fetch({topic, id})
+    assert {listeners, [], [{InputLogger, %{}}]} == Watcher.fetch({topic, id})
   end
 end

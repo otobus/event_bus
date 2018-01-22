@@ -2,9 +2,79 @@
 
 [![Build Status](https://travis-ci.org/mustafaturan/event_bus.svg?branch=master)](https://travis-ci.org/mustafaturan/event_bus)
 
-Traceable, simple event bus library.
+Traceable, extendable and minimalist event bus implementation for Elixir with builtin event store and event watcher based on ETS.
 
 ![Event Bus](https://cdn-images-1.medium.com/max/1600/1*0fcfAiHvNeHCRYhp-a32YA.png)
+
+## Table of Contents
+
+[Features](#features)
+
+[Installation](#installation)
+
+[Usage](#usage)
+
+- Register event topics in `config.exs`
+
+- Register/unregister event topics on demand
+
+- Subscribe to the 'event bus' with a listener and list of given topics
+
+- Unsubscribe from the 'event bus'
+
+- List subscribers
+
+- Event data structure
+
+- Define an event struct
+
+- Notify all subscribers with `EventBus.Model.Event` data
+
+- Fetch an event from the store
+
+- Mark as completed on Event Watcher
+
+- Mark as skipped on Event Watcher
+
+- Check if a topic exists?
+
+- Use block builder to build `EventBus.Model.Event` struct
+
+- Use block notifier to notify event data to given topic
+
+[Sample Listener Implementation](#sample-listener-implementation)
+
+[Event Storage Details](#event-storage-details)
+
+[Event Storage Details](#event-storage-details)
+
+[Traceability](#traceability)
+
+[Documentation](#documentation)
+
+[Addons](#addons)
+
+[Contributing](#contributing)
+
+[License](#license)
+
+## Features
+
+- Fast data writes with enabled concurrent writes to ETS.
+
+- Fast data reads with enabled concurrent reads from ETS.
+
+- Fast by design. Almost all implementation data accesses have O(1) complexity.
+
+- Memory friendly. Instead of pushing event data, pushes event shadow(event id and topic) to only interested subscribers.
+
+- Applies [queueing theory](https://www.vividcortex.com/resources/queueing-theory) to handle inputs.
+
+- Extendable with addons.
+
+- Tracable with optional attributes. Optional attributes compatiable with opentracing platform.
+
+- Minimal with required attributes(Incase, you want it work minimal use 3 required attributes to deliver your events).
 
 ## Installation
 
@@ -18,12 +88,13 @@ end
 
 ## Usage
 
-**Register event topics in `config.exs`**
+##### Register event topics in `config.exs`
+
 ```elixir
 config :event_bus, topics: [:message_received, :another_event_occured]
 ```
 
-**You can also register/unregister event topics on demand**
+##### Register/unregister event topics on demand
 ```elixir
 # register
 EventBus.register_topic(:webhook_received)
@@ -35,7 +106,7 @@ EventBus.unregister_topic(:webhook_received)
 > :ok
 ```
 
-**Subscribe to the 'event bus'** with a listener and list of given topics, `Notifier` will match with Regex
+##### Subscribe to the 'event bus' with a listener and list of given topics, `Notifier` will match with Regex
 
 ```elixir
 # to catch every event topic
@@ -46,36 +117,39 @@ EventBus.subscribe({MyEventListener, [".*"]})
 EventBus.subscribe({MyEventListener, ["purchase_", "booking_confirmed$", "flight_passed$"]})
 > :ok
 
-# if your processor has a config
+# if your listener has a config
 config = %{}
 EventBus.subscribe({{MyEventListener, config}, [".*"]})
 > :ok
 ```
 
-**Unsubscribe from the 'event bus'**
+##### Unsubscribe from the 'event bus'
 ```elixir
 EventBus.unsubscribe(MyEventListener)
 > :ok
 
-# if your processor has a config
+# if your listener has a config
 config = %{}
 EventBus.unsubscribe({MyEventListener, config})
 > :ok
 ```
 
-**List subscribers**
+##### List subscribers
 ```elixir
 EventBus.subscribers()
 > [{MyEventListener, [".*"]}, {{AnotherListener, %{}}, [".*"]]
 ```
 
-**List subscribers of a specific event**
+##### List subscribers of a specific event
 ```elixir
 EventBus.subscribers(:hello_received)
 > [MyEventListener, {{AnotherListener, %{}}}]
 ```
 
-`EventBus.Model.Event` structure
+##### Event data structure
+
+Data structure for `EventBus.Model.Event`
+
 ```elixir
 %EventBus.Model.Event{
   id: String.t | integer(), # required
@@ -95,7 +169,7 @@ Firstly, `transaction_id` attribute is an optional field, if you need to store a
 
 **`initialized_at` attribute**
 
-Optional, but good to have field for all events to track when the event processor started to process generating this event.
+Optional, but good to have field for all events to track when the event generator started to process for generating this event.
 
 **`occurred_at` attribute**
 
@@ -107,7 +181,8 @@ Optional, but might to have field for all events to invalidate an event after a 
 
 Note: If you set this field, then `occurred_at` field is required.
 
-**Define an event struct**
+##### Define an event struct
+
 ```elixir
 alias EventBus.Model.Event
 event = %Event{id: "123", transaction_id: "1",
@@ -117,7 +192,7 @@ another_event = %Event{id: "124", transaction_id: "1",
 ```
 **Important Note:** It is important to have unique identifier for each event struct per topic. I recommend to use a unique id generator like `{:uuid, "~> 1.1"}`.
 
-**Notify all subscribers with `EventBus.Model.Event` data**
+##### Notify all subscribers with `EventBus.Model.Event` data
 ```elixir
 EventBus.notify(event)
 > :ok
@@ -125,7 +200,7 @@ EventBus.notify(another_event)
 > :ok
 ```
 
-**Fetch an event from the store**
+##### Fetch an event from the store
 ```elixir
 topic = :bye_received
 id = "124"
@@ -133,31 +208,31 @@ EventBus.fetch_event({topic, id})
 > %EventBus.Model.Event{data: [user_id: 1, goal: "exit"], id: "124", topic: :bye_received, transaction_id: "1"}
 ```
 
-**Mark as completed on Event Watcher**
+##### Mark as completed on Event Watcher
 ```elixir
-processor = MyEventListener
-# If your processor has config then pass tuple
-processor = {MyEventListener, config}
-EventBus.mark_as_completed({processor, :bye_received, id})
+listener = MyEventListener
+# If your listener has config then pass tuple
+listener = {MyEventListener, config}
+EventBus.mark_as_completed({listener, :bye_received, id})
 > :ok
 ```
 
-**Mark as skipped on Event Watcher**
+##### Mark as skipped on Event Watcher
 ```elixir
-processor = MyEventListener
-# If your processor has config then pass tuple
-processor = {MyEventListener, config}
-EventBus.mark_as_skipped({processor, :bye_received, id})
+listener = MyEventListener
+# If your listener has config then pass tuple
+listener = {MyEventListener, config}
+EventBus.mark_as_skipped({listener, :bye_received, id})
 > :ok
 ```
 
-**Check if a topic exists?**
+##### Check if a topic exists?
 ```elixir
 EventBus.topic_exist?(:metrics_updated)
 > false
 ```
 
-**Use block builder to build Event struct**
+##### Use block builder to build `EventBus.Model.Event` struct
 
 Builder automatically sets initialized_at and occured_at attributes
 ```elixir
@@ -177,8 +252,8 @@ EventSource.build(params) do
   %{email: "jd@example.com", name: "John Doe"}
 end
 > %EventBus.Model.Event{data: %{email: "jd@example.com", name: "John Doe"},
- id: "some unique id", initialized_at: 1515274599140491000,
- occurred_at: 1515274599141211000, source: "my event creator", topic: :user_created, transaction_id: "tx", ttl: 600000}
+ id: "some unique id", initialized_at: 1515274599140491,
+ occurred_at: 1515274599141211, source: "my event creator", topic: :user_created, transaction_id: "tx", ttl: 600000}
 
 
 # Without optional params
@@ -187,8 +262,8 @@ EventSource.build(params) do
   %{email: "jd@example.com", name: "John Doe"}
 end
 > %EventBus.Model.Event{data: %{email: "jd@example.com", name: "John Doe"},
- id: "some unique id", initialized_at: 1515274599140491000,
- occurred_at: 1515274599141211000, source: nil, topic: :user_created,
+ id: "some unique id", initialized_at: 1515274599140491,
+ occurred_at: 1515274599141211, source: nil, topic: :user_created,
  transaction_id: nil, ttl: nil}
 
 # With optional error topic param
@@ -197,12 +272,12 @@ EventSource.build(params) do
   {:error, %{email: "Invalid format"}}
 end
 > %EventBus.Model.Event{data: {:error, %{email: "Invalid format"}},
- id: "some unique id", initialized_at: 1515274599140491000,
- occurred_at: 1515274599141211000, source: nil, topic: :user_create_erred,
+ id: "some unique id", initialized_at: 1515274599140491,
+ occurred_at: 1515274599141211, source: nil, topic: :user_create_erred,
  transaction_id: nil, ttl: nil}
 ```
 
-**Use block notifier to notify event data to given topic**
+##### Use block notifier to notify event data to given topic
 
 Builder automatically sets initialized_at and occured_at attributes
 ```elixir
@@ -226,7 +301,7 @@ end
 > %{email: "mrsjd@example.com", name: "Mrs Jane Doe"}
 ```
 
-### Sample Processor/Listener Implementation
+### Sample Listener Implementation
 
 ```elixir
 defmodule MyEventListener do
@@ -240,7 +315,7 @@ defmodule MyEventListener do
 
   ...
 
-  # if your listener/processor has a config
+  # if your listener has a config
   def process({config, topic, id} = event_shadow_with_conf) do
     GenServer.cast(__MODULE__, event_shadow_with_conf)
     :ok
@@ -249,7 +324,7 @@ defmodule MyEventListener do
   ...
 
 
-  # if your processor does not have a config
+  # if your listener does not have a config
   def handle_cast({:bye_received, id}, state) do
     event = EventBus.fetch_event({:bye_received, id})
     # do sth with event
@@ -259,6 +334,7 @@ defmodule MyEventListener do
     ...
     {:noreply, state}
   end
+
   def handle_cast({:hello_received, id}, state) do
     event = EventBus.fetch_event({:hello_received, id})
     # do sth with EventBus.Model.Event
@@ -268,6 +344,7 @@ defmodule MyEventListener do
     ...
     {:noreply, state}
   end
+
   def handle_cast({topic, id}, state) do
     EventBus.mark_as_skipped({__MODULE__, topic, id})
     {:noreply, state}
@@ -275,7 +352,7 @@ defmodule MyEventListener do
 
   ...
 
-  # if your processor has a config
+  # if your listener has a config
   def handle_cast({config, :bye_received, id}, state) do
     event = EventBus.fetch_event({:bye_received, id})
     # do sth with event
@@ -285,6 +362,7 @@ defmodule MyEventListener do
     ...
     {:noreply, state}
   end
+
   def handle_cast({config, :hello_received, id}, state) do
     event = EventBus.fetch_event({:hello_received, id})
     # do sth with EventBus.Model.Event
@@ -294,6 +372,7 @@ defmodule MyEventListener do
     ...
     {:noreply, state}
   end
+
   def handle_cast({config, topic, id}, state) do
     EventBus.mark_as_skipped({{__MODULE__, config}, topic, id})
     {:noreply, state}
@@ -303,13 +382,13 @@ defmodule MyEventListener do
 end
 ```
 
-### Event Storage Details
+## Event Storage Details
 
 When an event configured in `config` file, 2 ETS tables will be created for the event on app start.
 
 All event data is temporarily saved to the ETS tables with the name `:eb_es_<<topic>>` until all subscribers processed the data. This table is a read heavy table. When a subscriber needs to process the event data, it queries this table to fetch event data.
 
-To watch event status, a separate watcher table is created for each event type with the name `:eb_ew_<<topic>>`. This table is used for keeping the status of the event. `Watcher` updates this table frequently with the notification of the event processors/subscribers.
+To watch event status, a separate watcher table is created for each event type with the name `:eb_ew_<<topic>>`. This table is used for keeping the status of the event. `Watcher` updates this table frequently with the notification of the event listeners/subscribers.
 
 When all subscribers process the event data, data in the event store and watcher, automatically deleted by the `Watcher`. If you need to see the status of unprocessed events, event watcher table is one of the good places to query.
 
@@ -369,6 +448,10 @@ EventBus allows building generic and specific addons for your stack. Here are a 
 
 - `event_bus_postgres` allows you to save event bus events to Postgres DB with a generic configuration: https://github.com/mustafaturan/event_bus_postgres
 
+- `event_bus_zipkin` allows you to trace event bus events via Zipkin
+
+- `event_bus_ddtrace` allows you to trace event bus events via Datadog APM
+
 ## Contributing
 
 ### Issues, Bugs, Documentation, Enhancements
@@ -382,3 +465,11 @@ EventBus allows building generic and specific addons for your stack. Here are a 
 ## License
 
 MIT
+
+Copyright (c) 2018 Mustafa Turan
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.

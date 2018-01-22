@@ -52,7 +52,7 @@ defmodule EventBus.Service.NotifierTest do
     Subscription.subscribe({{Calculator, %{}}, ["metrics_received$"]})
     Subscription.subscribe({{MemoryLeakerOne, %{}}, [".*"]})
 
-    # This processor/listener one has one config!!!
+    # This listener deos not have a config!!!
     Subscription.subscribe({AnotherCalculator, ["metrics_received$"]})
 
     # Sleep until subscriptions complete

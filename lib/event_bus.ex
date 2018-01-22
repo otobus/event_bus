@@ -7,7 +7,7 @@ defmodule EventBus do
   alias EventBus.{Notifier, Store, Watcher, Subscription, Topic, Model.Event}
 
   @doc """
-  Send event to all listeners.
+  Send event to all subscribers(listeners).
 
   ## Examples
 

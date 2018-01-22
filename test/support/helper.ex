@@ -2,8 +2,13 @@ defmodule EventBus.Support.Helper do
   alias EventBus.Model.Event
 
   defmodule InputLogger do
+    @moduledoc """
+    I am the logger
+    """
+
     require Logger
 
+    @doc false
     def process({config, topic, id}) do
       event = EventBus.fetch_event({topic, id})
       Logger.info(fn -> "Event log for #{inspect(event)}" end)
@@ -12,8 +17,13 @@ defmodule EventBus.Support.Helper do
   end
 
   defmodule Calculator do
+    @moduledoc """
+    Brand new fun calculator
+    """
+
     require Logger
 
+    @doc false
     def process({config, :metrics_received, id}) do
       event = EventBus.fetch_event({:metrics_received, id})
       inputs = event.data
@@ -32,14 +42,20 @@ defmodule EventBus.Support.Helper do
       EventBus.mark_as_completed({{__MODULE__, config}, :metrics_received, id})
     end
 
+    @doc false
     def process({config, topic, id}) do
       EventBus.mark_as_skipped({{__MODULE__, config}, topic, id})
     end
   end
 
   defmodule AnotherCalculator do
+    @moduledoc """
+    Crazy calculation service
+    """
+
     require Logger
 
+    @doc false
     def process({:metrics_received, id}) do
       event = EventBus.fetch_event({:metrics_received, id})
       inputs = event.data
@@ -58,6 +74,7 @@ defmodule EventBus.Support.Helper do
       EventBus.mark_as_completed({__MODULE__, :metrics_received, id})
     end
 
+    @doc false
     def process({topic, id}) do
       EventBus.mark_as_skipped({__MODULE__, topic, id})
     end
@@ -65,7 +82,7 @@ defmodule EventBus.Support.Helper do
 
   defmodule MemoryLeakerOne do
     @moduledoc """
-    Adds all sums to a list without caring memory
+    Adds all sums to a list without caring memory (bad one)
     """
 
     use GenServer
@@ -75,14 +92,22 @@ defmodule EventBus.Support.Helper do
       GenServer.start_link(__MODULE__, [], name: __MODULE__)
     end
 
+    @doc false
+    def init(args) do
+      {:ok, args}
+    end
+
+    @doc false
     def process({config, :metrics_summed, id}) do
       GenServer.cast(__MODULE__, {config, :metrics_summed, id})
     end
 
+    @doc false
     def process({config, topic, id}) do
       EventBus.mark_as_skipped({{__MODULE__, config}, topic, id})
     end
 
+    @doc false
     def handle_cast({config, :metrics_summed, id}, state) do
       event = EventBus.fetch_event({:metrics_summed, id})
       new_state = [event | state]
@@ -92,6 +117,11 @@ defmodule EventBus.Support.Helper do
   end
 
   defmodule BadOne do
+    @moduledoc """
+    A bad listener implementation
+    """
+
+    @doc false
     def process(_, _) do
       throw("bad")
     end

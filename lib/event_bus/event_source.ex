@@ -15,7 +15,8 @@ defmodule EventBus.EventSource do
   end
 
   @doc """
-  Dynamic event builder block with auto initialized_at and occurred_at fields
+  Dynamic event builder block with auto setting source, initialized_at and
+  occurred_at fields in microseconds
   """
   defmacro build(params, do: yield) do
     quote do
@@ -48,7 +49,8 @@ defmodule EventBus.EventSource do
   end
 
   @doc """
-  Dynamic event notifier block with auto initialized_at and occurred_at fields
+  Dynamic event notifier block with auto setting source, initialized_at and
+  occurred_at fields in microseconds
   """
   defmacro notify(params, do: yield) do
     quote do

@@ -30,7 +30,7 @@ defmodule EventBus.WatcherTest do
     topic = :some_event_occurred1
     id = "E1"
 
-    processors = [
+    listeners = [
       {InputLogger, %{}},
       {Calculator, %{}},
       {MemoryLeakerOne, %{}},
@@ -39,14 +39,14 @@ defmodule EventBus.WatcherTest do
 
     Watcher.register_topic(topic)
 
-    assert :ok == Watcher.create({processors, topic, id})
+    assert :ok == Watcher.create({listeners, topic, id})
   end
 
   test "complete" do
     topic = :some_event_occurred2
     id = "E1"
 
-    processors = [
+    listeners = [
       {InputLogger, %{}},
       {Calculator, %{}},
       {MemoryLeakerOne, %{}},
@@ -54,7 +54,7 @@ defmodule EventBus.WatcherTest do
     ]
 
     Watcher.register_topic(topic)
-    Watcher.create({processors, topic, id})
+    Watcher.create({listeners, topic, id})
 
     assert :ok === Watcher.mark_as_completed({{InputLogger, %{}}, topic, id})
   end
@@ -63,7 +63,7 @@ defmodule EventBus.WatcherTest do
     topic = :some_event_occurred3
     id = "E1"
 
-    processors = [
+    listeners = [
       {InputLogger, %{}},
       {Calculator, %{}},
       {MemoryLeakerOne, %{}},
@@ -71,7 +71,7 @@ defmodule EventBus.WatcherTest do
     ]
 
     Watcher.register_topic(topic)
-    Watcher.create({processors, topic, id})
+    Watcher.create({listeners, topic, id})
     assert :ok == Watcher.mark_as_skipped({{InputLogger, %{}}, topic, id})
   end
 end
