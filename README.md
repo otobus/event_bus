@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/mustafaturan/event_bus.svg?branch=master)](https://travis-ci.org/mustafaturan/event_bus)
 
-Traceable, extendable and minimalist event bus implementation for Elixir with builtin event store and event watcher based on ETS.
+Traceable, extendable and minimalist event bus implementation for Elixir with built-in event store and event watcher based on ETS.
 
 ![Event Bus](https://cdn-images-1.medium.com/max/1600/1*0fcfAiHvNeHCRYhp-a32YA.png)
 
@@ -46,8 +46,6 @@ Traceable, extendable and minimalist event bus implementation for Elixir with bu
 
 [Event Storage Details](#event-storage-details)
 
-[Event Storage Details](#event-storage-details)
-
 [Traceability](#traceability)
 
 [Documentation](#documentation)
@@ -82,7 +80,7 @@ The package can be installed by adding `event_bus` to your list of dependencies 
 
 ```elixir
 def deps do
-  [{:event_bus, "~> 1.0.0-beta4"}]
+  [{:event_bus, "~> 1.0.0"}]
 end
 ```
 

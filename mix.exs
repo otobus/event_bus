@@ -4,7 +4,7 @@ defmodule EventBus.Mixfile do
   def project do
     [
       app: :event_bus,
-      version: "1.0.0-beta4",
+      version: "1.0.0",
       elixir: "~> 1.5",
       elixirc_paths: elixirc_paths(Mix.env()),
       build_embedded: Mix.env() == :prod,
@@ -42,14 +42,15 @@ defmodule EventBus.Mixfile do
     [
       {:credo, "~> 0.8.10", only: [:dev]},
       {:dialyxir, "~> 0.5.1", only: [:dev], runtime: false},
-      {:excoveralls, "~> 0.7", only: [:test]},
-      {:ex_doc, "~> 0.16.2", only: [:dev]}
+      {:excoveralls, "~> 0.8", only: [:test]},
+      {:ex_doc, "~> 0.18.1", only: [:dev]}
     ]
   end
 
   defp description do
     """
-    Simple event bus with ETS as an event store
+    Traceable, extendable and minimalist event bus implementation for Elixir
+    with built-in event store and event watcher based on ETS
     """
   end
 
