@@ -1,6 +1,6 @@
 # EventBus
 
-[![Build Status](https://travis-ci.org/mustafaturan/event_bus.svg?branch=master)](https://travis-ci.org/mustafaturan/event_bus)
+[![Build Status](https://travis-ci.org/otobus/event_bus.svg?branch=master)](https://travis-ci.org/otobus/event_bus)
 
 Traceable, extendable and minimalist event bus implementation for Elixir with built-in event store and event watcher based on ETS.
 
