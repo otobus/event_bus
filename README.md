@@ -135,7 +135,7 @@ EventBus.unsubscribe({MyEventListener, config})
 ##### List subscribers
 ```elixir
 EventBus.subscribers()
-> [{MyEventListener, [".*"]}, {{AnotherListener, %{}}, [".*"]]
+> [{MyEventListener, [".*"]}, {{AnotherListener, %{}}, [".*"]}]
 ```
 
 ##### List subscribers of a specific event

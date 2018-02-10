@@ -19,7 +19,6 @@ defmodule EventBus.Service.Notifier do
     notify_listeners(listeners, {topic, id})
   end
 
-  @doc false
   @spec notify_listeners(list(), tuple()) :: no_return()
   defp notify_listeners(listeners, event_shadow) do
     for listener <- listeners do
@@ -27,7 +26,6 @@ defmodule EventBus.Service.Notifier do
     end
   end
 
-  @doc false
   @spec notify_listener(tuple(), tuple()) :: no_return()
   @spec notify_listener(module(), tuple()) :: no_return()
   defp notify_listener({listener, config}, {topic, id}) do
