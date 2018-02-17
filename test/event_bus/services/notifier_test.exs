@@ -10,7 +10,8 @@ defmodule EventBus.Service.NotifierTest do
     Calculator,
     AnotherCalculator,
     MemoryLeakerOne,
-    BadOne
+    BadOne,
+    AnotherBadOne
   }
 
   doctest Notifier
@@ -49,6 +50,7 @@ defmodule EventBus.Service.NotifierTest do
     )
 
     Subscription.subscribe({{BadOne, %{}}, [".*"]})
+    Subscription.subscribe({AnotherBadOne, [".*"]})
     Subscription.subscribe({{Calculator, %{}}, ["metrics_received$"]})
     Subscription.subscribe({{MemoryLeakerOne, %{}}, [".*"]})
 
@@ -65,6 +67,10 @@ defmodule EventBus.Service.NotifierTest do
       end)
 
     assert String.contains?(logs, "BadOne.process/1 raised an error!")
+
+    assert String.contains?(logs, "AnotherBadOne.process/1 raised an error!")
+
+    assert String.contains?(logs, "I don't want to handle your event")
 
     assert String.contains?(
              logs,

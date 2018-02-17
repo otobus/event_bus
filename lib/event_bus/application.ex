@@ -4,6 +4,8 @@ defmodule EventBus.Application do
   use Application
   alias EventBus.{Notifier, Store, Watcher, Subscription, Topic}
 
+  @sys_topic :eb_action_called
+
   def start(_type, _args) do
     import Supervisor.Spec, warn: false
 
@@ -17,7 +19,12 @@ defmodule EventBus.Application do
 
     opts = [strategy: :one_for_one, name: EventBus.Supervisor]
     link = Supervisor.start_link(children, opts)
-    Topic.register_from_config()
+    register_topics()
     link
+  end
+
+  defp register_topics do
+    Topic.register(@sys_topic)
+    Topic.register_from_config()
   end
 end

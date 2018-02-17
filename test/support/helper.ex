@@ -118,12 +118,25 @@ defmodule EventBus.Support.Helper do
 
   defmodule BadOne do
     @moduledoc """
-    A bad listener implementation
+    A bad listener implementation with wrong arity
+    All events will be marked as skipped
     """
 
     @doc false
     def process(_, _) do
-      throw("bad")
+      # it has wrong arity, can't be a listener
+    end
+  end
+
+  defmodule AnotherBadOne do
+    @moduledoc """
+    A bad listener implementation with error raising
+    If the process raise an error the the event will be marked as skipped
+    """
+
+    @doc false
+    def process(_) do
+      raise "I don't want to handle your event"
     end
   end
 end

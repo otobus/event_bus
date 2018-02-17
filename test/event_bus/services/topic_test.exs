@@ -2,6 +2,8 @@ defmodule EventBus.Service.TopicTest do
   use ExUnit.Case, async: false
   alias EventBus.Service.Topic
 
+  @sys_topic :eb_action_called
+
   doctest Topic
 
   setup do
@@ -53,7 +55,7 @@ defmodule EventBus.Service.TopicTest do
     topic = :t3
     Topic.register(topic)
     Process.sleep(10)
-    assert [:t3, :metrics_received, :metrics_summed] == Topic.all()
+    assert [:t3, @sys_topic, :metrics_received, :metrics_summed] == Topic.all()
   end
 
   test "exist? with an existent topic" do
