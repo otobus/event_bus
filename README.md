@@ -48,6 +48,8 @@ Traceable, extendable and minimalist event bus implementation for Elixir with bu
 
 [Traceability](#traceability)
 
+- [System Events](#system-events)
+
 [Documentation](#documentation)
 
 [Addons](#addons)
@@ -431,6 +433,22 @@ end
 ## Traceability
 
 EventBus comes with a good enough data structure to track the event life cycle with its optional parameters. For a traceable system, it is highly recommend to fill optional fields on event data. It is also encouraged to use `Event.nofify` block/yield to automatically set the `initialized_at` and `occurred_at` values.
+
+EvenBus version > 1.1 comes with optional system events which allows to track its action calls.
+
+### System Events
+
+EventBus optionally allows you to track `:register_topic`, `:unregister_topic`, `:subscribe` and `:unsubscribe`, `:notify`, `:mark_as_completed` and `mark_as_skipped` action calls by the configuration. To track these events you need to enable them by configuration and then subscribe to `:eb_action_called` topic.
+
+Note: Enabling optional system events decreases the EventBus performance because it at least doubles the operation calls. It is not recommended to enable these events unless you certainly require to track these events espcially `notify`, `mark_as_completed` and `mark_as_skipped`.
+
+Enabling observable events only can be done on compile time. Thus, you need to add it to your app configuration. Here is sample configuration to subscribe optional system events:
+
+```elixir
+config :event_bus,
+  observables: ~w(register_topic unregister_topic subscribe unsubscribe notify mark_as_completed mark_as_skipped)a,
+  ...
+```
 
 ## Documentation
 

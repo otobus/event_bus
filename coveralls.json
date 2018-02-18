@@ -1,6 +1,7 @@
 {
   "skip_files": [
-    "test/support"
+    "test/support",
+    "lib/event_bus.ex"
   ],
   "custom_stop_words": [
     "defdelegate"

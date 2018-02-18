@@ -4,7 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [1.0.0]
+## Current
+
+### Added
+
+- Optional system events which notify the `eb_action_called` topic for the actions: `notify`, `register_topic`, `unregister_topic`, `subscribe`, `unsubscribe`, `mark_as_completed`, `mark_as_skipped`
+
+## [1.0.0] - 2018.01.23
 
 ### Added
 
@@ -17,7 +23,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Error topic introduced for dynamic event builder/notifier with `EventSource`. Now you can pass `:error_topic` key, EvetSource automatically check the result of execution block for `{:error, _}` tuple and create an event structure for the given `:error_topic`.
 - Add elixir formatter config to format code
 
-## [0.9.0] - 2018-01-06
+## [0.9.0] - 2018.01.06
 
 ### Added
 
@@ -26,7 +32,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### TODO
 
-## [0.8.0] - 2018-01-06
+## [0.8.0] - 2018.01.06
 
 ### Added
 
@@ -35,7 +41,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Add block/yield notifier for delivering/notifying events creation with same benefits of build block
 - Add changelog file
 
-## [0.7.0] - 2018-01-06
+## [0.7.0] - 2018.01.06
 
 ### Added
 

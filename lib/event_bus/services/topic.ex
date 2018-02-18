@@ -17,7 +17,7 @@ defmodule EventBus.Service.Topic do
   @doc false
   @spec exist?(String.t() | atom()) :: boolean()
   def exist?(topic),
-    do: Enum.any?(all(), fn event_topic -> event_topic == :"#{topic}" end)
+    do: Enum.member?(all(), :"#{topic}")
 
   @doc false
   @spec register_from_config() :: no_return()

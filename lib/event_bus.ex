@@ -1,10 +1,26 @@
 defmodule EventBus do
-  @moduledoc """
-  Traceable, extendable and minimalist event bus implementation for Elixir with
-  built-in event store and event watcher based on ETS
-  """
+  @moduledoc false
 
-  alias EventBus.{Notifier, Store, Watcher, Subscription, Topic, Model.Event}
+  use EventBus.EventSource
+  alias EventBus.{Notifier, Store, Watcher, Subscription, Topic}
+
+  @app :event_bus
+  @source "eb"
+  @sys_topic :eb_action_called
+  @observables Application.get_env(@app, :observables, [])
+
+  defmacrop is_observable(action) do
+    quote do
+      unquote(action) in unquote(@observables)
+    end
+  end
+
+  defmacrop is_observable(action, topic) do
+    quote do
+      unquote(action) in unquote(@observables) and
+        unquote(topic) != unquote(@sys_topic)
+    end
+  end
 
   @doc """
   Send event to all subscribers(listeners).
@@ -18,7 +34,17 @@ defmodule EventBus do
 
   """
   @spec notify(Event.t()) :: :ok
-  defdelegate notify(event),
+  def notify(%Event{id: id, topic: topic} = event)
+      when is_observable(:notify, topic) do
+    EventSource.notify sys_params() do
+      Notifier.notify(event)
+      %{action: :notify, id: id, subscribers: subscribers(topic), topic: topic}
+    end
+
+    :ok
+  end
+
+  defdelegate notify(topic),
     to: Notifier,
     as: :notify
 
@@ -58,7 +84,18 @@ defmodule EventBus do
       :ok
 
   """
-  @spec register_topic(String.t() | atom()) :: boolean()
+  @spec register_topic(String.t() | atom()) :: :ok
+  def register_topic(topic) when is_observable(:register_topic, topic) do
+    unless topic_exist?(topic) do
+      EventSource.notify sys_params() do
+        Topic.register(topic)
+        %{action: :register_topic, topic: topic}
+      end
+    end
+
+    :ok
+  end
+
   defdelegate register_topic(topic),
     to: Topic,
     as: :register
@@ -72,7 +109,18 @@ defmodule EventBus do
       :ok
 
   """
-  @spec unregister_topic(String.t() | atom()) :: boolean()
+  @spec unregister_topic(String.t() | atom()) :: :ok
+  def unregister_topic(topic) when is_observable(:unregister_topic, topic) do
+    if topic_exist?(topic) do
+      EventSource.notify sys_params() do
+        Topic.unregister(topic)
+        %{action: :unregister_topic, topic: topic}
+      end
+    end
+
+    :ok
+  end
+
   defdelegate unregister_topic(topic),
     to: Topic,
     as: :unregister
@@ -92,6 +140,17 @@ defmodule EventBus do
 
   """
   @spec subscribe(tuple()) :: :ok
+  def subscribe({listener, topics}) when is_observable(:subscribe) do
+    unless Enum.member?(subscribers(), {listener, topics}) do
+      EventSource.notify sys_params() do
+        Subscription.subscribe({listener, topics})
+        %{action: :subscribe, listener: listener, topics: topics}
+      end
+    end
+
+    :ok
+  end
+
   defdelegate subscribe(listener_with_topics),
     to: Subscription,
     as: :subscribe
@@ -110,7 +169,18 @@ defmodule EventBus do
       :ok
 
   """
-  @spec unsubscribe({tuple() | module()}) :: :ok
+  @spec unsubscribe(tuple()) :: :ok
+  def unsubscribe({listener}) when is_observable(:unsubscribe) do
+    if Enum.member?(subscribers(), {listener}) do
+      EventSource.notify sys_params() do
+        Subscription.unsubscribe({listener})
+        %{action: :unsubscribe, listener: listener}
+      end
+    end
+
+    :ok
+  end
+
   defdelegate unsubscribe(listener),
     to: Subscription,
     as: :unsubscribe
@@ -146,7 +216,6 @@ defmodule EventBus do
       [MyEventListener, {OtherListener, %{}}]
 
   """
-  @spec subscribers(atom() | String.t()) :: list(any())
   defdelegate subscribers(topic),
     to: Subscription,
     as: :subscribers
@@ -179,7 +248,17 @@ defmodule EventBus do
 
   """
   @spec mark_as_completed({tuple() | module(), atom(), String.t() | integer()})
-    :: no_return()
+        :: no_return()
+  def mark_as_completed({listener, topic, id})
+      when is_observable(:mark_as_completed, topic) do
+    EventSource.notify sys_params() do
+      Watcher.mark_as_completed({listener, topic, id})
+      %{action: :mark_as_completed, id: id, listener: listener, topic: topic}
+    end
+
+    :ok
+  end
+
   defdelegate mark_as_completed(listener_with_event_shadow),
     to: Watcher,
     as: :mark_as_completed
@@ -199,8 +278,23 @@ defmodule EventBus do
 
   """
   @spec mark_as_skipped({tuple() | module(), atom(), String.t() | integer()})
-    :: no_return()
+        ::  no_return()
+  def mark_as_skipped({listener, topic, id})
+      when is_observable(:mark_as_skipped, topic) do
+    EventSource.notify sys_params() do
+      Watcher.mark_as_skipped({listener, topic, id})
+      %{action: :mark_as_skipped, id: id, listener: listener, topic: topic}
+    end
+
+    :ok
+  end
+
   defdelegate mark_as_skipped(listener_with_event_shadow),
     to: Watcher,
     as: :mark_as_skipped
+
+  defp sys_params do
+    id = Application.get_env(@app, :id_generator).()
+    %{id: id, transaction_id: id, topic: @sys_topic, source: @source}
+  end
 end
