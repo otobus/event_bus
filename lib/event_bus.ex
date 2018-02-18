@@ -1,5 +1,8 @@
 defmodule EventBus do
-  @moduledoc false
+  @moduledoc """
+  Traceable, extendable and minimalist event bus implementation for Elixir with
+  built-in event store and event watcher based on ETS
+  """
 
   use EventBus.EventSource
   alias EventBus.{Notifier, Store, Watcher, Subscription, Topic}
@@ -141,11 +144,9 @@ defmodule EventBus do
   """
   @spec subscribe(tuple()) :: :ok
   def subscribe({listener, topics}) when is_observable(:subscribe) do
-    unless Enum.member?(subscribers(), {listener, topics}) do
-      EventSource.notify sys_params() do
-        Subscription.subscribe({listener, topics})
-        %{action: :subscribe, listener: listener, topics: topics}
-      end
+    EventSource.notify sys_params() do
+      Subscription.subscribe({listener, topics})
+      %{action: :subscribe, listener: listener, topics: topics}
     end
 
     :ok
@@ -169,13 +170,11 @@ defmodule EventBus do
       :ok
 
   """
-  @spec unsubscribe(tuple()) :: :ok
-  def unsubscribe({listener}) when is_observable(:unsubscribe) do
-    if Enum.member?(subscribers(), {listener}) do
-      EventSource.notify sys_params() do
-        Subscription.unsubscribe({listener})
-        %{action: :unsubscribe, listener: listener}
-      end
+  @spec unsubscribe({tuple() | module()}) :: :ok
+  def unsubscribe(listener) when is_observable(:unsubscribe) do
+    EventSource.notify sys_params() do
+      Subscription.unsubscribe(listener)
+      %{action: :unsubscribe, listener: listener}
     end
 
     :ok

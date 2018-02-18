@@ -82,7 +82,7 @@ The package can be installed by adding `event_bus` to your list of dependencies 
 
 ```elixir
 def deps do
-  [{:event_bus, "~> 1.0.0"}]
+  [{:event_bus, "~> 1.1"}]
 end
 ```
 
@@ -442,11 +442,13 @@ EventBus optionally allows you to track `:register_topic`, `:unregister_topic`, 
 
 Note: Enabling optional system events decreases the EventBus performance because it at least doubles the operation calls. It is not recommended to enable these events unless you certainly require to track these events espcially `notify`, `mark_as_completed` and `mark_as_skipped`.
 
-Enabling observable events only can be done on compile time. Thus, you need to add it to your app configuration. Here is sample configuration to subscribe optional system events:
+Enabling observable events only can be done on compile time (It's good idea to delete your cached build via `rm -rf _build`). Thus, you need to add it to your app configuration. Here is sample configuration to subscribe optional system events:
 
 ```elixir
 config :event_bus,
   observables: ~w(register_topic unregister_topic subscribe unsubscribe notify mark_as_completed mark_as_skipped)a,
+  id_generator: fn -> :base64.encode(:crypto.strong_rand_bytes(8)) end,
+  #id_generator: fn -> UUID.uuid4() end
   ...
 ```
 
