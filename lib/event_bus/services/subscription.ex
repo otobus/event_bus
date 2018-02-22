@@ -93,11 +93,13 @@ defmodule EventBus.Service.Subscription do
     end
   end
 
-  defp save_state(state),
-    do: Application.put_env(@app, @namespace, state, persistent: true)
+  defp save_state(state) do
+    Application.put_env(@app, @namespace, state, persistent: true)
+  end
 
-  defp load_state,
-    do: Application.get_env(@app, @namespace, {[], init_topic_map()})
+  defp load_state do
+    Application.get_env(@app, @namespace, {[], init_topic_map()})
+  end
 
   defp init_topic_map do
     topics = Topic.all()

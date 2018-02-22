@@ -4,11 +4,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [1.1.X] - 2018.02.17
+## [1.1.X] - 2018.02.17 - 2018.02.21
 
 ### Added
 
 - Optional system events which notify the `eb_action_called` topic for the actions: `notify`, `register_topic`, `unregister_topic`, `subscribe`, `unsubscribe`, `mark_as_completed`, `mark_as_skipped`
+- Add public exist? function to Topic, Watcher, and Store
+- Check existence of topic in a blocking manner
+- Register/Unregister topic in a blocking manner
 
 ## [1.0.0] - 2018.01.23
 

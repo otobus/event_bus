@@ -6,8 +6,8 @@ defmodule EventBus.TopicTest do
 
   setup do
     on_exit(fn ->
-      Topic.unregister(:t1)
-      Topic.unregister(:t2)
+      topics = [:t1, :t2]
+      Enum.each(topics, fn topic -> Topic.unregister(topic) end)
     end)
 
     :ok

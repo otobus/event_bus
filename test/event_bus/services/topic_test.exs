@@ -8,18 +8,23 @@ defmodule EventBus.Service.TopicTest do
 
   setup do
     on_exit(fn ->
-      Topic.unregister(:t1)
-      Topic.unregister(:t2)
-      Topic.unregister(:t3)
+      topics = Topic.all() -- [@sys_topic, :metrics_received, :metrics_summed]
+      Enum.each(topics, fn topic -> Topic.unregister(topic) end)
     end)
 
     :ok
   end
 
+  test "exist?" do
+    topic = :metrics_received_1
+    Topic.register(topic)
+
+    assert Topic.exist?(topic)
+  end
+
   test "register_topic" do
     topic = :t1
     Topic.register(topic)
-    Process.sleep(10)
     all_tables = :ets.all()
 
     assert Enum.any?(Topic.all(), fn t -> t == topic end)
@@ -30,11 +35,8 @@ defmodule EventBus.Service.TopicTest do
   test "register_topic does not re-register same topic" do
     topic = :t2
     Topic.register(topic)
-    Process.sleep(10)
     topic_count = length(Topic.all())
-
     Topic.register(topic)
-    Process.sleep(10)
 
     assert topic_count == length(Topic.all())
   end
@@ -43,7 +45,6 @@ defmodule EventBus.Service.TopicTest do
     topic = :t3
     Topic.register(topic)
     Topic.unregister(topic)
-    Process.sleep(10)
     all_tables = :ets.all()
 
     refute Enum.any?(Topic.all(), fn t -> t == topic end)
@@ -54,7 +55,6 @@ defmodule EventBus.Service.TopicTest do
   test "all" do
     topic = :t3
     Topic.register(topic)
-    Process.sleep(10)
     assert [:t3, @sys_topic, :metrics_received, :metrics_summed] == Topic.all()
   end
 

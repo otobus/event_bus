@@ -7,12 +7,17 @@ defmodule EventBus.Service.Watcher do
   @prefix "eb_ew_"
 
   @doc false
-  @spec register_topic(String.t() | atom()) :: no_return()
-  def register_topic(topic) do
+  @spec exist?(atom()) :: boolean()
+  def exist?(topic) do
     table_name = table_name(topic)
     all_tables = :ets.all()
+    Enum.any?(all_tables, fn table -> table == table_name end)
+  end
 
-    unless Enum.any?(all_tables, fn table -> table == table_name end) do
+  @doc false
+  @spec register_topic(atom()) :: no_return()
+  def register_topic(topic) do
+    unless exist?(topic) do
       opts = [
         :set,
         :public,
@@ -21,19 +26,14 @@ defmodule EventBus.Service.Watcher do
         {:read_concurrency, true}
       ]
 
-      Ets.new(table_name, opts)
+      Ets.new(table_name(topic), opts)
     end
   end
 
   @doc false
-  @spec unregister_topic(String.t() | atom()) :: no_return()
+  @spec unregister_topic(atom()) :: no_return()
   def unregister_topic(topic) do
-    table_name = table_name(topic)
-    all_tables = :ets.all()
-
-    if Enum.any?(all_tables, fn table -> table == table_name end) do
-      Ets.delete(table_name)
-    end
+    if exist?(topic), do: Ets.delete(table_name(topic))
   end
 
   @doc false
@@ -67,8 +67,9 @@ defmodule EventBus.Service.Watcher do
   end
 
   @spec complete?(tuple()) :: boolean()
-  defp complete?({listeners, completers, skippers}),
-    do: length(listeners) == length(completers) + length(skippers)
+  defp complete?({listeners, completers, skippers}) do
+    length(listeners) == length(completers) + length(skippers)
+  end
 
   @spec save_or_delete(tuple(), tuple()) :: no_return()
   defp save_or_delete({topic, id}, watcher) do
@@ -85,7 +86,8 @@ defmodule EventBus.Service.Watcher do
     Ets.delete(table_name(topic), id)
   end
 
-  @spec table_name(String.t() | atom()) :: atom()
-  defp table_name(name),
-    do: :"#{@prefix}#{name}"
+  @spec table_name(atom()) :: atom()
+  defp table_name(name) do
+    :"#{@prefix}#{name}"
+  end
 end

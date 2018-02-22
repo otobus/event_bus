@@ -1,7 +1,6 @@
 defmodule EventBus.Service.WatcherTest do
   use ExUnit.Case, async: false
-  alias EventBus.Service.Watcher
-
+  alias EventBus.Service.{Watcher, Topic}
   alias EventBus.Support.Helper.{
     InputLogger,
     Calculator,
@@ -11,14 +10,27 @@ defmodule EventBus.Service.WatcherTest do
 
   doctest Watcher
 
+  @sys_topic :eb_action_called
+
   setup do
+    on_exit(fn ->
+      topics = Topic.all() -- [@sys_topic, :metrics_received, :metrics_summed]
+      Enum.each(topics, fn topic -> Topic.unregister(topic) end)
+    end)
+
     :ok
+  end
+
+  test "exist?" do
+    topic = :metrics_received_1
+    Watcher.register_topic(topic)
+
+    assert Watcher.exist?(topic)
   end
 
   test "register_topic" do
     topic = :metrics_destroyed
     Watcher.register_topic(topic)
-    Process.sleep(1_000)
     all_tables = :ets.all()
 
     assert Enum.any?(all_tables, fn t -> t == :"eb_ew_#{topic}" end)
@@ -28,7 +40,6 @@ defmodule EventBus.Service.WatcherTest do
     topic = :metrics_destroyed
     Watcher.register_topic(topic)
     Watcher.unregister_topic(topic)
-    Process.sleep(1_000)
     all_tables = :ets.all()
 
     refute Enum.any?(all_tables, fn t -> t == :"eb_ew_#{topic}" end)
@@ -46,9 +57,7 @@ defmodule EventBus.Service.WatcherTest do
     ]
 
     Watcher.register_topic(topic)
-    Process.sleep(100)
     Watcher.save({topic, id}, {listeners, [], []})
-    Process.sleep(100)
 
     assert {listeners, [], []} == Watcher.fetch({topic, id})
   end
@@ -65,11 +74,8 @@ defmodule EventBus.Service.WatcherTest do
     ]
 
     Watcher.register_topic(topic)
-    Process.sleep(100)
     Watcher.save({topic, id}, {listeners, [], []})
-    Process.sleep(100)
     Watcher.mark_as_completed({{InputLogger, %{}}, topic, id})
-    Process.sleep(100)
 
     assert {listeners, [{InputLogger, %{}}], []} == Watcher.fetch({topic, id})
   end
@@ -86,11 +92,8 @@ defmodule EventBus.Service.WatcherTest do
     ]
 
     Watcher.register_topic(topic)
-    Process.sleep(100)
     Watcher.save({topic, id}, {listeners, [], []})
-    Process.sleep(100)
     Watcher.mark_as_skipped({{InputLogger, %{}}, topic, id})
-    Process.sleep(100)
 
     assert {listeners, [], [{InputLogger, %{}}]} == Watcher.fetch({topic, id})
   end
