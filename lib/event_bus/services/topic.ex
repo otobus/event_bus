@@ -11,13 +11,15 @@ defmodule EventBus.Service.Topic do
 
   @doc false
   @spec all() :: list(atom())
-  def all,
-    do: Application.get_env(:event_bus, :topics, [])
+  def all do
+    Application.get_env(:event_bus, :topics, [])
+  end
 
   @doc false
-  @spec exist?(String.t() | atom()) :: boolean()
-  def exist?(topic),
-    do: Enum.member?(all(), :"#{topic}")
+  @spec exist?(atom()) :: boolean()
+  def exist?(topic) do
+    Enum.member?(all(), topic)
+  end
 
   @doc false
   @spec register_from_config() :: no_return()
@@ -28,26 +30,20 @@ defmodule EventBus.Service.Topic do
   end
 
   @doc false
-  @spec register(String.t() | atom()) :: no_return()
+  @spec register(atom()) :: no_return()
   def register(topic) do
-    topic = :"#{topic}"
-    topics = all()
-
-    unless Enum.member?(topics, topic) do
-      Application.put_env(@app, @namespace, [topic | topics], persistent: true)
+    unless exist?(topic) do
+      Application.put_env(@app, @namespace, [topic | all()], persistent: true)
       Enum.each(@modules, fn mod -> mod.register_topic(topic) end)
     end
   end
 
   @doc false
-  @spec unregister(String.t() | atom()) :: no_return()
+  @spec unregister(atom()) :: no_return()
   def unregister(topic) do
-    topic = :"#{topic}"
-    topics = all()
-
-    if Enum.member?(topics, topic) do
+    if exist?(topic) do
       Enum.each(@modules, fn mod -> mod.unregister_topic(topic) end)
-      topics = List.delete(topics, topic)
+      topics = List.delete(all(), topic)
       Application.put_env(@app, @namespace, topics, persistent: true)
     end
   end

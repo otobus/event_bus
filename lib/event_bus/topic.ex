@@ -6,34 +6,46 @@ defmodule EventBus.Topic do
   ###########################################################################
 
   use GenServer
+  alias EventBus.Service.Topic, as: TopicService
 
-  @backend Application.get_env(
-             :event_bus,
-             :topic_backend,
-             EventBus.Service.Topic
-           )
+  @app :event_bus
+  @backend Application.get_env(@app, :topic_backend, TopicService)
 
   @doc false
-  def start_link,
-    do: GenServer.start_link(__MODULE__, nil, name: __MODULE__)
+  def start_link do
+    GenServer.start_link(__MODULE__, nil, name: __MODULE__)
+  end
 
   @doc false
-  def init(args),
-    do: {:ok, args}
+  def init(args) do
+    {:ok, args}
+  end
+
+  @doc """
+  Check if the topic exists?
+  It's important to keep this in blocking manner to prevent double creations in
+  sub modules
+  """
+  @spec exist?(String.t() | atom()) :: boolean()
+  def exist?(topic) do
+    GenServer.call(__MODULE__, {:exist?, topic})
+  end
 
   @doc """
   Register a topic
   """
-  @spec register(String.t() | atom()) :: no_return()
-  def register(topic),
-    do: GenServer.cast(__MODULE__, {:register, topic})
+  @spec register(String.t() | atom()) :: :ok
+  def register(topic) do
+    GenServer.call(__MODULE__, {:register, topic})
+  end
 
   @doc """
   Unregister a topic
   """
-  @spec unregister(String.t() | atom()) :: no_return()
-  def unregister(topic),
-    do: GenServer.cast(__MODULE__, {:unregister, topic})
+  @spec unregister(String.t() | atom()) :: :ok
+  def unregister(topic) do
+    GenServer.call(__MODULE__, {:unregister, topic})
+  end
 
   ###########################################################################
   # DELEGATIONS
@@ -48,14 +60,6 @@ defmodule EventBus.Topic do
     as: :all
 
   @doc """
-  Check if the topic exists?
-  """
-  @spec exist?(String.t() | atom()) :: boolean()
-  defdelegate exist?(topic),
-    to: @backend,
-    as: :exist?
-
-  @doc """
   Register all topics from config
   """
   @spec register_from_config() :: no_return()
@@ -68,15 +72,25 @@ defmodule EventBus.Topic do
   ###########################################################################
 
   @doc false
-  @spec handle_cast({:register, String.t() | atom()}, nil) :: no_return()
-  def handle_cast({:register, topic}, state) do
-    @backend.register(topic)
-    {:noreply, state}
+  @spec handle_call({:exist?, String.t() | atom()}, any(), term())
+    :: {:reply, boolean(), term()}
+  def handle_call({:exist?, topic}, _from, state) do
+    {:reply, @backend.exist?(:"#{topic}"), state}
   end
 
-  @spec handle_cast({:unregister, String.t() | atom()}, nil) :: no_return()
-  def handle_cast({:unregister, topic}, state) do
-    @backend.unregister(topic)
-    {:noreply, state}
+  @doc false
+  @spec handle_call({:register, String.t() | atom()}, any(), term())
+    :: {:reply, :ok, term()}
+  def handle_call({:register, topic}, _from, state) do
+    @backend.register(:"#{topic}")
+    {:reply, :ok, state}
+  end
+
+  @doc false
+  @spec handle_call({:unregister, String.t() | atom()}, any(), term())
+    :: {:reply, :ok, term()}
+  def handle_call({:unregister, topic}, _from, state) do
+    @backend.unregister(:"#{topic}")
+    {:reply, :ok, state}
   end
 end

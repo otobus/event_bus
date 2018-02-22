@@ -6,48 +6,52 @@ defmodule EventBus.Subscription do
   ###########################################################################
 
   use GenServer
+  alias EventBus.Service.Subscription, as: SubscriptionService
 
-  @backend Application.get_env(
-             :event_bus,
-             :subscription_backend,
-             EventBus.Service.Subscription
-           )
+  @app :event_bus
+  @backend Application.get_env(@app, :subscription_backend, SubscriptionService)
 
   @doc false
-  def start_link,
-    do: GenServer.start_link(__MODULE__, nil, name: __MODULE__)
+  def start_link do
+    GenServer.start_link(__MODULE__, nil, name: __MODULE__)
+  end
 
   @doc false
-  def init(args),
-    do: {:ok, args}
+  def init(args) do
+    {:ok, args}
+  end
 
   @doc """
   Subscribe the listener to topics
   """
   @spec subscribe({tuple() | module(), list()}) :: no_return()
-  def subscribe({listener, topics}),
-    do: GenServer.cast(__MODULE__, {:subscribe, {listener, topics}})
+  def subscribe({listener, topics}) do
+    GenServer.cast(__MODULE__, {:subscribe, {listener, topics}})
+  end
 
   @doc """
   Unsubscribe the listener
   """
   @spec unsubscribe({tuple() | module()}) :: no_return()
-  def unsubscribe(listener),
-    do: GenServer.cast(__MODULE__, {:unsubscribe, listener})
+  def unsubscribe(listener) do
+    GenServer.cast(__MODULE__, {:unsubscribe, listener})
+  end
 
   @doc """
   Set listeners to the topic
   """
   @spec register_topic(atom()) :: no_return()
-  def register_topic(topic),
-    do: GenServer.cast(__MODULE__, {:register_topic, topic})
+  def register_topic(topic) do
+    GenServer.cast(__MODULE__, {:register_topic, topic})
+  end
 
   @doc """
   Unset listeners from the topic
   """
   @spec unregister_topic(atom()) :: no_return()
-  def unregister_topic(topic),
-    do: GenServer.cast(__MODULE__, {:unregister_topic, topic})
+  def unregister_topic(topic) do
+    GenServer.cast(__MODULE__, {:unregister_topic, topic})
+  end
 
   ###########################################################################
   # DELEGATIONS
@@ -74,28 +78,28 @@ defmodule EventBus.Subscription do
   ###########################################################################
 
   @doc false
-  @spec handle_cast({:subscribe, tuple()}, nil) :: no_return()
+  @spec handle_cast({:subscribe, tuple()}, term()) :: no_return()
   def handle_cast({:subscribe, {listener, topics}}, state) do
     @backend.subscribe({listener, topics})
     {:noreply, state}
   end
 
   @doc false
-  @spec handle_cast({:unsubscribe, tuple() | module()}, nil) :: no_return()
+  @spec handle_cast({:unsubscribe, tuple() | module()}, term()) :: no_return()
   def handle_cast({:unsubscribe, listener}, state) do
     @backend.unsubscribe(listener)
     {:noreply, state}
   end
 
   @doc false
-  @spec handle_cast({:register_topic, atom()}, nil) :: no_return()
+  @spec handle_cast({:register_topic, atom()}, term()) :: no_return()
   def handle_cast({:register_topic, topic}, state) do
     @backend.register_topic(topic)
     {:noreply, state}
   end
 
   @doc false
-  @spec handle_cast({:unregister_topic, atom()}, nil) :: no_return()
+  @spec handle_cast({:unregister_topic, atom()}, term()) :: no_return()
   def handle_cast({:unregister_topic, topic}, state) do
     @backend.unregister_topic(topic)
     {:noreply, state}

@@ -9,10 +9,16 @@ defmodule EventBus.Service.StoreTest do
     :ok
   end
 
+  test "exist?" do
+    topic = :metrics_received_1
+    Store.register_topic(topic)
+
+    assert Store.exist?(topic)
+  end
+
   test "register_topic" do
     topic = :metrics_received_1
     Store.register_topic(topic)
-    Process.sleep(100)
     all_tables = :ets.all()
 
     assert Enum.any?(all_tables, fn t -> t == :"eb_es_#{topic}" end)
@@ -21,7 +27,6 @@ defmodule EventBus.Service.StoreTest do
   test "unregister_topic" do
     topic = :metrics_received_1
     Store.unregister_topic(topic)
-    Process.sleep(100)
     all_tables = :ets.all()
 
     refute Enum.any?(all_tables, fn t -> t == :"eb_es_#{topic}" end)
@@ -30,7 +35,6 @@ defmodule EventBus.Service.StoreTest do
   test "save" do
     topic = :metrics_received_2
     Store.register_topic(topic)
-    Process.sleep(100)
 
     event = %Event{
       id: "E1",
@@ -45,7 +49,6 @@ defmodule EventBus.Service.StoreTest do
   test "fetch" do
     topic = :metrics_received_3
     Store.register_topic(topic)
-    Process.sleep(100)
 
     first_event = %Event{
       id: "E1",
@@ -71,7 +74,6 @@ defmodule EventBus.Service.StoreTest do
   test "delete and fetch" do
     topic = :metrics_received_4
     Store.register_topic(topic)
-    Process.sleep(100)
 
     event = %Event{
       id: "E1",
@@ -82,7 +84,6 @@ defmodule EventBus.Service.StoreTest do
 
     :ok = Store.save(event)
     Store.delete({topic, event.id})
-    Process.sleep(100)
 
     assert is_nil(Store.fetch({topic, event.id}))
   end
