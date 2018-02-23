@@ -86,6 +86,19 @@ def deps do
 end
 ```
 
+Be sure to include `event_bus` in your `mix.exs` Mixfile:
+
+```elixir
+def application do
+  [
+    applications: [
+      # ...
+      :event_bus
+    ]
+  ]
+end
+```
+
 ## Usage
 
 ##### Register event topics in `config.exs`
@@ -234,7 +247,7 @@ EventBus.topic_exist?(:metrics_updated)
 
 ##### Use block builder to build `EventBus.Model.Event` struct
 
-Builder automatically sets initialized_at and occured_at attributes
+Builder automatically sets `initialized_at` and `occurred_at` attributes
 ```elixir
 use EventBus.EventSource
 
@@ -279,7 +292,7 @@ end
 
 ##### Use block notifier to notify event data to given topic
 
-Builder automatically sets initialized_at and occured_at attributes
+Builder automatically sets `initialized_at` and `occurred_at` attributes
 ```elixir
 use EventBus.EventSource
 
