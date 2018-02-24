@@ -1,4 +1,4 @@
-defmodule EventBus.Subscription do
+defmodule EventBus.Manager.Subscription do
   @moduledoc false
 
   ###########################################################################
@@ -19,6 +19,14 @@ defmodule EventBus.Subscription do
   @doc false
   def init(args) do
     {:ok, args}
+  end
+
+  @doc """
+  Subscribe the listener to topics
+  """
+  @spec subscribed?({tuple() | module(), list()}) :: no_return()
+  def subscribed?({_listener, _topics} = subscriber) do
+    GenServer.call(__MODULE__, {:subscribed?, subscriber})
   end
 
   @doc """
@@ -76,6 +84,13 @@ defmodule EventBus.Subscription do
   ###########################################################################
   # PRIVATE API
   ###########################################################################
+
+  @doc false
+  @spec handle_call({:subscribed?, tuple()}, any(), term())
+    :: {:reply, boolean(), term()}
+  def handle_call({:subscribed?, subscriber}, _from, state) do
+    {:reply, @backend.subscribed?(subscriber), state}
+  end
 
   @doc false
   @spec handle_cast({:subscribe, tuple()}, term()) :: no_return()

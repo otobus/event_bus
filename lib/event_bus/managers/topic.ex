@@ -1,4 +1,4 @@
-defmodule EventBus.Topic do
+defmodule EventBus.Manager.Topic do
   @moduledoc false
 
   ###########################################################################

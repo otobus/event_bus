@@ -5,7 +5,7 @@ defmodule EventBus do
   """
 
   use EventBus.EventSource
-  alias EventBus.{Notifier, Store, Watcher, Subscription, Topic}
+  alias EventBus.Manager.{Notification, Observation, Store, Subscription, Topic}
 
   @app :event_bus
   @source "eb"
@@ -37,18 +37,8 @@ defmodule EventBus do
 
   """
   @spec notify(Event.t()) :: :ok
-  def notify(%Event{id: id, topic: topic} = event)
-      when is_observable(:notify, topic) do
-    EventSource.notify sys_params() do
-      Notifier.notify(event)
-      %{action: :notify, id: id, subscribers: subscribers(topic), topic: topic}
-    end
-
-    :ok
-  end
-
   defdelegate notify(topic),
-    to: Notifier,
+    to: Notification,
     as: :notify
 
   @doc """
@@ -144,9 +134,11 @@ defmodule EventBus do
   """
   @spec subscribe(tuple()) :: :ok
   def subscribe({listener, topics}) when is_observable(:subscribe) do
-    EventSource.notify sys_params() do
-      Subscription.subscribe({listener, topics})
-      %{action: :subscribe, listener: listener, topics: topics}
+    unless subscribed?({listener, topics}) do
+      EventSource.notify sys_params() do
+        Subscription.subscribe({listener, topics})
+        %{action: :subscribe, listener: listener, topics: topics}
+      end
     end
 
     :ok
@@ -172,9 +164,11 @@ defmodule EventBus do
   """
   @spec unsubscribe({tuple() | module()}) :: :ok
   def unsubscribe(listener) when is_observable(:unsubscribe) do
-    EventSource.notify sys_params() do
-      Subscription.unsubscribe(listener)
-      %{action: :unsubscribe, listener: listener}
+    if subscribed?(listener) do
+      EventSource.notify sys_params() do
+        Subscription.unsubscribe(listener)
+        %{action: :unsubscribe, listener: listener}
+      end
     end
 
     :ok
@@ -183,6 +177,29 @@ defmodule EventBus do
   defdelegate unsubscribe(listener),
     to: Subscription,
     as: :unsubscribe
+
+  @doc """
+  Is given listener subscribed to the bus for the given topics?
+
+  ## Examples
+
+      EventBus.subscribe({MyEventListener, [".*"]})
+      :ok
+
+      EventBus.subscribed?({MyEventListener, [".*"]})
+      true
+
+      EventBus.subscribed?({MyEventListener, ["some_initialized"]})
+      false
+
+      EventBus.subscribed?({AnothEventListener, [".*"]})
+      false
+
+  """
+  @spec subscribed?(tuple()) :: boolean()
+  defdelegate subscribed?(listener_with_topics),
+    to: Subscription,
+    as: :subscribed?
 
   @doc """
   List the subscribers.
@@ -251,7 +268,7 @@ defmodule EventBus do
   def mark_as_completed({listener, topic, id})
       when is_observable(:mark_as_completed, topic) do
     EventSource.notify sys_params() do
-      Watcher.mark_as_completed({listener, topic, id})
+      Observation.mark_as_completed({listener, topic, id})
       %{action: :mark_as_completed, id: id, listener: listener, topic: topic}
     end
 
@@ -259,7 +276,7 @@ defmodule EventBus do
   end
 
   defdelegate mark_as_completed(listener_with_event_shadow),
-    to: Watcher,
+    to: Observation,
     as: :mark_as_completed
 
   @doc """
@@ -281,7 +298,7 @@ defmodule EventBus do
   def mark_as_skipped({listener, topic, id})
       when is_observable(:mark_as_skipped, topic) do
     EventSource.notify sys_params() do
-      Watcher.mark_as_skipped({listener, topic, id})
+      Observation.mark_as_skipped({listener, topic, id})
       %{action: :mark_as_skipped, id: id, listener: listener, topic: topic}
     end
 
@@ -289,7 +306,7 @@ defmodule EventBus do
   end
 
   defdelegate mark_as_skipped(listener_with_event_shadow),
-    to: Watcher,
+    to: Observation,
     as: :mark_as_skipped
 
   defp sys_params do

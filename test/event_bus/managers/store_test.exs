@@ -1,9 +1,9 @@
-defmodule EventBus.StoreTest do
+defmodule EventBus.Manager.StoreTest do
   use ExUnit.Case, async: false
   alias EventBus.Model.Event
-  alias EventBus.Store
+  alias EventBus.Manager.Store
 
-  doctest EventBus.Store
+  doctest Store
 
   @topic :metrics_stored
 

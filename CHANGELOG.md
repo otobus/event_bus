@@ -4,7 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [1.1.X] - 2018.02.17 - 2018.02.21
+## [1.2.X]
+
+- Removed support for system event tracing for `notify` action (unnecessary)
+- Moved internal modules under managers namespace for better documentation
+- Add `subscribed?` function to check subscriptions
+
+## [1.1.X] - 2018.02.21
 
 ### Added
 

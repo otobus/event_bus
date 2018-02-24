@@ -33,6 +33,12 @@ defmodule EventBus.Service.SubscriptionTest do
     :ok
   end
 
+  test "subscribed?" do
+    Subscription.subscribe({{InputLogger, %{}}, [".*"]})
+    assert Subscription.subscribed?({{InputLogger, %{}}, [".*"]})
+    refute Subscription.subscribed?({InputLogger, [".*"]})
+  end
+
   test "subscribe" do
     Subscription.subscribe({{InputLogger, %{}}, [".*"]})
     Subscription.subscribe({{Calculator, %{}}, [".*"]})

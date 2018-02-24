@@ -1,8 +1,8 @@
-defmodule EventBus.TopicTest do
+defmodule EventBus.Manager.TopicTest do
   use ExUnit.Case, async: false
-  alias EventBus.Topic
+  alias EventBus.Manager.Topic
 
-  doctest EventBus.Topic
+  doctest Topic
 
   setup do
     on_exit(fn ->

@@ -1,9 +1,9 @@
-defmodule EventBus.NotifierTest do
+defmodule EventBus.Manager.NotificationTest do
   use ExUnit.Case, async: false
   alias EventBus.Model.Event
-  alias EventBus.Notifier
+  alias EventBus.Manager.Notification
 
-  doctest Notifier
+  doctest Notification
 
   @topic :metrics_received
   @event %Event{
@@ -15,11 +15,11 @@ defmodule EventBus.NotifierTest do
   }
 
   setup do
-    refute is_nil(Process.whereis(Notifier))
+    refute is_nil(Process.whereis(Notification))
     :ok
   end
 
   test "notify" do
-    assert :ok == Notifier.notify(@event)
+    assert :ok == Notification.notify(@event)
   end
 end

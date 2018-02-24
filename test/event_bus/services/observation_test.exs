@@ -1,6 +1,6 @@
-defmodule EventBus.Service.WatcherTest do
+defmodule EventBus.Service.ObservationTest do
   use ExUnit.Case, async: false
-  alias EventBus.Service.{Watcher, Topic}
+  alias EventBus.Service.{Observation, Topic}
   alias EventBus.Support.Helper.{
     InputLogger,
     Calculator,
@@ -8,7 +8,7 @@ defmodule EventBus.Service.WatcherTest do
     BadOne
   }
 
-  doctest Watcher
+  doctest Observation
 
   @sys_topic :eb_action_called
 
@@ -23,14 +23,14 @@ defmodule EventBus.Service.WatcherTest do
 
   test "exist?" do
     topic = :metrics_received_1
-    Watcher.register_topic(topic)
+    Observation.register_topic(topic)
 
-    assert Watcher.exist?(topic)
+    assert Observation.exist?(topic)
   end
 
   test "register_topic" do
     topic = :metrics_destroyed
-    Watcher.register_topic(topic)
+    Observation.register_topic(topic)
     all_tables = :ets.all()
 
     assert Enum.any?(all_tables, fn t -> t == :"eb_ew_#{topic}" end)
@@ -38,8 +38,8 @@ defmodule EventBus.Service.WatcherTest do
 
   test "unregister_topic" do
     topic = :metrics_destroyed
-    Watcher.register_topic(topic)
-    Watcher.unregister_topic(topic)
+    Observation.register_topic(topic)
+    Observation.unregister_topic(topic)
     all_tables = :ets.all()
 
     refute Enum.any?(all_tables, fn t -> t == :"eb_ew_#{topic}" end)
@@ -56,10 +56,10 @@ defmodule EventBus.Service.WatcherTest do
       {BadOne, %{}}
     ]
 
-    Watcher.register_topic(topic)
-    Watcher.save({topic, id}, {listeners, [], []})
+    Observation.register_topic(topic)
+    Observation.save({topic, id}, {listeners, [], []})
 
-    assert {listeners, [], []} == Watcher.fetch({topic, id})
+    assert {listeners, [], []} == Observation.fetch({topic, id})
   end
 
   test "complete" do
@@ -73,11 +73,11 @@ defmodule EventBus.Service.WatcherTest do
       {BadOne, %{}}
     ]
 
-    Watcher.register_topic(topic)
-    Watcher.save({topic, id}, {listeners, [], []})
-    Watcher.mark_as_completed({{InputLogger, %{}}, topic, id})
+    Observation.register_topic(topic)
+    Observation.save({topic, id}, {listeners, [], []})
+    Observation.mark_as_completed({{InputLogger, %{}}, topic, id})
 
-    assert {listeners, [{InputLogger, %{}}], []} == Watcher.fetch({topic, id})
+    assert {listeners, [{InputLogger, %{}}], []} == Observation.fetch({topic, id})
   end
 
   test "skip" do
@@ -91,10 +91,10 @@ defmodule EventBus.Service.WatcherTest do
       {BadOne, %{}}
     ]
 
-    Watcher.register_topic(topic)
-    Watcher.save({topic, id}, {listeners, [], []})
-    Watcher.mark_as_skipped({{InputLogger, %{}}, topic, id})
+    Observation.register_topic(topic)
+    Observation.save({topic, id}, {listeners, [], []})
+    Observation.mark_as_skipped({{InputLogger, %{}}, topic, id})
 
-    assert {listeners, [], [{InputLogger, %{}}]} == Watcher.fetch({topic, id})
+    assert {listeners, [], [{InputLogger, %{}}]} == Observation.fetch({topic, id})
   end
 end

@@ -1,13 +1,11 @@
 defmodule EventBus.Service.Topic do
   @moduledoc false
 
-  alias EventBus.Store
-  alias EventBus.Watcher
-  alias EventBus.Subscription
+  alias EventBus.Manager.{Observation, Store, Subscription}
 
   @app :event_bus
   @namespace :topics
-  @modules [Store, Watcher, Subscription]
+  @modules [Store, Subscription, Observation]
 
   @doc false
   @spec all() :: list(atom())

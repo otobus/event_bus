@@ -1,18 +1,18 @@
-defmodule EventBus.Watcher do
+defmodule EventBus.Manager.Observation do
   @moduledoc false
 
   ###########################################################################
-  # Event Watcher module is a helper to get info for the events and also an
+  # Event Observation module is a helper to get info for the events and also an
   # organizer for the events happened in time. It automatically deletes
   # processed events from the ETS table. Event listeners are responsible for
-  # notifying the Event Watcher on completions and skips.
+  # notifying the Event Observation on completions and skips.
   ###########################################################################
 
   use GenServer
-  alias EventBus.Service.Watcher, as: WatcherService
+  alias EventBus.Service.Observation, as: ObservationService
 
   @app :event_bus
-  @backend Application.get_env(@app, :watcher_backend, WatcherService)
+  @backend Application.get_env(@app, :watcher_backend, ObservationService)
 
   @doc false
   def start_link do
