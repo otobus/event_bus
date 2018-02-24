@@ -2,7 +2,7 @@ defmodule EventBus.Application do
   @moduledoc false
 
   use Application
-  alias EventBus.{Notifier, Store, Watcher, Subscription, Topic}
+  alias EventBus.Manager.{Notification, Observation, Store, Subscription, Topic}
 
   @sys_topic :eb_action_called
 
@@ -12,9 +12,9 @@ defmodule EventBus.Application do
     children = [
       worker(Topic, [], id: make_ref(), restart: :permanent),
       worker(Subscription, [], id: make_ref(), restart: :permanent),
-      worker(Notifier, [], id: make_ref(), restart: :permanent),
+      worker(Notification, [], id: make_ref(), restart: :permanent),
       worker(Store, [], id: make_ref(), restart: :permanent),
-      worker(Watcher, [], id: make_ref(), restart: :permanent)
+      worker(Observation, [], id: make_ref(), restart: :permanent)
     ]
 
     opts = [strategy: :one_for_one, name: EventBus.Supervisor]

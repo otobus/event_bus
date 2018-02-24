@@ -1,17 +1,17 @@
-defmodule EventBus.Notifier do
+defmodule EventBus.Manager.Notification do
   @moduledoc false
 
   ###########################################################################
-  # Notifier is responsible for saving events, creating event watcher and
+  # Notification is responsible for saving events, creating event watcher and
   # delivering events to listeners.
   ###########################################################################
 
   use GenServer
   alias EventBus.Model.Event
-  alias EventBus.Service.Notifier, as: NotifierService
+  alias EventBus.Service.Notification, as: NotificationService
 
   @app :event_bus
-  @backend Application.get_env(@app, :notifier_backend, NotifierService)
+  @backend Application.get_env(@app, :notifier_backend, NotificationService)
 
   @doc false
   def start_link do

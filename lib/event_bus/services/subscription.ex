@@ -1,11 +1,16 @@
 defmodule EventBus.Service.Subscription do
   @moduledoc false
 
-  alias EventBus.Topic
+  alias EventBus.Manager.Topic
   alias EventBus.Util.Regex, as: RegexUtil
 
   @app :event_bus
   @namespace :subscriptions
+
+  @spec subscribed?(tuple()) :: boolean()
+  def subscribed?(subscriber) do
+    Enum.member?(subscribers(), subscriber)
+  end
 
   @doc false
   @spec subscribe(tuple()) :: no_return()

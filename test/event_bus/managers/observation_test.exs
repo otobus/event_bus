@@ -1,6 +1,6 @@
-defmodule EventBus.WatcherTest do
+defmodule EventBus.Manager.ObservationTest do
   use ExUnit.Case, async: false
-  alias EventBus.Watcher
+  alias EventBus.Manager.Observation
 
   alias EventBus.Support.Helper.{
     InputLogger,
@@ -9,21 +9,21 @@ defmodule EventBus.WatcherTest do
     BadOne
   }
 
-  doctest EventBus.Watcher
+  doctest Observation
 
   setup do
     :ok
   end
 
   test "register_topic" do
-    assert :ok == Watcher.register_topic(:metrics_destroyed)
+    assert :ok == Observation.register_topic(:metrics_destroyed)
   end
 
   test "unregister_topic" do
     topic = :metrics_destroyed
-    Watcher.register_topic(topic)
+    Observation.register_topic(topic)
 
-    assert :ok == Watcher.unregister_topic(topic)
+    assert :ok == Observation.unregister_topic(topic)
   end
 
   test "create" do
@@ -37,9 +37,9 @@ defmodule EventBus.WatcherTest do
       {BadOne, %{}}
     ]
 
-    Watcher.register_topic(topic)
+    Observation.register_topic(topic)
 
-    assert :ok == Watcher.create({listeners, topic, id})
+    assert :ok == Observation.create({listeners, topic, id})
   end
 
   test "complete" do
@@ -53,10 +53,12 @@ defmodule EventBus.WatcherTest do
       {BadOne, %{}}
     ]
 
-    Watcher.register_topic(topic)
-    Watcher.create({listeners, topic, id})
+    Observation.register_topic(topic)
+    Observation.create({listeners, topic, id})
 
-    assert :ok === Watcher.mark_as_completed({{InputLogger, %{}}, topic, id})
+    listener = {InputLogger, %{}}
+
+    assert :ok === Observation.mark_as_completed({listener, topic, id})
   end
 
   test "skip" do
@@ -70,8 +72,8 @@ defmodule EventBus.WatcherTest do
       {BadOne, %{}}
     ]
 
-    Watcher.register_topic(topic)
-    Watcher.create({listeners, topic, id})
-    assert :ok == Watcher.mark_as_skipped({{InputLogger, %{}}, topic, id})
+    Observation.register_topic(topic)
+    Observation.create({listeners, topic, id})
+    assert :ok == Observation.mark_as_skipped({{InputLogger, %{}}, topic, id})
   end
 end

@@ -1,4 +1,4 @@
-defmodule EventBus.Store do
+defmodule EventBus.Manager.Store do
   @moduledoc false
 
   ###########################################################################

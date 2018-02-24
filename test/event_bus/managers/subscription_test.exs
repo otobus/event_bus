@@ -1,7 +1,7 @@
-defmodule EventBus.SubscriptionTest do
+defmodule EventBus.Manager.SubscriptionTest do
   use ExUnit.Case, async: false
   alias EventBus.Support.Helper.{InputLogger, AnotherCalculator}
-  alias EventBus.Subscription
+  alias EventBus.Manager.Subscription
 
   doctest Subscription
 
@@ -15,6 +15,12 @@ defmodule EventBus.SubscriptionTest do
     end
 
     :ok
+  end
+
+  test "subscribed?" do
+    Subscription.subscribe({{InputLogger, %{}}, [".*"]})
+    assert Subscription.subscribed?({{InputLogger, %{}}, [".*"]})
+    refute Subscription.subscribed?({InputLogger, [".*"]})
   end
 
   test "subscribe" do

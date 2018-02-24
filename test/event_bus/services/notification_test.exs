@@ -1,9 +1,8 @@
-defmodule EventBus.Service.NotifierTest do
+defmodule EventBus.Service.NotificationTest do
   use ExUnit.Case, async: false
   import ExUnit.CaptureLog
   alias EventBus.Model.Event
-  alias EventBus.Service.Notifier
-  alias EventBus.Subscription
+  alias EventBus.Service.{Notification, Subscription}
 
   alias EventBus.Support.Helper.{
     InputLogger,
@@ -14,7 +13,7 @@ defmodule EventBus.Service.NotifierTest do
     AnotherBadOne
   }
 
-  doctest Notifier
+  doctest Notification
 
   @topic :metrics_received
   @event %Event{
@@ -22,7 +21,7 @@ defmodule EventBus.Service.NotifierTest do
     transaction_id: "T1",
     topic: @topic,
     data: [1, 2],
-    source: "NotifierTest"
+    source: "NotificationTest"
   }
 
   setup do
@@ -62,7 +61,7 @@ defmodule EventBus.Service.NotifierTest do
 
     logs =
       capture_log(fn ->
-        Notifier.notify(@event)
+        Notification.notify(@event)
         Process.sleep(300)
       end)
 
@@ -74,7 +73,7 @@ defmodule EventBus.Service.NotifierTest do
 
     assert String.contains?(
              logs,
-             "Event log for %EventBus.Model.Event{data: [1, 2], id: \"E1\", initialized_at: nil, occurred_at: nil, source: \"NotifierTest\", topic: :metrics_received, transaction_id: \"T1\", ttl: nil}"
+             "Event log for %EventBus.Model.Event{data: [1, 2], id: \"E1\", initialized_at: nil, occurred_at: nil, source: \"NotificationTest\", topic: :metrics_received, transaction_id: \"T1\", ttl: nil}"
            )
 
     assert String.contains?(

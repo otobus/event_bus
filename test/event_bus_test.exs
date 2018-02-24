@@ -10,8 +10,6 @@ defmodule EventBusTest do
     BadOne
   }
 
-  doctest EventBus.Notifier
-
   @event %Event{
     id: "M1",
     transaction_id: "T1",

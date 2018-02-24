@@ -1,7 +1,7 @@
-defmodule EventBus.Service.Watcher do
+defmodule EventBus.Service.Observation do
   @moduledoc false
 
-  alias EventBus.Store
+  alias EventBus.Manager.Store
   alias :ets, as: Ets
 
   @prefix "eb_ew_"
