@@ -4,7 +4,7 @@ defmodule EventBus.Mixfile do
   def project do
     [
       app: :event_bus,
-      version: "1.1.3",
+      version: "1.2.0",
       elixir: "~> 1.5",
       elixirc_paths: elixirc_paths(Mix.env()),
       build_embedded: Mix.env() == :prod,
