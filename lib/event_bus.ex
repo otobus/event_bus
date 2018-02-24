@@ -1,7 +1,7 @@
 defmodule EventBus do
   @moduledoc """
   Traceable, extendable and minimalist event bus implementation for Elixir with
-  built-in event store and event watcher based on ETS
+  built-in event store and event observation manager based on ETS
   """
 
   use EventBus.EventSource
@@ -250,7 +250,7 @@ defmodule EventBus do
     as: :fetch
 
   @doc """
-  Send the event processing completed to the watcher
+  Send the event processing completed to the Observation Manager
 
   ## Examples
 
@@ -280,7 +280,7 @@ defmodule EventBus do
     as: :mark_as_completed
 
   @doc """
-  Send the event processing skipped to the watcher
+  Send the event processing skipped to the Observation Manager
 
   ## Examples
 

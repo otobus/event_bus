@@ -132,7 +132,8 @@ EventBus.subscribe({MyEventListener, ["purchase_", "booking_confirmed$", "flight
 
 # if your listener has a config
 config = %{}
-EventBus.subscribe({{MyEventListener, config}, [".*"]})
+listener = {MyEventListener, config}
+EventBus.subscribe({listener, [".*"]})
 > :ok
 ```
 
@@ -371,7 +372,8 @@ defmodule MyEventListener do
     # do sth with event
 
     # update the watcher!
-    EventBus.mark_as_completed({{__MODULE__, config}, :bye_received, id})
+    listener = {__MODULE__, config}
+    EventBus.mark_as_completed({listener, :bye_received, id})
     ...
     {:noreply, state}
   end
@@ -381,13 +383,15 @@ defmodule MyEventListener do
     # do sth with EventBus.Model.Event
 
     # update the watcher!
-    EventBus.mark_as_completed({{__MODULE__, config}, :hello_received, id})
+    listener = {__MODULE__, config}
+    EventBus.mark_as_completed({listener, :hello_received, id})
     ...
     {:noreply, state}
   end
 
   def handle_cast({config, topic, id}, state) do
-    EventBus.mark_as_skipped({{__MODULE__, config}, topic, id})
+    listener = {__MODULE__, config}
+    EventBus.mark_as_skipped({listener, topic, id})
     {:noreply, state}
   end
 
@@ -451,15 +455,15 @@ EvenBus version > 1.1 comes with optional system events which allows to track it
 
 ### System Events
 
-EventBus optionally allows you to track `:register_topic`, `:unregister_topic`, `:subscribe` and `:unsubscribe`, `:notify`, `:mark_as_completed` and `mark_as_skipped` action calls by the configuration. To track these events you need to enable them by configuration and then subscribe to `:eb_action_called` topic.
+EventBus optionally allows you to track `:register_topic`, `:unregister_topic`, `:subscribe` and `:unsubscribe`, `:mark_as_completed` and `mark_as_skipped` action calls by the configuration. To track these events you need to enable them by configuration and then subscribe to `:eb_action_called` topic.
 
-Note: Enabling optional system events decreases the EventBus performance because it at least doubles the operation calls. It is not recommended to enable these events unless you certainly require to track these events espcially `notify`, `mark_as_completed` and `mark_as_skipped`.
+Note: Enabling optional system events decreases the EventBus performance because it at least doubles the operation calls. It is not recommended to enable these events unless you certainly require to track these events espcially `mark_as_completed` and `mark_as_skipped`.
 
 Enabling observable events only can be done on compile time (It's good idea to delete your cached build via `rm -rf _build`). Thus, you need to add it to your app configuration. Here is sample configuration to subscribe optional system events:
 
 ```elixir
 config :event_bus,
-  observables: ~w(register_topic unregister_topic subscribe unsubscribe notify mark_as_completed mark_as_skipped)a,
+  observables: ~w(register_topic unregister_topic subscribe unsubscribe mark_as_completed mark_as_skipped)a,
   id_generator: fn -> :base64.encode(:crypto.strong_rand_bytes(8)) end,
   #id_generator: fn -> UUID.uuid4() end
   ...
