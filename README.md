@@ -49,6 +49,7 @@ Traceable, extendable and minimalist event bus implementation for Elixir with bu
 [Traceability](#traceability)
 
 - [System Events](#system-events)
+- [EventBus.Metrics and UI](#eventbusmetrics-library)
 
 [Documentation](#documentation)
 
@@ -469,11 +470,19 @@ config :event_bus,
   ...
 ```
 
+### EventBus.Metrics Library
+
+EventBus has some addons to extend its optional functionalities. One of them is `event_bus_metrics` libray which comes with a UI, RESTFul endpoints and SSE streams to provide instant metrics for event_bus topics.
+
+[EventBus.Metrics Instructions](https://github.com/otobus/event_bus/wiki/EventBus-Metrics-and-UI)
+
 ## Documentation
 
-Module docs can be found at [https://hexdocs.pm/event_bus](https://hexdocs.pm/event_bus).
+- [Wiki](https://github.com/otobus/event_bus/wiki)
 
-Implementation details can be found at: https://medium.com/@mustafaturan/event-bus-implementation-s-d2854a9fafd5
+- [Module docs](https://hexdocs.pm/event_bus)
+
+- [The story](https://medium.com/@mustafaturan/event-bus-implementation-s-d2854a9fafd5)
 
 ## Addons
 
