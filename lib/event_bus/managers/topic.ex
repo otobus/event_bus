@@ -8,8 +8,7 @@ defmodule EventBus.Manager.Topic do
   use GenServer
   alias EventBus.Service.Topic, as: TopicService
 
-  @app :event_bus
-  @backend Application.get_env(@app, :topic_backend, TopicService)
+  @backend TopicService
 
   @doc false
   def start_link do

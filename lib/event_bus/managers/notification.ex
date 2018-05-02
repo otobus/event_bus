@@ -10,8 +10,7 @@ defmodule EventBus.Manager.Notification do
   alias EventBus.Model.Event
   alias EventBus.Service.Notification, as: NotificationService
 
-  @app :event_bus
-  @backend Application.get_env(@app, :notifier_backend, NotificationService)
+  @backend NotificationService
 
   @doc false
   def start_link do
@@ -24,7 +23,7 @@ defmodule EventBus.Manager.Notification do
   end
 
   @doc """
-  Notify event to its listeners
+  Notify event to event.topic listeners in the current node
   """
   @spec notify(Event.t()) :: no_return()
   def notify(%Event{} = event) do

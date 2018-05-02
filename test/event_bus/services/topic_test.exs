@@ -2,13 +2,11 @@ defmodule EventBus.Service.TopicTest do
   use ExUnit.Case, async: false
   alias EventBus.Service.Topic
 
-  @sys_topic :eb_action_called
-
   doctest Topic
 
   setup do
     on_exit(fn ->
-      topics = Topic.all() -- [@sys_topic, :metrics_received, :metrics_summed]
+      topics = Topic.all() -- [:metrics_received, :metrics_summed]
       Enum.each(topics, fn topic -> Topic.unregister(topic) end)
     end)
 
@@ -55,7 +53,7 @@ defmodule EventBus.Service.TopicTest do
   test "all" do
     topic = :t3
     Topic.register(topic)
-    assert [:t3, @sys_topic, :metrics_received, :metrics_summed] == Topic.all()
+    assert [:t3, :metrics_received, :metrics_summed] == Topic.all()
   end
 
   test "exist? with an existent topic" do

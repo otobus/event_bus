@@ -8,8 +8,7 @@ defmodule EventBus.Manager.Subscription do
   use GenServer
   alias EventBus.Service.Subscription, as: SubscriptionService
 
-  @app :event_bus
-  @backend Application.get_env(@app, :subscription_backend, SubscriptionService)
+  @backend SubscriptionService
 
   @doc false
   def start_link do

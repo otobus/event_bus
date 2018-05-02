@@ -11,8 +11,7 @@ defmodule EventBus.Manager.Store do
   alias EventBus.Model.Event
   alias EventBus.Service.Store, as: StoreService
 
-  @app :event_bus
-  @backend Application.get_env(@app, :store_backend, StoreService)
+  @backend StoreService
 
   @doc false
   def start_link do
@@ -53,9 +52,9 @@ defmodule EventBus.Manager.Store do
   @doc """
   Save an event to the store
   """
-  @spec save(Event.t()) :: :ok
-  def save(%Event{} = event) do
-    GenServer.call(__MODULE__, {:save, event})
+  @spec create(Event.t()) :: :ok
+  def create(%Event{} = event) do
+    GenServer.call(__MODULE__, {:create, event})
   end
 
   @doc """
@@ -105,9 +104,9 @@ defmodule EventBus.Manager.Store do
   end
 
   @doc false
-  @spec handle_call({:save, Event.t()}, any(), term()) :: no_return()
-  def handle_call({:save, event}, _from, state) do
-    @backend.save(event)
+  @spec handle_call({:create, Event.t()}, any(), term()) :: no_return()
+  def handle_call({:create, event}, _from, state) do
+    @backend.create(event)
     {:reply, :ok, state}
   end
 

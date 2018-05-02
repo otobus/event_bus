@@ -146,8 +146,7 @@ defmodule EventBus.Service.SubscriptionTest do
       %{
         metrics_received: [AnotherCalculator, {InputLogger, %{}}],
         metrics_summed: [{InputLogger, %{}}],
-        auto_subscribed: [],
-        eb_action_called: []
+        auto_subscribed: []
       }
     }
 

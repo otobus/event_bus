@@ -4,23 +4,21 @@ defmodule EventBus.Service.Store do
   alias EventBus.Model.Event
   alias :ets, as: Ets
 
+  @ets_opts [:set, :public, :named_table, {:read_concurrency, true}]
   @prefix "eb_es_"
 
   @doc false
   @spec exist?(atom()) :: boolean()
   def exist?(topic) do
     table_name = table_name(topic)
-    all_tables = :ets.all()
+    all_tables = Ets.all()
     Enum.any?(all_tables, fn table -> table == table_name end)
   end
 
   @doc false
   @spec register_topic(String.t() | atom()) :: no_return()
   def register_topic(topic) do
-    unless exist?(topic) do
-      opts = [:set, :public, :named_table, {:read_concurrency, true}]
-      Ets.new(table_name(topic), opts)
-    end
+    unless exist?(topic), do: Ets.new(table_name(topic), @ets_opts)
   end
 
   @doc false
@@ -45,8 +43,8 @@ defmodule EventBus.Service.Store do
   end
 
   @doc false
-  @spec save(Event.t()) :: no_return()
-  def save(%Event{id: id, topic: topic} = event) do
+  @spec create(Event.t()) :: no_return()
+  def create(%Event{id: id, topic: topic} = event) do
     Ets.insert(table_name(topic), {id, event})
     :ok
   end

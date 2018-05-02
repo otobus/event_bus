@@ -24,14 +24,14 @@ defmodule EventBus.Manager.StoreTest do
     assert :ok == Store.unregister_topic(@topic)
   end
 
-  test "save" do
+  test "create" do
     event = %Event{id: "E1", transaction_id: "T1", data: %{}, topic: @topic}
-    assert :ok == Store.save(event)
+    assert :ok == Store.create(event)
   end
 
   test "delete" do
     event = %Event{id: "E1", transaction_id: "T1", data: [1, 2], topic: @topic}
-    Store.save(event)
+    Store.create(event)
 
     assert :ok == Store.delete({event.topic, event.id})
   end

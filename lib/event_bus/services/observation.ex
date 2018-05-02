@@ -4,30 +4,27 @@ defmodule EventBus.Service.Observation do
   alias EventBus.Manager.Store
   alias :ets, as: Ets
 
+  @ets_opts [
+    :set,
+    :public,
+    :named_table,
+    {:write_concurrency, true},
+    {:read_concurrency, true}
+  ]
   @prefix "eb_ew_"
 
   @doc false
   @spec exist?(atom()) :: boolean()
   def exist?(topic) do
     table_name = table_name(topic)
-    all_tables = :ets.all()
+    all_tables = Ets.all()
     Enum.any?(all_tables, fn table -> table == table_name end)
   end
 
   @doc false
   @spec register_topic(atom()) :: no_return()
   def register_topic(topic) do
-    unless exist?(topic) do
-      opts = [
-        :set,
-        :public,
-        :named_table,
-        {:write_concurrency, true},
-        {:read_concurrency, true}
-      ]
-
-      Ets.new(table_name(topic), opts)
-    end
+    unless exist?(topic), do: Ets.new(table_name(topic), @ets_opts)
   end
 
   @doc false

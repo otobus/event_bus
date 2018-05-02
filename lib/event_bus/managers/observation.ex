@@ -11,8 +11,7 @@ defmodule EventBus.Manager.Observation do
   use GenServer
   alias EventBus.Service.Observation, as: ObservationService
 
-  @app :event_bus
-  @backend Application.get_env(@app, :watcher_backend, ObservationService)
+  @backend ObservationService
 
   @doc false
   def start_link do

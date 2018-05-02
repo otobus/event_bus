@@ -11,7 +11,7 @@ defmodule EventBus.Service.Notification do
   @spec notify(Event.t()) :: no_return()
   def notify(%Event{id: id, topic: topic} = event) do
     listeners = Subscription.subscribers(topic)
-    :ok = Store.save(event)
+    :ok = Store.create(event)
     :ok = Observation.create({listeners, topic, id})
 
     notify_listeners(listeners, {topic, id})
@@ -19,9 +19,7 @@ defmodule EventBus.Service.Notification do
 
   @spec notify_listeners(list(), tuple()) :: no_return()
   defp notify_listeners(listeners, event_shadow) do
-    for listener <- listeners do
-      notify_listener(listener, event_shadow)
-    end
+    for listener <- listeners, do: notify_listener(listener, event_shadow)
   end
 
   @spec notify_listener(tuple(), tuple()) :: no_return()

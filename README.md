@@ -14,33 +14,35 @@ Traceable, extendable and minimalist event bus implementation for Elixir with bu
 
 [Usage](#usage)
 
-- Register event topics in `config.exs`
+- [Register event topics in `config.exs`](#register-event-topics-in-configexs)
 
-- Register/unregister event topics on demand
+- [Register/unregister event topics on demand](#registerunregister-event-topics-on-demand)
 
-- Subscribe to the 'event bus' with a listener and list of given topics
+- [Subscribe to the 'event bus' with a listener and list of given topics](#subscribe-to-the-event-bus-with-a-listener-and-list-of-given-topics-notification-manager-will-match-with-regex)
 
-- Unsubscribe from the 'event bus'
+- [Unsubscribe from the 'event bus'](#unsubscribe-from-the-event-bus)
 
-- List subscribers
+- [List subscribers](#list-subscribers)
 
-- Event data structure
+- [List subscribers of a specific event](#list-subscribers-of-a-specific-event)
 
-- Define an event struct
+- [Event data structure](#event-data-structure)
 
-- Notify all subscribers with `EventBus.Model.Event` data
+- [Define an event struct](#event-data-structure)
 
-- Fetch an event from the store
+- [Notify all subscribers with `EventBus.Model.Event` data](#notify-all-subscribers-with-eventbusmodelevent-data)
 
-- Mark as completed on Event Observation Manager
+- [Fetch an event from the store](#fetch-an-event-from-the-store)
 
-- Mark as skipped on Event Observation Manager
+- [Mark as completed on Event Observation Manager](#mark-as-completed-on-event-observation-manager)
 
-- Check if a topic exists?
+- [Mark as skipped on Event Observation Manager](#mark-as-skipped-on-event-observation-manager)
 
-- Use block builder to build `EventBus.Model.Event` struct
+- [Check if a topic exists?](#check-if-a-topic-exists)
 
-- Use block notifier to notify event data to given topic
+- [Use block builder to build `EventBus.Model.Event` struct](#use-block-builder-to-build-eventbusmodelevent-struct)
+
+- [Use block notifier to notify event data to given topic](#use-block-notifier-to-notify-event-data-to-given-topic)
 
 [Sample Listener Implementation](#sample-listener-implementation)
 
@@ -48,12 +50,13 @@ Traceable, extendable and minimalist event bus implementation for Elixir with bu
 
 [Traceability](#traceability)
 
-- [System Events](#system-events)
-- [EventBus.Metrics and UI](#eventbusmetrics-library)
+[EventBus.Metrics and UI](#eventbusmetrics-library)
 
 [Documentation](#documentation)
 
 [Addons](#addons)
+
+[Wiki](https://github.com/otobus/event_bus/wiki)
 
 [Contributing](#contributing)
 
@@ -452,23 +455,9 @@ end
 
 EventBus comes with a good enough data structure to track the event life cycle with its optional parameters. For a traceable system, it is highly recommend to fill optional fields on event data. It is also encouraged to use `Event.nofify` block/yield to automatically set the `initialized_at` and `occurred_at` values.
 
-EvenBus version > 1.1 comes with optional system events which allows to track its action calls.
-
 ### System Events
 
-EventBus optionally allows you to track `:register_topic`, `:unregister_topic`, `:subscribe` and `:unsubscribe`, `:mark_as_completed` and `mark_as_skipped` action calls by the configuration. To track these events you need to enable them by configuration and then subscribe to `:eb_action_called` topic.
-
-Note: Enabling optional system events decreases the EventBus performance because it at least doubles the operation calls. It is not recommended to enable these events unless you certainly require to track these events espcially `mark_as_completed` and `mark_as_skipped`.
-
-Enabling observable events only can be done on compile time (It's good idea to delete your cached build via `rm -rf _build`). Thus, you need to add it to your app configuration. Here is sample configuration to subscribe optional system events:
-
-```elixir
-config :event_bus,
-  observables: ~w(register_topic unregister_topic subscribe unsubscribe mark_as_completed mark_as_skipped)a,
-  id_generator: fn -> :base64.encode(:crypto.strong_rand_bytes(8)) end,
-  #id_generator: fn -> UUID.uuid4() end
-  ...
-```
+This feature removed with the version 1.3 to keep the core library simple. If you need to trace system events please check the sample wrapper implementation from the [wiki page](https://github.com/otobus/event_bus/wiki/Tracing-System-Events).
 
 ### EventBus.Metrics Library
 
