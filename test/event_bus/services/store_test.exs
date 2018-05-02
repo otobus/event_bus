@@ -32,7 +32,7 @@ defmodule EventBus.Service.StoreTest do
     refute Enum.any?(all_tables, fn t -> t == :"eb_es_#{topic}" end)
   end
 
-  test "save" do
+  test "create" do
     topic = :metrics_received_2
     Store.register_topic(topic)
 
@@ -43,7 +43,7 @@ defmodule EventBus.Service.StoreTest do
       topic: topic
     }
 
-    assert :ok == Store.save(event)
+    assert :ok == Store.create(event)
   end
 
   test "fetch" do
@@ -64,8 +64,8 @@ defmodule EventBus.Service.StoreTest do
       topic: topic
     }
 
-    :ok = Store.save(first_event)
-    :ok = Store.save(second_event)
+    :ok = Store.create(first_event)
+    :ok = Store.create(second_event)
 
     assert first_event == Store.fetch({topic, first_event.id})
     assert second_event == Store.fetch({topic, second_event.id})
@@ -82,7 +82,7 @@ defmodule EventBus.Service.StoreTest do
       topic: topic
     }
 
-    :ok = Store.save(event)
+    :ok = Store.create(event)
     Store.delete({topic, event.id})
 
     assert is_nil(Store.fetch({topic, event.id}))

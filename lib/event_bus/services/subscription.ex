@@ -44,13 +44,9 @@ defmodule EventBus.Service.Subscription do
   @spec register_topic(String.t() | atom()) :: no_return()
   def register_topic(topic) do
     {listeners, topic_map} = load_state()
+    topic_listeners = topic_listeners(listeners, topic)
 
-    topic_subscribers =
-      Enum.reduce(listeners, [], fn {listener, topics}, acc ->
-        if RegexUtil.superset?(topics, topic), do: [listener | acc], else: acc
-      end)
-
-    save_state({listeners, Map.put(topic_map, topic, topic_subscribers)})
+    save_state({listeners, Map.put(topic_map, topic, topic_listeners)})
   end
 
   @doc false
@@ -69,6 +65,12 @@ defmodule EventBus.Service.Subscription do
   def subscribers(topic) do
     {_listeners, topic_map} = load_state()
     topic_map[topic] || []
+  end
+
+  defp topic_listeners(listeners, topic) do
+    Enum.reduce(listeners, [], fn {listener, topics}, acc ->
+      if RegexUtil.superset?(topics, topic), do: [listener | acc], else: acc
+    end)
   end
 
   defp remove_listener_from_topic_map(topic_map, listener) do

@@ -2,9 +2,13 @@ defmodule EventBus.Application do
   @moduledoc false
 
   use Application
-  alias EventBus.Manager.{Notification, Observation, Store, Subscription, Topic}
-
-  @sys_topic :eb_action_called
+  alias EventBus.Manager.{
+    Notification,
+    Observation,
+    Store,
+    Subscription,
+    Topic
+  }
 
   def start(_type, _args) do
     import Supervisor.Spec, warn: false
@@ -24,7 +28,6 @@ defmodule EventBus.Application do
   end
 
   defp register_topics do
-    Topic.register(@sys_topic)
     Topic.register_from_config()
   end
 end

@@ -10,11 +10,9 @@ defmodule EventBus.Service.ObservationTest do
 
   doctest Observation
 
-  @sys_topic :eb_action_called
-
   setup do
     on_exit(fn ->
-      topics = Topic.all() -- [@sys_topic, :metrics_received, :metrics_summed]
+      topics = Topic.all() -- [:metrics_received, :metrics_summed]
       Enum.each(topics, fn topic -> Topic.unregister(topic) end)
     end)
 
