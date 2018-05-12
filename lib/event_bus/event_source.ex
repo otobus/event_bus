@@ -20,7 +20,7 @@ defmodule EventBus.EventSource do
   """
   defmacro build(params, do: yield) do
     quote do
-      initialized_at = System.os_time(:micro_seconds)
+      initialized_at = DateTime.utc_now |> DateTime.to_unix(:microseconds)
       params = unquote(params)
 
       source =
@@ -41,7 +41,7 @@ defmodule EventBus.EventSource do
         transaction_id: params[:transaction_id],
         data: data,
         initialized_at: initialized_at,
-        occurred_at: System.os_time(:micro_seconds),
+        occurred_at: DateTime.utc_now |> DateTime.to_unix(:microseconds),
         source: source,
         ttl: params[:ttl]
       }
