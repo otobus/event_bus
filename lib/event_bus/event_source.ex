@@ -9,6 +9,7 @@ defmodule EventBus.EventSource do
   defmacro __using__(_) do
     quote do
       require EventBus.EventSource
+
       alias EventBus.EventSource
       alias EventBus.Model.Event
     end
@@ -20,6 +21,7 @@ defmodule EventBus.EventSource do
   """
   defmacro build(params, do: yield) do
     quote do
+      started_at = System.monotonic_time(:micro_seconds)
       initialized_at = System.os_time(:micro_seconds)
       params = unquote(params)
 
@@ -35,13 +37,15 @@ defmodule EventBus.EventSource do
             {params[:topic], result}
         end
 
+      time_spent = System.monotonic_time(:micro_seconds) - started_at
+
       %Event{
         id: params[:id],
         topic: topic,
         transaction_id: params[:transaction_id],
         data: data,
         initialized_at: initialized_at,
-        occurred_at: System.os_time(:micro_seconds),
+        occurred_at: initialized_at + time_spent,
         source: source,
         ttl: params[:ttl]
       }
