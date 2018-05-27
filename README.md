@@ -453,7 +453,7 @@ end
 
 ## Traceability
 
-EventBus comes with a good enough data structure to track the event life cycle with its optional parameters. For a traceable system, it is highly recommend to fill optional fields on event data. It is also encouraged to use `Event.nofify` block/yield to automatically set the `initialized_at` and `occurred_at` values.
+EventBus comes with a good enough data structure to track the event life cycle with its optional parameters. For a traceable system, it is highly recommend to fill optional fields on event data. It is also encouraged to use `EventSource.nofify` block/yield to automatically set the `initialized_at` and `occurred_at` values.
 
 ### System Events
 
