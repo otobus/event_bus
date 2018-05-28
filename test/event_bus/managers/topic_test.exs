@@ -13,6 +13,13 @@ defmodule EventBus.Manager.TopicTest do
     :ok
   end
 
+  test "exist?" do
+    topic = :metrics_received_1
+    Topic.register(topic)
+
+    assert Topic.exist?(topic)
+  end
+
   test "register_topic" do
     assert :ok == Topic.register(:t1)
   end
