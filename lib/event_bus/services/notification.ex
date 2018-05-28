@@ -11,10 +11,15 @@ defmodule EventBus.Service.Notification do
   @spec notify(Event.t()) :: no_return()
   def notify(%Event{id: id, topic: topic} = event) do
     listeners = Subscription.subscribers(topic)
-    :ok = Store.create(event)
-    :ok = Observation.create({listeners, topic, id})
 
-    notify_listeners(listeners, {topic, id})
+    if listeners == [] do
+      Logger.log(@logging_level, "Topic :#{topic} listener set is empty!")
+    else
+      :ok = Store.create(event)
+      :ok = Observation.create({listeners, topic, id})
+
+      notify_listeners(listeners, {topic, id})
+    end
   end
 
   @spec notify_listeners(list(), tuple()) :: no_return()

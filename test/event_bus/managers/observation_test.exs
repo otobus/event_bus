@@ -15,6 +15,13 @@ defmodule EventBus.Manager.ObservationTest do
     :ok
   end
 
+  test "exist?" do
+    topic = :metrics_received_1
+    Observation.register_topic(topic)
+
+    assert Observation.exist?(topic)
+  end
+
   test "register_topic" do
     assert :ok == Observation.register_topic(:metrics_destroyed)
   end

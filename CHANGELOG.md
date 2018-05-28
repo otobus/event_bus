@@ -6,7 +6,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [1.3.X]
 
-
+- Log empty topic listeners
+- Add missing tests for existence check
 - Update time spent calculation for EventSource block
 - Remove support for system event tracing (Updated the wiki to create wrapper for system event tracing)
 

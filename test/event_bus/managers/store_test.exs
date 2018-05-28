@@ -15,6 +15,13 @@ defmodule EventBus.Manager.StoreTest do
     :ok
   end
 
+  test "exist?" do
+    topic = :metrics_received_1
+    Store.register_topic(topic)
+
+    assert Store.exist?(topic)
+  end
+
   test "register_topic" do
     assert :ok == Store.register_topic(@topic)
   end
