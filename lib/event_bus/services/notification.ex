@@ -13,7 +13,10 @@ defmodule EventBus.Service.Notification do
     listeners = Subscription.subscribers(topic)
 
     if listeners == [] do
-      Logger.log(@logging_level, "Topic :#{topic} listener set is empty!")
+      Logger.log(
+        @logging_level,
+        "Topic(:#{topic}#{registration_status(topic)}) doesn't have subscribers"
+      )
     else
       :ok = Store.create(event)
       :ok = Observation.create({listeners, topic, id})
@@ -43,6 +46,11 @@ defmodule EventBus.Service.Notification do
     error ->
       log(listener, error)
       Observation.mark_as_skipped({listener, topic, id})
+  end
+
+  @spec registration_status(atom()) :: String.t()
+  defp registration_status(topic) do
+    if EventBus.topic_exist?(topic), do: "", else: " doesn't exist!"
   end
 
   @spec log(module(), any()) :: no_return()
