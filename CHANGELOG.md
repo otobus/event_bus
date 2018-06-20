@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [1.3.X]
 
+- Introduce `fetch_event_data` function to fetch only event data
 - Log empty topic listeners
 - Add missing tests for existence check
 - Update time spent calculation for EventSource block

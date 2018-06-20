@@ -224,6 +224,10 @@ topic = :bye_received
 id = "124"
 EventBus.fetch_event({topic, id})
 > %EventBus.Model.Event{data: [user_id: 1, goal: "exit"], id: "124", topic: :bye_received, transaction_id: "1"}
+
+# To fetch only the event data
+EventBus.fetch_event_data({topic, id})
+> data: [user_id: 1, goal: "exit"]
 ```
 
 ##### Mark as completed on Event Observation Manager
