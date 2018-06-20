@@ -2,8 +2,6 @@ defmodule EventBus.Util.RegexTest do
   use ExUnit.Case
   alias EventBus.Util.Regex, as: RegexUtil
 
-  # doctest RegexUtil
-
   test "superset? should return true when it is superset of given key" do
     assert RegexUtil.superset?(~w(.*), "some")
     assert RegexUtil.superset?(~w(metrics painted), "metrics_received")

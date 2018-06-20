@@ -276,17 +276,30 @@ end
 > %EventBus.Model.Event{data: %{email: "jd@example.com", name: "John Doe"},
  id: "some unique id", initialized_at: 1515274599140491,
  occurred_at: 1515274599141211, source: "my event creator", topic: :user_created, transaction_id: "tx", ttl: 600000}
+```
 
+It is recommended to set optional params in event_bus application config, this will allow you to auto generate majority of optional values without writing code. Here is a sample config for event_bus:
 
+```elixir
+config :event_bus,
+  topics: [], # list of atoms
+  ttl: 30_000_000, # integer
+  time_unit: :micro_seconds, # atom
+  id_generator: EventBus.Util.String # module: must implement 'unique_id/0' function
+```
+
+After having such config like above, you can generate events without providing optional attributes like below:
+
+```elixir
 # Without optional params
-params = %{id: id, topic: topic}
+params = %{topic: topic}
 EventSource.build(params) do
   %{email: "jd@example.com", name: "John Doe"}
 end
 > %EventBus.Model.Event{data: %{email: "jd@example.com", name: "John Doe"},
- id: "some unique id", initialized_at: 1515274599140491,
- occurred_at: 1515274599141211, source: nil, topic: :user_created,
- transaction_id: nil, ttl: nil}
+ id: "Ewk7fL6Erv0vsW6S", initialized_at: 1515274599140491,
+ occurred_at: 1515274599141211, source: "AutoModuleName", topic: :user_created,
+ transaction_id: nil, ttl: 30_000_000}
 
 # With optional error topic param
 params = %{id: id, topic: topic, error_topic: :user_create_erred}
@@ -296,7 +309,7 @@ end
 > %EventBus.Model.Event{data: {:error, %{email: "Invalid format"}},
  id: "some unique id", initialized_at: 1515274599140491,
  occurred_at: 1515274599141211, source: nil, topic: :user_create_erred,
- transaction_id: nil, ttl: nil}
+ transaction_id: nil, ttl: 30_000_000}
 ```
 
 ##### Use block notifier to notify event data to given topic

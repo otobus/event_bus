@@ -9,7 +9,7 @@ defmodule EventBus.EventSourceTest do
     :ok
   end
 
-  test "build with source" do
+  test "build with all params" do
     id = 1
     topic = :user_created
     data = %{id: 1, name: "me", email: "me@example.com"}
@@ -35,33 +35,37 @@ defmodule EventBus.EventSourceTest do
     assert event.source == "me"
     refute is_nil(event.initialized_at)
     refute is_nil(event.occurred_at)
+    assert Event.duration(event) > 0
   end
 
-  test "build without source" do
-    id = 1
+  test "build without passing source" do
     topic = :user_created
-    data = %{id: 1, name: "me", email: "me@example.com"}
-    transaction_id = "t1"
-    ttl = 100
-
     event =
-      EventSource.build %{
-        id: id,
-        topic: topic,
-        transaction_id: transaction_id,
-        ttl: ttl
-      } do
-        data
+      EventSource.build %{topic: topic} do
+        "some event data"
       end
 
-    assert event.data == data
-    assert event.id == id
-    assert event.topic == topic
-    assert event.transaction_id == transaction_id
-    assert event.ttl == ttl
     assert event.source == "EventBus.EventSourceTest"
-    refute is_nil(event.initialized_at)
-    refute is_nil(event.occurred_at)
+  end
+
+  test "build without passing ttl, sets the ttl from app configuration" do
+    topic = :user_created
+    event =
+      EventSource.build %{topic: topic} do
+        "some event data"
+      end
+
+    assert event.ttl == 30_000_000
+  end
+
+  test "build without passing id, sets the id with unique_id function" do
+    topic = :user_created
+    event =
+      EventSource.build %{topic: topic} do
+        "some event data"
+      end
+
+    refute is_nil(event.id)
   end
 
   test "build with error topic" do
