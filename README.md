@@ -227,7 +227,7 @@ EventBus.fetch_event({topic, id})
 
 # To fetch only the event data
 EventBus.fetch_event_data({topic, id})
-> data: [user_id: 1, goal: "exit"]
+> [user_id: 1, goal: "exit"]
 ```
 
 ##### Mark as completed on Event Observation Manager
