@@ -12,6 +12,13 @@ defmodule EventBus.EventSource do
 
       alias EventBus.EventSource
       alias EventBus.Model.Event
+      alias EventBus.Util.String, as: StringUtil
+
+      @eb_app :event_bus
+      @eb_id_gen Application.get_env(@eb_app, :id_generator, StringUtil)
+      @eb_source String.replace("#{__MODULE__}", "Elixir.", "")
+      @eb_time_unit Application.get_env(@eb_app, :time_unit, :micro_seconds)
+      @eb_ttl Application.get_env(@eb_app, :ttl)
     end
   end
 
@@ -21,12 +28,9 @@ defmodule EventBus.EventSource do
   """
   defmacro build(params, do: yield) do
     quote do
-      started_at = System.monotonic_time(:micro_seconds)
-      initialized_at = System.os_time(:micro_seconds)
+      started_at = System.monotonic_time(@eb_time_unit)
+      initialized_at = System.os_time(@eb_time_unit)
       params = unquote(params)
-
-      source =
-        Map.get(params, :source, String.replace("#{__MODULE__}", "Elixir.", ""))
 
       {topic, data} =
         case unquote(yield) do
@@ -37,17 +41,17 @@ defmodule EventBus.EventSource do
             {params[:topic], result}
         end
 
-      time_spent = System.monotonic_time(:micro_seconds) - started_at
+      time_spent = System.monotonic_time(@eb_time_unit) - started_at
 
       %Event{
-        id: params[:id],
+        id: Map.get(params, :id, @eb_id_gen.unique_id()),
         topic: topic,
-        transaction_id: params[:transaction_id],
+        transaction_id: Map.get(params, :transaction_id),
         data: data,
         initialized_at: initialized_at,
         occurred_at: initialized_at + time_spent,
-        source: source,
-        ttl: params[:ttl]
+        source: Map.get(params, :source, @eb_source),
+        ttl: Map.get(params, :ttl, @eb_ttl)
       }
     end
   end
