@@ -1,7 +1,6 @@
 defmodule EventBus.Util.Regex do
-  @moduledoc """
-  Regex util for event bus
-  """
+  @moduledoc false
+  # Regex util for event bus
 
   @doc """
   It checks if the given list of keys includes the key
