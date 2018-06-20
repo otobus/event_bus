@@ -180,17 +180,31 @@ defmodule EventBus do
     as: :subscribers
 
   @doc """
-  Fetch event data
+  Fetch event
 
   ## Examples
 
       EventBus.fetch_event({:hello_received, "123"})
+      %EventBus.Model.Model{}
 
   """
   @spec fetch_event({atom(), String.t() | integer()}) :: Event.t()
   defdelegate fetch_event(event_shadow),
     to: Store,
     as: :fetch
+
+  @doc """
+  Fetch event data
+
+  ## Examples
+
+      EventBus.fetch_event_data({:hello_received, "123"})
+
+  """
+  @spec fetch_event_data({atom(), String.t() | integer()}) :: any()
+  defdelegate fetch_event_data(event_shadow),
+    to: Store,
+    as: :fetch_data
 
   @doc """
   Send the event processing completed to the Observation Manager

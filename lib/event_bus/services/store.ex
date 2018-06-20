@@ -28,12 +28,19 @@ defmodule EventBus.Service.Store do
   end
 
   @doc false
-  @spec fetch({atom(), String.t() | integer()}) :: any()
+  @spec fetch({atom(), String.t() | integer()}) :: Event.t() | nil
   def fetch({topic, id}) do
     case Ets.lookup(table_name(topic), id) do
       [{_, %Event{} = event}] -> event
       _ -> nil
     end
+  end
+
+  @doc false
+  @spec fetch_data({atom(), String.t() | integer()}) :: any()
+  def fetch_data({topic, id}) do
+    event = fetch({topic, id}) || %{}
+    Map.get(event, :data)
   end
 
   @doc false

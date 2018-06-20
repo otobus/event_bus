@@ -72,10 +72,18 @@ defmodule EventBus.Manager.Store do
   @doc """
   Fetch an event from the store
   """
-  @spec fetch({atom(), String.t() | integer()}) :: any()
+  @spec fetch({atom(), String.t() | integer()}) :: Event.t() | nil
   defdelegate fetch(event_shadow),
     to: @backend,
     as: :fetch
+
+  @doc """
+  Fetch an event's data from the store
+  """
+  @spec fetch_data({atom(), String.t() | integer()}) :: any()
+  defdelegate fetch_data(event_shadow),
+    to: @backend,
+    as: :fetch_data
 
   ###########################################################################
   # PRIVATE API

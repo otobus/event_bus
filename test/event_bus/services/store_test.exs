@@ -71,8 +71,24 @@ defmodule EventBus.Service.StoreTest do
     assert second_event == Store.fetch({topic, second_event.id})
   end
 
-  test "delete and fetch" do
+  test "fetch_data" do
     topic = :metrics_received_4
+    Store.register_topic(topic)
+
+    event = %Event{
+      id: "E1",
+      transaction_id: "T1",
+      data: ["Mustafa", "Turan"],
+      topic: topic
+    }
+
+    :ok = Store.create(event)
+
+    assert event.data == Store.fetch_data({topic, event.id})
+  end
+
+  test "delete and fetch" do
+    topic = :metrics_received_5
     Store.register_topic(topic)
 
     event = %Event{
