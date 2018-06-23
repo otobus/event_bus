@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [1.3.X]
 
+- Set default transaction to the id
 - Delegate optional variables to optional library configuration when building/notifying events with Event builder
 - Add random id generator for Event builder
 - Introduce `fetch_event_data` function to fetch only event data

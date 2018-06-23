@@ -41,12 +41,13 @@ defmodule EventBus.EventSource do
             {params[:topic], result}
         end
 
+      id = Map.get(params, :id, @eb_id_gen.unique_id())
       time_spent = System.monotonic_time(@eb_time_unit) - started_at
 
       %Event{
-        id: Map.get(params, :id, @eb_id_gen.unique_id()),
+        id: id,
         topic: topic,
-        transaction_id: Map.get(params, :transaction_id),
+        transaction_id: Map.get(params, :transaction_id, id),
         data: data,
         initialized_at: initialized_at,
         occurred_at: initialized_at + time_spent,
