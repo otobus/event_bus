@@ -285,7 +285,7 @@ config :event_bus,
   topics: [], # list of atoms
   ttl: 30_000_000, # integer
   time_unit: :micro_seconds, # atom
-  id_generator: EventBus.Util.String # module: must implement 'unique_id/0' function
+  id_generator: EventBus.Util.Base62 # module: must implement 'unique_id/0' function
 ```
 
 After having such config like above, you can generate events without providing optional attributes like below:
