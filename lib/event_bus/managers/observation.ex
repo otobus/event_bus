@@ -9,6 +9,7 @@ defmodule EventBus.Manager.Observation do
   ###########################################################################
 
   use GenServer
+
   alias EventBus.Service.Observation, as: ObservationService
 
   @backend ObservationService

@@ -6,6 +6,7 @@ defmodule EventBus.Manager.Subscription do
   ###########################################################################
 
   use GenServer
+
   alias EventBus.Service.Subscription, as: SubscriptionService
 
   @backend SubscriptionService

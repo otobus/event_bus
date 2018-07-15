@@ -12,10 +12,10 @@ defmodule EventBus.EventSource do
 
       alias EventBus.EventSource
       alias EventBus.Model.Event
-      alias EventBus.Util.String, as: StringUtil
+      alias EventBus.Util.Base62
 
       @eb_app :event_bus
-      @eb_id_gen Application.get_env(@eb_app, :id_generator, StringUtil)
+      @eb_id_gen Application.get_env(@eb_app, :id_generator, Base62)
       @eb_source String.replace("#{__MODULE__}", "Elixir.", "")
       @eb_time_unit Application.get_env(@eb_app, :time_unit, :micro_seconds)
       @eb_ttl Application.get_env(@eb_app, :ttl)

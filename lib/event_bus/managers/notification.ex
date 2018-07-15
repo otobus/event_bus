@@ -7,6 +7,7 @@ defmodule EventBus.Manager.Notification do
   ###########################################################################
 
   use GenServer
+
   alias EventBus.Model.Event
   alias EventBus.Service.Notification, as: NotificationService
 
