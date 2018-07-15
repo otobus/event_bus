@@ -8,6 +8,7 @@ defmodule EventBus.Manager.Store do
   ###########################################################################
 
   use GenServer
+
   alias EventBus.Model.Event
   alias EventBus.Service.Store, as: StoreService
 

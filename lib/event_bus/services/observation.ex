@@ -1,7 +1,7 @@
 defmodule EventBus.Service.Observation do
   @moduledoc false
 
-  alias EventBus.Manager.Store
+  alias EventBus.Manager.Store, as: StoreManager
   alias :ets, as: Ets
 
   @ets_opts [
@@ -79,7 +79,7 @@ defmodule EventBus.Service.Observation do
 
   @spec delete_with_relations(tuple()) :: no_return()
   defp delete_with_relations({topic, id}) do
-    Store.delete({topic, id})
+    StoreManager.delete({topic, id})
     Ets.delete(table_name(topic), id)
   end
 

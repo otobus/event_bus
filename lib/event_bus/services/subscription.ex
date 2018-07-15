@@ -1,7 +1,7 @@
 defmodule EventBus.Service.Subscription do
   @moduledoc false
 
-  alias EventBus.Manager.Topic
+  alias EventBus.Manager.Topic, as: TopicManager
   alias EventBus.Util.Regex, as: RegexUtil
 
   @app :event_bus
@@ -109,7 +109,7 @@ defmodule EventBus.Service.Subscription do
   end
 
   defp init_topic_map do
-    topics = Topic.all()
+    topics = TopicManager.all()
 
     topics
     |> Enum.map(fn topic -> {topic, []} end)

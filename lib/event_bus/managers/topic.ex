@@ -6,6 +6,7 @@ defmodule EventBus.Manager.Topic do
   ###########################################################################
 
   use GenServer
+
   alias EventBus.Service.Topic, as: TopicService
 
   @backend TopicService

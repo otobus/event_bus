@@ -2,7 +2,10 @@ defmodule EventBus.Service.Notification do
   @moduledoc false
 
   require Logger
-  alias EventBus.Manager.{Observation, Store, Subscription}
+
+  alias EventBus.Manager.Observation, as: ObservationManager
+  alias EventBus.Manager.Store, as: StoreManager
+  alias EventBus.Manager.Subscription, as: SubscriptionManager
   alias EventBus.Model.Event
 
   @logging_level :info
@@ -10,7 +13,7 @@ defmodule EventBus.Service.Notification do
   @doc false
   @spec notify(Event.t()) :: no_return()
   def notify(%Event{id: id, topic: topic} = event) do
-    listeners = Subscription.subscribers(topic)
+    listeners = SubscriptionManager.subscribers(topic)
 
     if listeners == [] do
       Logger.log(
@@ -18,8 +21,8 @@ defmodule EventBus.Service.Notification do
         "Topic(:#{topic}#{registration_status(topic)}) doesn't have subscribers"
       )
     else
-      :ok = Store.create(event)
-      :ok = Observation.create({listeners, topic, id})
+      :ok = StoreManager.create(event)
+      :ok = ObservationManager.create({listeners, topic, id})
 
       notify_listeners(listeners, {topic, id})
     end
@@ -37,7 +40,7 @@ defmodule EventBus.Service.Notification do
   rescue
     error ->
       log(listener, error)
-      Observation.mark_as_skipped({{listener, config}, topic, id})
+      ObservationManager.mark_as_skipped({{listener, config}, topic, id})
   end
 
   defp notify_listener(listener, {topic, id}) do
@@ -45,7 +48,7 @@ defmodule EventBus.Service.Notification do
   rescue
     error ->
       log(listener, error)
-      Observation.mark_as_skipped({listener, topic, id})
+      ObservationManager.mark_as_skipped({listener, topic, id})
   end
 
   @spec registration_status(atom()) :: String.t()
