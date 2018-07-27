@@ -62,6 +62,8 @@ Traceable, extendable and minimalist event bus implementation for Elixir with bu
 
 [License](#license)
 
+[Code of Conduct](https://github.com/otobus/event_bus/blob/master/CODE_OF_CONDUCT.md)
+
 ## Features
 
 - Fast data writes with enabled concurrent writes to ETS.
