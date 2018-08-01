@@ -2,7 +2,7 @@ defmodule EventBus.Service.NotificationTest do
   use ExUnit.Case, async: false
   import ExUnit.CaptureLog
   alias EventBus.Model.Event
-  alias EventBus.Service.{Notification, Subscription}
+  alias EventBus.Service.Notification
 
   alias EventBus.Support.Helper.{
     InputLogger,
@@ -25,44 +25,40 @@ defmodule EventBus.Service.NotificationTest do
   }
 
   setup do
-    on_exit(fn ->
-      Subscription.unregister_topic(:metrics_received)
-      Subscription.unregister_topic(:metrics_summed)
-      Process.sleep(100)
-    end)
-
-    Subscription.register_topic(:metrics_received)
-    Subscription.register_topic(:metrics_summed)
-    Process.sleep(100)
-
-    for subscriber <- Subscription.subscribers() do
-      Subscription.unsubscribe(subscriber)
+    for topic <- EventBus.topics() do
+      EventBus.unregister_topic(topic)
     end
 
-    Process.sleep(100)
+    for {subscriber, _} <- EventBus.subscribers() do
+      EventBus.unsubscribe(subscriber)
+    end
+
     :ok
   end
 
   test "notify" do
-    Subscription.subscribe(
+    EventBus.register_topic(:metrics_received)
+    EventBus.register_topic(:metrics_summed)
+
+    EventBus.subscribe(
       {{InputLogger, %{}}, ["metrics_received$", "metrics_summed$"]}
     )
 
-    Subscription.subscribe({{BadOne, %{}}, [".*"]})
-    Subscription.subscribe({AnotherBadOne, [".*"]})
-    Subscription.subscribe({{Calculator, %{}}, ["metrics_received$"]})
-    Subscription.subscribe({{MemoryLeakerOne, %{}}, [".*"]})
+    EventBus.subscribe({{BadOne, %{}}, [".*"]})
+    EventBus.subscribe({AnotherBadOne, [".*"]})
+    EventBus.subscribe({{Calculator, %{}}, ["metrics_received$"]})
+    EventBus.subscribe({{MemoryLeakerOne, %{}}, [".*"]})
 
     # This listener deos not have a config!!!
-    Subscription.subscribe({AnotherCalculator, ["metrics_received$"]})
+    EventBus.subscribe({AnotherCalculator, ["metrics_received$"]})
 
     # Sleep until subscriptions complete
-    Process.sleep(400)
+    Process.sleep(200)
 
     logs =
       capture_log(fn ->
         Notification.notify(@event)
-        Process.sleep(300)
+        Process.sleep(200)
       end)
 
     assert String.contains?(logs, "BadOne.process/1 raised an error!")
@@ -84,6 +80,21 @@ defmodule EventBus.Service.NotificationTest do
     assert String.contains?(
              logs,
              "Event log for %EventBus.Model.Event{data: {3, [1, 2]}, id: \"E123\", initialized_at: nil, occurred_at: nil, source: \"AnotherCalculator\", topic: :metrics_summed, transaction_id: \"T1\", ttl: nil}"
+           )
+  end
+
+  test "notify without subscribers" do
+    EventBus.register_topic(:metrics_received)
+
+    logs =
+      capture_log(fn ->
+        Notification.notify(@event)
+        Process.sleep(100)
+      end)
+
+    assert String.contains?(
+             logs,
+             "Topic(:metrics_received) doesn't have subscribers"
            )
   end
 end
