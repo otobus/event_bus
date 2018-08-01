@@ -8,18 +8,13 @@ defmodule EventBus.Service.Notification do
   alias EventBus.Manager.Subscription, as: SubscriptionManager
   alias EventBus.Model.Event
 
-  @logging_level :info
-
   @doc false
   @spec notify(Event.t()) :: no_return()
   def notify(%Event{id: id, topic: topic} = event) do
     listeners = SubscriptionManager.subscribers(topic)
 
     if listeners == [] do
-      Logger.log(
-        @logging_level,
-        "Topic(:#{topic}#{registration_status(topic)}) doesn't have subscribers"
-      )
+      warn_missing_topic_subscription(topic)
     else
       :ok = StoreManager.create(event)
       :ok = ObservationManager.create({listeners, topic, id})
@@ -39,7 +34,7 @@ defmodule EventBus.Service.Notification do
     listener.process({config, topic, id})
   rescue
     error ->
-      log(listener, error)
+      log_error(listener, error)
       ObservationManager.mark_as_skipped({{listener, config}, topic, id})
   end
 
@@ -47,7 +42,7 @@ defmodule EventBus.Service.Notification do
     listener.process({topic, id})
   rescue
     error ->
-      log(listener, error)
+      log_error(listener, error)
       ObservationManager.mark_as_skipped({listener, topic, id})
   end
 
@@ -56,9 +51,17 @@ defmodule EventBus.Service.Notification do
     if EventBus.topic_exist?(topic), do: "", else: " doesn't exist!"
   end
 
-  @spec log(module(), any()) :: no_return()
-  defp log(listener, error) do
+  @spec warn_missing_topic_subscription(atom()) :: no_return()
+  defp warn_missing_topic_subscription(topic) do
+    msg =
+      "Topic(:#{topic}#{registration_status(topic)}) doesn't have subscribers"
+
+    Logger.warn(msg)
+  end
+
+  @spec log_error(module(), any()) :: no_return()
+  defp log_error(listener, error) do
     msg = "#{listener}.process/1 raised an error!\n#{inspect(error)}"
-    Logger.log(@logging_level, msg)
+    Logger.info(msg)
   end
 end
