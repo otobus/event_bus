@@ -88,7 +88,7 @@ The package can be installed by adding `event_bus` to your list of dependencies 
 
 ```elixir
 def deps do
-  [{:event_bus, "~> 1.3.7"}]
+  [{:event_bus, "~> 1.3.8"}]
 end
 ```
 

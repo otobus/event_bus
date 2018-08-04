@@ -14,6 +14,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Add missing tests for existence check
 - Update time spent calculation for EventSource block
 - Remove support for system event tracing (Updated the wiki to create wrapper for system event tracing)
+- Dialyzer enhancements
+- Test and documentation enhancements
 
 ## [1.2.X] - 2018.02.24
 
