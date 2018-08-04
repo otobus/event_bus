@@ -52,7 +52,7 @@ defmodule EventBus.Model.Event do
     occurred_at - initialized_at
   end
 
-  def duration(_) do
+  def duration(%__MODULE__{}) do
     0
   end
 end
