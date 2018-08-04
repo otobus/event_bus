@@ -1,7 +1,8 @@
 defmodule EventBus.Manager.SubscriptionTest do
   use ExUnit.Case, async: false
-  alias EventBus.Support.Helper.{InputLogger, AnotherCalculator}
+
   alias EventBus.Manager.Subscription
+  alias EventBus.Support.Helper.{AnotherCalculator, InputLogger}
 
   doctest Subscription
 

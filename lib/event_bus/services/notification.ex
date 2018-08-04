@@ -29,7 +29,6 @@ defmodule EventBus.Service.Notification do
   end
 
   @spec notify_listener(tuple(), tuple()) :: no_return()
-  @spec notify_listener(module(), tuple()) :: no_return()
   defp notify_listener({listener, config}, {topic, id}) do
     listener.process({config, topic, id})
   rescue
@@ -38,6 +37,7 @@ defmodule EventBus.Service.Notification do
       ObservationManager.mark_as_skipped({{listener, config}, topic, id})
   end
 
+  @spec notify_listener(module(), tuple()) :: no_return()
   defp notify_listener(listener, {topic, id}) do
     listener.process({topic, id})
   rescue

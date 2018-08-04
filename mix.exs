@@ -40,9 +40,9 @@ defmodule EventBus.Mixfile do
   # Type "mix help deps" for more examples and options
   defp deps do
     [
-      {:credo, "~> 0.8.10", only: [:dev]},
-      {:dialyxir, "~> 0.5.1", only: [:dev, :test], runtime: false},
-      {:excoveralls, "~> 0.8", only: [:test]},
+      {:credo, "~> 0.10.0", only: [:dev]},
+      {:dialyxir, "~> 1.0.0-rc.3", only: [:dev], runtime: false},
+      {:excoveralls, "~> 0.9.1", only: [:test]},
       {:ex_doc, "~> 0.18.1", only: [:dev]}
     ]
   end

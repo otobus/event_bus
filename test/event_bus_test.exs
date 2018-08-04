@@ -1,13 +1,15 @@
 defmodule EventBusTest do
   use ExUnit.Case, async: false
+
   import ExUnit.CaptureLog
+
   alias EventBus.Model.Event
 
   alias EventBus.Support.Helper.{
-    InputLogger,
+    BadOne,
     Calculator,
-    MemoryLeakerOne,
-    BadOne
+    InputLogger,
+    MemoryLeakerOne
   }
 
   @event %Event{

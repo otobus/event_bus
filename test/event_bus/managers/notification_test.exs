@@ -1,7 +1,8 @@
 defmodule EventBus.Manager.NotificationTest do
   use ExUnit.Case, async: false
-  alias EventBus.Model.Event
+
   alias EventBus.Manager.Notification
+  alias EventBus.Model.Event
 
   doctest Notification
 

@@ -1,12 +1,13 @@
 defmodule EventBus.Util.Base62Test do
   use ExUnit.Case
+
   alias EventBus.Util.Base62
 
   test ".encode" do
     assert "0" == Base62.encode(0)
     assert "z" == Base62.encode(61)
     assert "10" == Base62.encode(62)
-    assert "1p0uwg6tOzJ" == Base62.encode(1529891323138833953)
+    assert "1p0uwg6tOzJ" == Base62.encode(1_529_891_323_138_833_953)
   end
 
   test ".unique_id" do

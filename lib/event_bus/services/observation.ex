@@ -57,7 +57,7 @@ defmodule EventBus.Service.Observation do
   end
 
   @doc false
-  @spec save(tuple(), tuple()) :: :ok
+  @spec save(tuple(), tuple()) :: no_return()
   def save({topic, id}, watcher) do
     save_or_delete({topic, id}, watcher)
     :ok

@@ -57,11 +57,13 @@ defmodule EventBus.Service.Subscription do
   end
 
   @doc false
+  @spec subscribers() :: list()
   def subscribers do
     {listeners, _topic_map} = load_state()
     listeners
   end
 
+  @spec subscribers(atom()) :: list()
   def subscribers(topic) do
     {_listeners, topic_map} = load_state()
     topic_map[topic] || []
@@ -109,10 +111,6 @@ defmodule EventBus.Service.Subscription do
   end
 
   defp init_topic_map do
-    topics = TopicManager.all()
-
-    topics
-    |> Enum.map(fn topic -> {topic, []} end)
-    |> Enum.into(%{})
+    Enum.into(TopicManager.all(), %{}, fn topic -> {topic, []} end)
   end
 end

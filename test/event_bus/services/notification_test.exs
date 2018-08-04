@@ -1,16 +1,18 @@
 defmodule EventBus.Service.NotificationTest do
   use ExUnit.Case, async: false
+
   import ExUnit.CaptureLog
+
   alias EventBus.Model.Event
   alias EventBus.Service.Notification
 
   alias EventBus.Support.Helper.{
-    InputLogger,
-    Calculator,
+    AnotherBadOne,
     AnotherCalculator,
-    MemoryLeakerOne,
     BadOne,
-    AnotherBadOne
+    Calculator,
+    InputLogger,
+    MemoryLeakerOne
   }
 
   doctest Notification
