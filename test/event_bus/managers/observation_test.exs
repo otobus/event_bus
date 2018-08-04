@@ -3,10 +3,10 @@ defmodule EventBus.Manager.ObservationTest do
   alias EventBus.Manager.Observation
 
   alias EventBus.Support.Helper.{
-    InputLogger,
+    BadOne,
     Calculator,
-    MemoryLeakerOne,
-    BadOne
+    InputLogger,
+    MemoryLeakerOne
   }
 
   doctest Observation

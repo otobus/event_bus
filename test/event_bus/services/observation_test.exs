@@ -1,11 +1,12 @@
 defmodule EventBus.Service.ObservationTest do
   use ExUnit.Case, async: false
+
   alias EventBus.Service.{Observation, Topic}
   alias EventBus.Support.Helper.{
-    InputLogger,
+    BadOne,
     Calculator,
-    MemoryLeakerOne,
-    BadOne
+    InputLogger,
+    MemoryLeakerOne
   }
 
   doctest Observation

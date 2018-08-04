@@ -2,10 +2,10 @@ defmodule EventBus.Service.SubscriptionTest do
   use ExUnit.Case, async: false
 
   alias EventBus.Support.Helper.{
-    InputLogger,
+    AnotherCalculator,
     Calculator,
-    MemoryLeakerOne,
-    AnotherCalculator
+    InputLogger,
+    MemoryLeakerOne
   }
 
   alias EventBus.Service.Subscription
