@@ -29,20 +29,21 @@ defmodule EventBus.Model.Event do
   * :ttl - Time to live value
   """
   @type t :: %__MODULE__{
-          id: String.t() | integer,
-          transaction_id: String.t() | integer,
-          topic: atom,
-          data: any,
-          initialized_at: integer,
-          occurred_at: integer,
+          id: String.t() | integer(),
+          transaction_id: String.t() | integer(),
+          topic: atom(),
+          data: any(),
+          initialized_at: integer(),
+          occurred_at: integer(),
           source: String.t(),
-          ttl: integer
+          ttl: integer()
         }
 
   @doc """
   Duration of the event, and simple answer of how long does it take to generate
   this event
   """
+  @spec duration(__MODULE__.t()) :: integer()
   def duration(%__MODULE__{
         initialized_at: initialized_at,
         occurred_at: occurred_at

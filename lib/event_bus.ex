@@ -12,6 +12,8 @@ defmodule EventBus do
     Topic
   }
 
+  alias EventBus.Model.Event
+
   @doc """
   Send event to all subscribers(listeners).
 
