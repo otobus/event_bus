@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.4.X]
+
+- Add public types to main module to increase type safety and readability
+- Remove allowence of passing string on topic registration/deregistration
+- Allow passing `event_shadow` to `mark_as_completed/1` and `mark_as_skipped/1`
+
 ## [1.3.X]
 
 - Set default transaction to the id

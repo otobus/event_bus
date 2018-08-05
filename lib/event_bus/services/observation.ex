@@ -35,16 +35,16 @@ defmodule EventBus.Service.Observation do
 
   @doc false
   @spec mark_as_completed(tuple()) :: no_return()
-  def mark_as_completed({listener, topic, id}) do
-    {listeners, completers, skippers} = fetch({topic, id})
-    save_or_delete({topic, id}, {listeners, [listener | completers], skippers})
+  def mark_as_completed({listener, event_shadow}) do
+    {listeners, completers, skippers} = fetch(event_shadow)
+    save_or_delete(event_shadow, {listeners, [listener | completers], skippers})
   end
 
   @doc false
   @spec mark_as_skipped(tuple()) :: no_return()
-  def mark_as_skipped({listener, topic, id}) do
-    {listeners, completers, skippers} = fetch({topic, id})
-    save_or_delete({topic, id}, {listeners, completers, [listener | skippers]})
+  def mark_as_skipped({listener, event_shadow}) do
+    {listeners, completers, skippers} = fetch(event_shadow)
+    save_or_delete(event_shadow, {listeners, completers, [listener | skippers]})
   end
 
   @doc false

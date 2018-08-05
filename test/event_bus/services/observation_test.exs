@@ -74,7 +74,7 @@ defmodule EventBus.Service.ObservationTest do
 
     Observation.register_topic(topic)
     Observation.save({topic, id}, {listeners, [], []})
-    Observation.mark_as_completed({{InputLogger, %{}}, topic, id})
+    Observation.mark_as_completed({{InputLogger, %{}}, {topic, id}})
 
     assert {listeners, [{InputLogger, %{}}], []} == Observation.fetch({topic, id})
   end
@@ -92,7 +92,7 @@ defmodule EventBus.Service.ObservationTest do
 
     Observation.register_topic(topic)
     Observation.save({topic, id}, {listeners, [], []})
-    Observation.mark_as_skipped({{InputLogger, %{}}, topic, id})
+    Observation.mark_as_skipped({{InputLogger, %{}}, {topic, id}})
 
     assert {listeners, [], [{InputLogger, %{}}]} == Observation.fetch({topic, id})
   end

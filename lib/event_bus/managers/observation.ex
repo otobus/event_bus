@@ -55,7 +55,11 @@ defmodule EventBus.Manager.Observation do
   """
   @spec mark_as_completed(tuple()) :: no_return()
   def mark_as_completed({listener, topic, id}) do
-    GenServer.cast(__MODULE__, {:mark_as_completed, {listener, topic, id}})
+    GenServer.cast(__MODULE__, {:mark_as_completed, {listener, {topic, id}}})
+  end
+
+  def mark_as_completed({listener, {topic, id}}) do
+    GenServer.cast(__MODULE__, {:mark_as_completed, {listener, {topic, id}}})
   end
 
   @doc """
@@ -63,14 +67,18 @@ defmodule EventBus.Manager.Observation do
   """
   @spec mark_as_skipped(tuple()) :: no_return()
   def mark_as_skipped({listener, topic, id}) do
-    GenServer.cast(__MODULE__, {:mark_as_skipped, {listener, topic, id}})
+    GenServer.cast(__MODULE__, {:mark_as_skipped, {listener, {topic, id}}})
+  end
+
+  def mark_as_skipped({listener, {topic, id}}) do
+    GenServer.cast(__MODULE__, {:mark_as_skipped, {listener, {topic, id}}})
   end
 
   @doc """
   Create an watcher
   """
   @spec create(tuple()) :: no_return()
-  def create({listeners, topic, id}) do
+  def create({listeners, {topic, id}}) do
     GenServer.call(__MODULE__, {:save, {topic, id}, {listeners, [], []}})
   end
 
@@ -122,15 +130,15 @@ defmodule EventBus.Manager.Observation do
 
   @doc false
   @spec handle_cast({:mark_as_completed, tuple()}, term()) :: no_return()
-  def handle_cast({:mark_as_completed, {listener, topic, id}}, state) do
-    @backend.mark_as_completed({listener, topic, id})
+  def handle_cast({:mark_as_completed, {listener, {topic, id}}}, state) do
+    @backend.mark_as_completed({listener, {topic, id}})
     {:noreply, state}
   end
 
   @doc false
   @spec handle_cast({:mark_as_skipped, tuple()}, term()) :: no_return()
-  def handle_cast({:mark_as_skipped, {listener, topic, id}}, state) do
-    @backend.mark_as_skipped({listener, topic, id})
+  def handle_cast({:mark_as_skipped, {listener, {topic, id}}}, state) do
+    @backend.mark_as_skipped({listener, {topic, id}})
     {:noreply, state}
   end
 end
