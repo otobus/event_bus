@@ -46,7 +46,7 @@ defmodule EventBus.Manager.ObservationTest do
 
     Observation.register_topic(topic)
 
-    assert :ok == Observation.create({listeners, topic, id})
+    assert :ok == Observation.create({listeners, {topic, id}})
   end
 
   test "complete" do
@@ -61,11 +61,16 @@ defmodule EventBus.Manager.ObservationTest do
     ]
 
     Observation.register_topic(topic)
-    Observation.create({listeners, topic, id})
+    Observation.create({listeners, {topic, id}})
 
     listener = {InputLogger, %{}}
+    another_listener = {Calculator, %{}}
 
-    assert :ok === Observation.mark_as_completed({listener, topic, id})
+    # with event_shadow tuple
+    assert :ok === Observation.mark_as_completed({listener, {topic, id}})
+
+    # with open tuple
+    assert :ok === Observation.mark_as_completed({another_listener, topic, id})
   end
 
   test "skip" do
@@ -80,7 +85,15 @@ defmodule EventBus.Manager.ObservationTest do
     ]
 
     Observation.register_topic(topic)
-    Observation.create({listeners, topic, id})
-    assert :ok == Observation.mark_as_skipped({{InputLogger, %{}}, topic, id})
+    Observation.create({listeners, {topic, id}})
+
+    listener = {InputLogger, %{}}
+    another_listener = {Calculator, %{}}
+
+    # with event_shadow tuple
+    assert :ok == Observation.mark_as_skipped({listener, {topic, id}})
+
+    # with open tuple
+    assert :ok == Observation.mark_as_skipped({another_listener, topic, id})
   end
 end

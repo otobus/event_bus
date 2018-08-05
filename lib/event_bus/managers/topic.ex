@@ -26,7 +26,7 @@ defmodule EventBus.Manager.Topic do
   It's important to keep this in blocking manner to prevent double creations in
   sub modules
   """
-  @spec exist?(String.t() | atom()) :: boolean()
+  @spec exist?(atom()) :: boolean()
   def exist?(topic) do
     GenServer.call(__MODULE__, {:exist?, topic})
   end
@@ -34,7 +34,7 @@ defmodule EventBus.Manager.Topic do
   @doc """
   Register a topic
   """
-  @spec register(String.t() | atom()) :: :ok
+  @spec register(atom()) :: :ok
   def register(topic) do
     GenServer.call(__MODULE__, {:register, topic})
   end
@@ -42,7 +42,7 @@ defmodule EventBus.Manager.Topic do
   @doc """
   Unregister a topic
   """
-  @spec unregister(String.t() | atom()) :: :ok
+  @spec unregister(atom()) :: :ok
   def unregister(topic) do
     GenServer.call(__MODULE__, {:unregister, topic})
   end
@@ -72,25 +72,24 @@ defmodule EventBus.Manager.Topic do
   ###########################################################################
 
   @doc false
-  @spec handle_call({:exist?, String.t() | atom()}, any(), term())
+  @spec handle_call({:exist?, atom()}, any(), term())
     :: {:reply, boolean(), term()}
   def handle_call({:exist?, topic}, _from, state) do
-    {:reply, @backend.exist?(:"#{topic}"), state}
+    {:reply, @backend.exist?(topic), state}
   end
 
   @doc false
-  @spec handle_call({:register, String.t() | atom()}, any(), term())
-    :: {:reply, :ok, term()}
+  @spec handle_call({:register, atom()}, any(), term()) :: {:reply, :ok, term()}
   def handle_call({:register, topic}, _from, state) do
-    @backend.register(:"#{topic}")
+    @backend.register(topic)
     {:reply, :ok, state}
   end
 
   @doc false
-  @spec handle_call({:unregister, String.t() | atom()}, any(), term())
+  @spec handle_call({:unregister, atom()}, any(), term())
     :: {:reply, :ok, term()}
   def handle_call({:unregister, topic}, _from, state) do
-    @backend.unregister(:"#{topic}")
+    @backend.unregister(topic)
     {:reply, :ok, state}
   end
 end

@@ -17,7 +17,7 @@ defmodule EventBus.Service.Notification do
       warn_missing_topic_subscription(topic)
     else
       :ok = StoreManager.create(event)
-      :ok = ObservationManager.create({listeners, topic, id})
+      :ok = ObservationManager.create({listeners, {topic, id}})
 
       notify_listeners(listeners, {topic, id})
     end
@@ -34,7 +34,7 @@ defmodule EventBus.Service.Notification do
   rescue
     error ->
       log_error(listener, error)
-      ObservationManager.mark_as_skipped({{listener, config}, topic, id})
+      ObservationManager.mark_as_skipped({{listener, config}, {topic, id}})
   end
 
   @spec notify_listener(module(), tuple()) :: no_return()
@@ -43,7 +43,7 @@ defmodule EventBus.Service.Notification do
   rescue
     error ->
       log_error(listener, error)
-      ObservationManager.mark_as_skipped({listener, topic, id})
+      ObservationManager.mark_as_skipped({listener, {topic, id}})
   end
 
   @spec registration_status(atom()) :: String.t()

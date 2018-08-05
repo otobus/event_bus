@@ -237,7 +237,7 @@ EventBus.fetch_event_data({topic, id})
 listener = MyEventListener
 # If your listener has config then pass tuple
 listener = {MyEventListener, config}
-EventBus.mark_as_completed({listener, :bye_received, id})
+EventBus.mark_as_completed({listener, {:bye_received, id}})
 > :ok
 ```
 
@@ -246,7 +246,7 @@ EventBus.mark_as_completed({listener, :bye_received, id})
 listener = MyEventListener
 # If your listener has config then pass tuple
 listener = {MyEventListener, config}
-EventBus.mark_as_skipped({listener, :bye_received, id})
+EventBus.mark_as_skipped({listener, {:bye_received, id}})
 > :ok
 ```
 
@@ -362,27 +362,37 @@ defmodule MyEventListener do
 
 
   # if your listener does not have a config
-  def handle_cast({:bye_received, id}, state) do
-    event = EventBus.fetch_event({:bye_received, id})
+  def handle_cast({:bye_received, id} = event_shadow, state) do
+    event = EventBus.fetch_event(event_shadow)
     # do sth with event
 
     # update the watcher!
+    # version >= 1.4.0
+    EventBus.mark_as_completed({__MODULE__, event_shadow})
+    # all versions
     EventBus.mark_as_completed({__MODULE__, :bye_received, id})
     ...
     {:noreply, state}
   end
 
-  def handle_cast({:hello_received, id}, state) do
+  def handle_cast({:hello_received, id} = event_shadow, state) do
     event = EventBus.fetch_event({:hello_received, id})
     # do sth with EventBus.Model.Event
 
     # update the watcher!
+    # version >= 1.4.0
+    EventBus.mark_as_completed({__MODULE__, event_shadow})
+    # all versions
     EventBus.mark_as_completed({__MODULE__, :hello_received, id})
     ...
     {:noreply, state}
   end
 
-  def handle_cast({topic, id}, state) do
+  def handle_cast({topic, id} = event_shadow, state) do
+    # version >= 1.4.0
+    EventBus.mark_as_skipped({__MODULE__, event_shadow})
+
+    # all versions
     EventBus.mark_as_skipped({__MODULE__, topic, id})
     {:noreply, state}
   end
@@ -464,7 +474,7 @@ defmodule MyDataStore do
     event = EventBus.fetch_event({topic, id})
     # write your logic to save event_data to a persistant store
 
-    EventBus.mark_as_completed({__MODULE__, topic, id})
+    EventBus.mark_as_completed({__MODULE__, {topic, id}})
     {:noreply, state}
   end
 end

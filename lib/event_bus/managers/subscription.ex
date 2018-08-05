@@ -22,19 +22,19 @@ defmodule EventBus.Manager.Subscription do
   end
 
   @doc """
-  Subscribe the listener to topics
+  Does the listener subscribe to topic_patterns?
   """
-  @spec subscribed?({tuple() | module(), list()}) :: no_return()
-  def subscribed?({_listener, _topics} = subscriber) do
+  @spec subscribed?({tuple() | module(), list()}) :: boolean()
+  def subscribed?({_listener, _topic_patterns} = subscriber) do
     GenServer.call(__MODULE__, {:subscribed?, subscriber})
   end
 
   @doc """
-  Subscribe the listener to topics
+  Subscribe the listener to topic_patterns
   """
   @spec subscribe({tuple() | module(), list()}) :: no_return()
-  def subscribe({listener, topics}) do
-    GenServer.cast(__MODULE__, {:subscribe, {listener, topics}})
+  def subscribe({listener, topic_patterns}) do
+    GenServer.cast(__MODULE__, {:subscribe, {listener, topic_patterns}})
   end
 
   @doc """
@@ -94,8 +94,8 @@ defmodule EventBus.Manager.Subscription do
 
   @doc false
   @spec handle_cast({:subscribe, tuple()}, term()) :: no_return()
-  def handle_cast({:subscribe, {listener, topics}}, state) do
-    @backend.subscribe({listener, topics})
+  def handle_cast({:subscribe, {listener, topic_patterns}}, state) do
+    @backend.subscribe({listener, topic_patterns})
     {:noreply, state}
   end
 
