@@ -58,11 +58,13 @@ Traceable, extendable and minimalist event bus implementation for Elixir with bu
 
 [Wiki](https://github.com/otobus/event_bus/wiki)
 
-[Contributing](#contributing)
+[Contributing](https://github.com/otobus/event_bus/blob/master/CONTRIBUTING.md)
 
-[License](#license)
+[License](https://github.com/otobus/event_bus/blob/master/LICENSE)
 
 [Code of Conduct](https://github.com/otobus/event_bus/blob/master/CODE_OF_CONDUCT.md)
+
+[Questions](https://github.com/otobus/event_bus/blob/master/QUESTIONS.md)
 
 ## Features
 
@@ -513,16 +515,6 @@ EventBus allows building generic and specific addons for your stack. Here are a 
 - `event_bus_zipkin` allows you to trace event bus events via Zipkin
 
 - `event_bus_ddtrace` allows you to trace event bus events via Datadog APM
-
-## Contributing
-
-### Issues, Bugs, Documentation, Enhancements
-
-1. Fork the project
-
-2. Make your improvements and write your tests(make sure you covered all the cases).
-
-3. Make a pull request.
 
 ## License
 
