@@ -26,7 +26,10 @@ defmodule EventBus.Manager.SubscriptionTest do
 
   test "subscribe" do
     assert :ok == Subscription.subscribe({{InputLogger, %{}}, [".*"]})
+    assert Subscription.subscribed?({{InputLogger, %{}}, [".*"]})
+
     assert :ok == Subscription.subscribe({AnotherCalculator, [".*"]})
+    assert Subscription.subscribed?({AnotherCalculator, [".*"]})
   end
 
   test "unsubscribe" do
@@ -34,7 +37,10 @@ defmodule EventBus.Manager.SubscriptionTest do
     Subscription.subscribe({AnotherCalculator, [".*"]})
 
     assert :ok == Subscription.unsubscribe({InputLogger, %{}})
+    refute Subscription.subscribed?({{InputLogger, %{}}, [".*"]})
+
     assert :ok == Subscription.unsubscribe(AnotherCalculator)
+    refute Subscription.subscribed?({AnotherCalculator, [".*"]})
   end
 
   test "register_topic" do

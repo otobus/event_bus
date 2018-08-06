@@ -23,16 +23,16 @@ defmodule EventBus do
   @typedoc "Tuple of topic name and event id"
   @type event_shadow :: {topic(), event_id()}
 
-  @typedoc "Event listener/subscriber/consumer"
-  @type listener :: {listener_without_config() | listener_with_config()}
+  @typedoc "Event listener"
+  @type listener :: listener_without_config() | listener_with_config()
 
   @typedoc "Listener configuration"
   @type listener_config :: any()
 
-  @typedoc "List of event listeners/subscribers/consumers"
+  @typedoc "List of event listeners"
   @type listener_list :: list(listener())
 
-  @typedoc "Event listener/subscriber/consumer with config"
+  @typedoc "Event listener with config"
   @type listener_with_config :: {module(), listener_config()}
 
   @typedoc "Tuple of listener and event reference"
@@ -48,7 +48,7 @@ defmodule EventBus do
   @typedoc "Tuple of listener and list of topic patterns"
   @type listener_with_topic_patterns :: {listener(), topic_pattern_list()}
 
-  @typedoc "Event listener/subscriber/consumer without config"
+  @typedoc "Event listener without config"
   @type listener_without_config :: module()
 
   @typedoc "Topic name"
