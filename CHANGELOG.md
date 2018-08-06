@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Add public types to main module to increase type safety and readability
 - Remove allowence of passing string on topic registration/deregistration
 - Allow passing `event_shadow` to `mark_as_completed/1` and `mark_as_skipped/1`
+- Update wrong spec for unsubscribe/1
+- Add more test for unsubscribe/1
 
 ## [1.3.X]
 

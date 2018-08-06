@@ -40,7 +40,7 @@ defmodule EventBus.Manager.Subscription do
   @doc """
   Unsubscribe the listener
   """
-  @spec unsubscribe({tuple() | module()}) :: no_return()
+  @spec unsubscribe(tuple() | module()) :: no_return()
   def unsubscribe(listener) do
     GenServer.cast(__MODULE__, {:unsubscribe, listener})
   end
