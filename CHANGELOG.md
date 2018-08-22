@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Update wrong spec for unsubscribe/1
 - Add more test for unsubscribe/1
 - Add questions section
+- Change default `@eb_tme_unit` to `:microsecond`
 
 ## [1.3.X]
 
@@ -77,4 +78,3 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 
 - Add `initialized_at` attribute
-
