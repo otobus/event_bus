@@ -11,7 +11,7 @@ defmodule EventBus.Model.EventTest do
   end
 
   test "duration" do
-    initialized_at = System.os_time(:micro_seconds)
+    initialized_at = System.os_time(:microsecond)
     # do sth in this frame
     Process.sleep(1)
 
@@ -20,7 +20,7 @@ defmodule EventBus.Model.EventTest do
       topic: "user_created",
       data: %{id: 1, name: "me", email: "me@example.com"},
       initialized_at: initialized_at,
-      occurred_at: System.os_time(:micro_seconds)
+      occurred_at: System.os_time(:microsecond)
     }
 
     assert Event.duration(event) > 0
