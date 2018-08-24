@@ -17,7 +17,7 @@ defmodule EventBus.EventSource do
       @eb_app :event_bus
       @eb_id_gen Application.get_env(@eb_app, :id_generator, Base62)
       @eb_source String.replace("#{__MODULE__}", "Elixir.", "")
-      @eb_time_unit Application.get_env(@eb_app, :time_unit, :micro_seconds)
+      @eb_time_unit Application.get_env(@eb_app, :time_unit, :microsecond)
       @eb_ttl Application.get_env(@eb_app, :ttl)
     end
   end
