@@ -33,9 +33,9 @@ defmodule EventBus.Util.Base62 do
     |> String.pad_leading(size, "0")
   end
 
-  # Current time (microseconds) encoded in base62
+  # Current time (microsecond) encoded in base62
   defp now do
-    encode(System.os_time(:microseconds))
+    encode(System.os_time(:microsecond))
   end
 
   # Assigns a random node_id on first call

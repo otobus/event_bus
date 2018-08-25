@@ -288,7 +288,7 @@ It is recommended to set optional params in event_bus application config, this w
 config :event_bus,
   topics: [], # list of atoms
   ttl: 30_000_000, # integer
-  time_unit: :micro_seconds, # atom
+  time_unit: :microsecond, # atom
   id_generator: EventBus.Util.Base62 # module: must implement 'unique_id/0' function
 ```
 
