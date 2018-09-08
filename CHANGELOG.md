@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Add questions section
 - Change default `@eb_tme_unit` to `:microsecond`
 - Change all instances of `micro_seconds` and `microseconds` to `microsecond`, as per Erlang 19+
+- Fix dialyzer warnings
 
 ## [1.3.X]
 
