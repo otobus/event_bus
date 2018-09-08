@@ -25,7 +25,9 @@ defmodule EventBus.Service.Notification do
 
   @spec notify_listeners(list(), tuple()) :: no_return()
   defp notify_listeners(listeners, event_shadow) do
-    for listener <- listeners, do: notify_listener(listener, event_shadow)
+    Enum.each(listeners, fn listener ->
+      notify_listener(listener, event_shadow)
+    end)
   end
 
   @spec notify_listener(tuple(), tuple()) :: no_return()

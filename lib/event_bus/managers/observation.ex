@@ -77,7 +77,7 @@ defmodule EventBus.Manager.Observation do
   @doc """
   Create an watcher
   """
-  @spec create(tuple()) :: no_return()
+  @spec create(tuple()) :: :ok
   def create({listeners, {topic, id}}) do
     GenServer.call(__MODULE__, {:save, {topic, id}, {listeners, [], []}})
   end
