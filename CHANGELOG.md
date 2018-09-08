@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [1.5.X]
 - Fix Elixir 1.7 warnings for string to atom conversions
+- Remove deprecated EventBus.Util.String module
 
 ## [1.4.X] 2018.09.07
 
