@@ -25,9 +25,12 @@ defmodule EventBus.Service.TopicTest do
     Topic.register(topic)
     all_tables = :ets.all()
 
+    store_table_name = String.to_atom("eb_es_#{topic}")
+    watcher_table_name = String.to_atom("eb_ew_#{topic}")
+
     assert Enum.any?(Topic.all(), fn t -> t == topic end)
-    assert Enum.any?(all_tables, fn t -> t == :"eb_es_#{topic}" end)
-    assert Enum.any?(all_tables, fn t -> t == :"eb_ew_#{topic}" end)
+    assert Enum.any?(all_tables, fn t -> t == store_table_name end)
+    assert Enum.any?(all_tables, fn t -> t == watcher_table_name end)
   end
 
   test "register_topic does not re-register same topic" do
@@ -45,9 +48,12 @@ defmodule EventBus.Service.TopicTest do
     Topic.unregister(topic)
     all_tables = :ets.all()
 
+    store_table_name = String.to_atom("eb_es_#{topic}")
+    watcher_table_name = String.to_atom("eb_ew_#{topic}")
+
     refute Enum.any?(Topic.all(), fn t -> t == topic end)
-    refute Enum.any?(all_tables, fn t -> t == :"eb_es_#{topic}" end)
-    refute Enum.any?(all_tables, fn t -> t == :"eb_ew_#{topic}" end)
+    refute Enum.any?(all_tables, fn t -> t == store_table_name end)
+    refute Enum.any?(all_tables, fn t -> t == watcher_table_name end)
   end
 
   test "all" do

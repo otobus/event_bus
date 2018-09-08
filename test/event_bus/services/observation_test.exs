@@ -31,8 +31,9 @@ defmodule EventBus.Service.ObservationTest do
     topic = :metrics_destroyed
     Observation.register_topic(topic)
     all_tables = :ets.all()
+    table_name = String.to_atom("eb_ew_#{topic}")
 
-    assert Enum.any?(all_tables, fn t -> t == :"eb_ew_#{topic}" end)
+    assert Enum.any?(all_tables, fn t -> t == table_name end)
   end
 
   test "unregister_topic" do
@@ -40,8 +41,9 @@ defmodule EventBus.Service.ObservationTest do
     Observation.register_topic(topic)
     Observation.unregister_topic(topic)
     all_tables = :ets.all()
+    table_name = String.to_atom("eb_ew_#{topic}")
 
-    refute Enum.any?(all_tables, fn t -> t == :"eb_ew_#{topic}" end)
+    refute Enum.any?(all_tables, fn t -> t == table_name end)
   end
 
   test "create and fetch" do

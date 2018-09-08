@@ -4,7 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [1.4.X]
+## [1.5.X]
+- Fix Elixir 1.7 warnings for string to atom conversions
+
+## [1.4.X] 2018.09.07
 
 - Add public types to main module to increase type safety and readability
 - Remove allowence of passing string on topic registration/deregistration
@@ -17,7 +20,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Fix dialyzer warnings
 - Update the id generator source in test configuration
 
-## [1.3.X]
+## [1.3.X] 2018.08.04
 
 - Set default transaction to the id
 - Delegate optional variables to optional library configuration when building/notifying events with Event builder
