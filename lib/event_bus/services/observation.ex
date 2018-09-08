@@ -84,7 +84,7 @@ defmodule EventBus.Service.Observation do
   end
 
   @spec table_name(atom()) :: atom()
-  defp table_name(name) do
-    :"#{@prefix}#{name}"
+  defp table_name(topic) do
+    String.to_atom("#{@prefix}#{topic}")
   end
 end

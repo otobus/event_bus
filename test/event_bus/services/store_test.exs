@@ -20,16 +20,18 @@ defmodule EventBus.Service.StoreTest do
     topic = :metrics_received_1
     Store.register_topic(topic)
     all_tables = :ets.all()
+    table_name = String.to_atom("eb_es_#{topic}")
 
-    assert Enum.any?(all_tables, fn t -> t == :"eb_es_#{topic}" end)
+    assert Enum.any?(all_tables, fn t -> t == table_name end)
   end
 
   test "unregister_topic" do
     topic = :metrics_received_1
     Store.unregister_topic(topic)
     all_tables = :ets.all()
+    table_name = String.to_atom("eb_es_#{topic}")
 
-    refute Enum.any?(all_tables, fn t -> t == :"eb_es_#{topic}" end)
+    refute Enum.any?(all_tables, fn t -> t == table_name end)
   end
 
   test "create" do

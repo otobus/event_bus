@@ -57,6 +57,6 @@ defmodule EventBus.Service.Store do
   end
 
   defp table_name(topic) do
-    :"#{@prefix}#{topic}"
+    String.to_atom("#{@prefix}#{topic}")
   end
 end
