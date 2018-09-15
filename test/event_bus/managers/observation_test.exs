@@ -66,10 +66,10 @@ defmodule EventBus.Manager.ObservationTest do
     listener = {InputLogger, %{}}
     another_listener = {Calculator, %{}}
 
-    # with event_shadow tuple
+    # With an event_shadow tuple
     assert :ok === Observation.mark_as_completed({listener, {topic, id}})
 
-    # with open tuple
+    # With an open tuple
     assert :ok === Observation.mark_as_completed({another_listener, topic, id})
   end
 
@@ -90,10 +90,10 @@ defmodule EventBus.Manager.ObservationTest do
     listener = {InputLogger, %{}}
     another_listener = {Calculator, %{}}
 
-    # with event_shadow tuple
+    # With an event_shadow tuple
     assert :ok == Observation.mark_as_skipped({listener, {topic, id}})
 
-    # with open tuple
+    # With an open tuple
     assert :ok == Observation.mark_as_skipped({another_listener, topic, id})
   end
 end

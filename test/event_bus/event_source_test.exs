@@ -15,15 +15,17 @@ defmodule EventBus.EventSourceTest do
     data = %{id: 1, name: "me", email: "me@example.com"}
     transaction_id = "t1"
     ttl = 100
+    params = %{
+      id: id,
+      topic: topic,
+      transaction_id: transaction_id,
+      ttl: ttl,
+      source: "me"
+    }
 
     event =
-      EventSource.build %{
-        id: id,
-        topic: topic,
-        transaction_id: transaction_id,
-        ttl: ttl,
-        source: "me"
-      } do
+      EventSource.build params do
+        Process.sleep(1_000)
         data
       end
 

@@ -506,15 +506,15 @@ EventBus has some addons to extend its optional functionalities. One of them is 
 
 ## Addons
 
-EventBus allows building generic and specific addons for your stack. Here are a few generic addons which I'm currently working on:
+A few sample addons listed below. Please do not hesitate to add your own addon to the list.
 
-- `event_bus_logger` allows you to log event bus events to your console with a generic configuration: https://github.com/mustafaturan/event_bus_logger
+| Addon Name           | Description   | Link          | Docs          |
+| -------------------- | ------------- | ------------- | ------------- |
+| `event_bus_postgres` | Fast event consumer to persist `event_bus` events to Postgres using GenStage          | [Github](https://github.com/otobus/event_bus_postgres) | [HexDocs](https://hexdocs.pm/event_bus_postgres) |
+| `event_bus_logger`   | Deadly simple log listener implementation                                             | [Github](https://github.com/otobus/event_bus_logger)   | [HexDocs](https://hexdocs.pm/event_bus_logger)   |
+| `event_bus_metrics`  | Metrics UI and metrics API endpoints for EventBus events for debugging and monitoring | [Hex](https://hex.pm/packages/event_bus_metrics)       | [HexDocs](https://hexdocs.pm/event_bus_metrics)  |
 
-- `event_bus_postgres` allows you to save event bus events to Postgres DB with a generic configuration: https://github.com/mustafaturan/event_bus_postgres
-
-- `event_bus_zipkin` allows you to trace event bus events via Zipkin
-
-- `event_bus_ddtrace` allows you to trace event bus events via Datadog APM
+Note: The addons under [https://github.com/otobus](https://github.com/otobus) organization implemented as a sample, but feel free to use them in your project with respecting their licenses.
 
 ## License
 
