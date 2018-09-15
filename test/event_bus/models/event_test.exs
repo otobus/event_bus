@@ -2,6 +2,7 @@ defmodule EventBus.Model.EventTest do
   use ExUnit.Case
   require EventBus.Model.Event
   alias EventBus.Model.Event
+  alias EventBus.Util.MonotonicTime
 
   doctest Event
 
@@ -11,16 +12,17 @@ defmodule EventBus.Model.EventTest do
   end
 
   test "duration" do
-    initialized_at = System.os_time(:microsecond)
-    # do sth in this frame
-    Process.sleep(1)
+    initialized_at = MonotonicTime.now()
+    # Do sth in this frame
+    # For example; sleep 1 second
+    Process.sleep(1_000)
 
     event = %Event{
       id: 1,
       topic: "user_created",
       data: %{id: 1, name: "me", email: "me@example.com"},
       initialized_at: initialized_at,
-      occurred_at: System.os_time(:microsecond)
+      occurred_at: MonotonicTime.now()
     }
 
     assert Event.duration(event) > 0

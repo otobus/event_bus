@@ -5,8 +5,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [1.5.X]
-- Fix Elixir 1.7 warnings for string to atom conversions
-- Remove deprecated EventBus.Util.String module
+- Fix Elixir `v1.7.x` warnings for string to atom conversions
+- Remove deprecated `EventBus.Util.String` module
+- Move the time calculation logic into the new `MonotonicTime` utility module
+- Set `initialized_at` value on `EventSource` helper to a monotonically increasing time
+- Enhance tests for the `:second` time unit
+- Enhance tests for the `unique_id` generator
 
 ## [1.4.X] 2018.09.07
 
