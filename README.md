@@ -10,6 +10,8 @@ Traceable, extendable and minimalist event bus implementation for Elixir with bu
 
 [Features](#features)
 
+[Getting Started](#getting-started)
+
 [Installation](#installation)
 
 [Usage](#usage)
@@ -83,6 +85,16 @@ Traceable, extendable and minimalist event bus implementation for Elixir with bu
 - Tracable with optional attributes. Optional attributes compatiable with opentracing platform.
 
 - Minimal with required attributes(Incase, you want it work minimal use 3 required attributes to deliver your events).
+
+## Getting Started
+
+Start using `event_bus` library in five basic steps:
+
+- [1: Installing Library Package](https://github.com/otobus/event_bus/wiki/Installing-Library-Package)
+- [2: Creating/Registering Topics](https://github.com/otobus/event_bus/wiki/Creating-(Registering)-Topics)
+- [3: Emitting/Dispatching an Event](https://github.com/otobus/event_bus/wiki/Emitting-(Dispatching)-an-Event)
+- [4: Creating Simple Event Consumers/Listeners/Subscribers](https://github.com/otobus/event_bus/wiki/Creating-Event-Consumers)
+- [5: Subscribing Consumer/Listener/Subscriber for a Topic](https://github.com/otobus/event_bus/wiki/Subscribing-Consumers-to-Topic(s))
 
 ## Installation
 
