@@ -17,7 +17,7 @@ defmodule EventBus.Model.Event do
   ]
 
   @typedoc """
-  Defines the Event struct.
+  Definition of the Event struct
 
   * :id - Identifier
   * :transaction_id - Transaction identifier, if event belongs to a transaction
@@ -40,8 +40,8 @@ defmodule EventBus.Model.Event do
         }
 
   @doc """
-  Duration of the event, and simple answer of how long does it take to generate
-  this event
+  Calculate the duration of the event, and simple answer of how long does it
+  take to generate this event
   """
   @spec duration(__MODULE__.t()) :: integer()
   def duration(%__MODULE__{

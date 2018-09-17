@@ -64,7 +64,7 @@ defmodule EventBus do
   @type topic_pattern_list :: list(topic_pattern())
 
   @doc """
-  Send event to all subscribers(listeners).
+  Send an event to all subscribers(listeners)
 
   ## Examples
 
@@ -80,7 +80,7 @@ defmodule EventBus do
     as: :notify
 
   @doc """
-  Check if topic registered.
+  Check if a topic registered
 
   ## Examples
 
@@ -94,7 +94,7 @@ defmodule EventBus do
     as: :exist?
 
   @doc """
-  List all registered topics.
+  List all the registered topics
 
   ## Examples
 
@@ -135,7 +135,7 @@ defmodule EventBus do
     as: :unregister
 
   @doc """
-  Subscribe to the bus.
+  Subscribe a listener to the event bus
 
   ## Examples
 
@@ -154,7 +154,7 @@ defmodule EventBus do
     as: :subscribe
 
   @doc """
-  Unsubscribe from the bus.
+  Unsubscribe a listener from the event bus
 
   ## Examples
 
@@ -173,7 +173,8 @@ defmodule EventBus do
     as: :unsubscribe
 
   @doc """
-  Is given listener subscribed to the bus for the given topic patterns?
+  Check if the given listener subscribed to the event bus for the given topic
+  patterns
 
   ## Examples
 
@@ -196,7 +197,7 @@ defmodule EventBus do
     as: :subscribed?
 
   @doc """
-  List the subscribers.
+  List the subscribers
 
   ## Examples
 
@@ -214,7 +215,7 @@ defmodule EventBus do
     as: :subscribers
 
   @doc """
-  List the subscribers to the with given topic.
+  List the subscribers for the given topic
 
   ## Examples
 
@@ -231,7 +232,7 @@ defmodule EventBus do
     as: :subscribers
 
   @doc """
-  Fetch event
+  Fetch an event
 
   ## Examples
 
@@ -245,7 +246,7 @@ defmodule EventBus do
     as: :fetch
 
   @doc """
-  Fetch event data
+  Fetch an event's data
 
   ## Examples
 
@@ -258,7 +259,7 @@ defmodule EventBus do
     as: :fetch_data
 
   @doc """
-  Send the event processing completed to the Observation Manager
+  Mark the event as completed for the listener
 
   ## Examples
       topic        = :hello_received
@@ -282,7 +283,7 @@ defmodule EventBus do
     as: :mark_as_completed
 
   @doc """
-  Send the event processing skipped to the Observation Manager
+  Mark the event as skipped for the listener
 
   ## Examples
 
