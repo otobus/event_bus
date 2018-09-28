@@ -4,6 +4,12 @@ defmodule EventBus.Service.Observation do
   alias EventBus.Manager.Store, as: StoreManager
   alias :ets, as: Ets
 
+  @typep event_shadow :: EventBus.event_shadow()
+  @typep listener_list :: EventBus.listener_list()
+  @typep listener_with_event_ref :: EventBus.listener_with_event_ref()
+  @typep topic :: EventBus.topic()
+  @typep watcher :: {listener_list(), listener_list(), listener_list()}
+
   @ets_opts [
     :set,
     :public,
@@ -14,7 +20,7 @@ defmodule EventBus.Service.Observation do
   @prefix "eb_ew_"
 
   @doc false
-  @spec exist?(atom()) :: boolean()
+  @spec exist?(topic()) :: boolean()
   def exist?(topic) do
     table_name = table_name(topic)
     all_tables = Ets.all()
@@ -22,33 +28,35 @@ defmodule EventBus.Service.Observation do
   end
 
   @doc false
-  @spec register_topic(atom()) :: no_return()
+  @spec register_topic(topic()) :: :ok
   def register_topic(topic) do
     unless exist?(topic), do: Ets.new(table_name(topic), @ets_opts)
+    :ok
   end
 
   @doc false
-  @spec unregister_topic(atom()) :: no_return()
+  @spec unregister_topic(topic()) :: :ok
   def unregister_topic(topic) do
     if exist?(topic), do: Ets.delete(table_name(topic))
+    :ok
   end
 
   @doc false
-  @spec mark_as_completed(tuple()) :: no_return()
+  @spec mark_as_completed(listener_with_event_ref()) :: :ok
   def mark_as_completed({listener, event_shadow}) do
     {listeners, completers, skippers} = fetch(event_shadow)
     save_or_delete(event_shadow, {listeners, [listener | completers], skippers})
   end
 
   @doc false
-  @spec mark_as_skipped(tuple()) :: no_return()
+  @spec mark_as_skipped(listener_with_event_ref()) :: :ok
   def mark_as_skipped({listener, event_shadow}) do
     {listeners, completers, skippers} = fetch(event_shadow)
     save_or_delete(event_shadow, {listeners, completers, [listener | skippers]})
   end
 
   @doc false
-  @spec fetch(tuple()) :: any()
+  @spec fetch(event_shadow()) :: any()
   def fetch({topic, id}) do
     case Ets.lookup(table_name(topic), id) do
       [{_, data}] -> data
@@ -57,33 +65,37 @@ defmodule EventBus.Service.Observation do
   end
 
   @doc false
-  @spec save(tuple(), tuple()) :: no_return()
+  @spec save(event_shadow(), watcher()) :: :ok
   def save({topic, id}, watcher) do
     save_or_delete({topic, id}, watcher)
     :ok
   end
 
-  @spec complete?(tuple()) :: boolean()
+  @spec complete?(watcher()) :: boolean()
   defp complete?({listeners, completers, skippers}) do
     length(listeners) == length(completers) + length(skippers)
   end
 
-  @spec save_or_delete(tuple(), tuple()) :: no_return()
+  @spec save_or_delete(event_shadow(), watcher()) :: :ok
   defp save_or_delete({topic, id}, watcher) do
     if complete?(watcher) do
       delete_with_relations({topic, id})
     else
       Ets.insert(table_name(topic), {id, watcher})
     end
+
+    :ok
   end
 
-  @spec delete_with_relations(tuple()) :: no_return()
+  @spec delete_with_relations(event_shadow()) :: :ok
   defp delete_with_relations({topic, id}) do
     StoreManager.delete({topic, id})
     Ets.delete(table_name(topic), id)
+
+    :ok
   end
 
-  @spec table_name(atom()) :: atom()
+  @spec table_name(topic()) :: atom()
   defp table_name(topic) do
     String.to_atom("#{@prefix}#{topic}")
   end

@@ -11,6 +11,8 @@ defmodule EventBus.Manager.Notification do
   alias EventBus.Model.Event
   alias EventBus.Service.Notification, as: NotificationService
 
+  @typep event :: EventBus.event()
+
   @backend NotificationService
 
   @doc false
@@ -26,7 +28,7 @@ defmodule EventBus.Manager.Notification do
   @doc """
   Notify event to event.topic listeners in the current node
   """
-  @spec notify(Event.t()) :: no_return()
+  @spec notify(event()) :: :ok
   def notify(%Event{} = event) do
     GenServer.cast(__MODULE__, {:notify, event})
   end
@@ -36,7 +38,7 @@ defmodule EventBus.Manager.Notification do
   ###########################################################################
 
   @doc false
-  @spec handle_cast({:notify, Event.t()}, term()) :: no_return()
+  @spec handle_cast({:notify, event()}, term()) :: no_return()
   def handle_cast({:notify, event}, state) do
     @backend.notify(event)
     {:noreply, state}

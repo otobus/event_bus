@@ -7,13 +7,18 @@ defmodule EventBus.Service.Subscription do
   @app :event_bus
   @namespace :subscriptions
 
-  @spec subscribed?(tuple()) :: boolean()
+  @typep listener :: EventBus.listener()
+  @typep listener_list :: EventBus.listener_list()
+  @typep listener_with_topic_patterns :: EventBus.listener_with_topic_patterns()
+  @typep topic :: EventBus.topic()
+
+  @spec subscribed?(listener_with_topic_patterns()) :: boolean()
   def subscribed?(subscriber) do
     Enum.member?(subscribers(), subscriber)
   end
 
   @doc false
-  @spec subscribe(tuple()) :: no_return()
+  @spec subscribe(listener_with_topic_patterns()) :: :ok
   def subscribe({listener, topics}) do
     {listeners, topic_map} = load_state()
     listeners = add_or_update_listener(listeners, {listener, topics})
@@ -27,7 +32,7 @@ defmodule EventBus.Service.Subscription do
   end
 
   @doc false
-  @spec unsubscribe(tuple() | module()) :: no_return()
+  @spec unsubscribe(listener()) :: :ok
   def unsubscribe(listener) do
     {listeners, topic_map} = load_state()
     listeners = List.keydelete(listeners, listener, 0)
@@ -41,7 +46,7 @@ defmodule EventBus.Service.Subscription do
   end
 
   @doc false
-  @spec register_topic(String.t() | atom()) :: no_return()
+  @spec register_topic(topic()) :: :ok
   def register_topic(topic) do
     {listeners, topic_map} = load_state()
     topic_listeners = topic_listeners(listeners, topic)
@@ -50,20 +55,20 @@ defmodule EventBus.Service.Subscription do
   end
 
   @doc false
-  @spec unregister_topic(String.t() | atom()) :: no_return()
+  @spec unregister_topic(topic()) :: :ok
   def unregister_topic(topic) do
     {listeners, topic_map} = load_state()
     save_state({listeners, Map.drop(topic_map, [topic])})
   end
 
   @doc false
-  @spec subscribers() :: list()
+  @spec subscribers() :: listener_list()
   def subscribers do
     {listeners, _topic_map} = load_state()
     listeners
   end
 
-  @spec subscribers(atom()) :: list()
+  @spec subscribers(topic()) :: listener_list()
   def subscribers(topic) do
     {_listeners, topic_map} = load_state()
     topic_map[topic] || []

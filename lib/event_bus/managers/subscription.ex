@@ -9,6 +9,11 @@ defmodule EventBus.Manager.Subscription do
 
   alias EventBus.Service.Subscription, as: SubscriptionService
 
+  @typep listener :: EventBus.listener()
+  @typep listener_list :: EventBus.listener_list()
+  @typep listener_with_topic_patterns :: EventBus.listener_with_topic_patterns()
+  @typep topic :: EventBus.topic()
+
   @backend SubscriptionService
 
   @doc false
@@ -24,7 +29,7 @@ defmodule EventBus.Manager.Subscription do
   @doc """
   Does the listener subscribe to topic_patterns?
   """
-  @spec subscribed?({tuple() | module(), list()}) :: boolean()
+  @spec subscribed?(listener_with_topic_patterns()) :: boolean()
   def subscribed?({_listener, _topic_patterns} = subscriber) do
     GenServer.call(__MODULE__, {:subscribed?, subscriber})
   end
@@ -32,7 +37,7 @@ defmodule EventBus.Manager.Subscription do
   @doc """
   Subscribe the listener to topic_patterns
   """
-  @spec subscribe({tuple() | module(), list()}) :: no_return()
+  @spec subscribe(listener_with_topic_patterns()) :: :ok
   def subscribe({listener, topic_patterns}) do
     GenServer.cast(__MODULE__, {:subscribe, {listener, topic_patterns}})
   end
@@ -40,7 +45,7 @@ defmodule EventBus.Manager.Subscription do
   @doc """
   Unsubscribe the listener
   """
-  @spec unsubscribe(tuple() | module()) :: no_return()
+  @spec unsubscribe(listener()) :: :ok
   def unsubscribe(listener) do
     GenServer.cast(__MODULE__, {:unsubscribe, listener})
   end
@@ -48,7 +53,7 @@ defmodule EventBus.Manager.Subscription do
   @doc """
   Set listeners to the topic
   """
-  @spec register_topic(atom()) :: no_return()
+  @spec register_topic(topic()) :: :ok
   def register_topic(topic) do
     GenServer.cast(__MODULE__, {:register_topic, topic})
   end
@@ -56,7 +61,7 @@ defmodule EventBus.Manager.Subscription do
   @doc """
   Unset listeners from the topic
   """
-  @spec unregister_topic(atom()) :: no_return()
+  @spec unregister_topic(topic()) :: :ok
   def unregister_topic(topic) do
     GenServer.cast(__MODULE__, {:unregister_topic, topic})
   end
@@ -68,7 +73,7 @@ defmodule EventBus.Manager.Subscription do
   @doc """
   Fetch listeners
   """
-  @spec subscribers() :: list(any())
+  @spec subscribers() :: listener_list()
   defdelegate subscribers,
     to: @backend,
     as: :subscribers
@@ -76,7 +81,7 @@ defmodule EventBus.Manager.Subscription do
   @doc """
   Fetch listeners of the topic
   """
-  @spec subscribers(String.t() | atom()) :: list(any())
+  @spec subscribers(topic()) :: listener_list()
   defdelegate subscribers(topic),
     to: @backend,
     as: :subscribers
@@ -86,35 +91,36 @@ defmodule EventBus.Manager.Subscription do
   ###########################################################################
 
   @doc false
-  @spec handle_call({:subscribed?, tuple()}, any(), term())
+  @spec handle_call({:subscribed?, listener_with_topic_patterns()}, any(), term())
     :: {:reply, boolean(), term()}
   def handle_call({:subscribed?, subscriber}, _from, state) do
     {:reply, @backend.subscribed?(subscriber), state}
   end
 
   @doc false
-  @spec handle_cast({:subscribe, tuple()}, term()) :: no_return()
+  @spec handle_cast({:subscribe, listener_with_topic_patterns()}, term())
+    :: no_return()
   def handle_cast({:subscribe, {listener, topic_patterns}}, state) do
     @backend.subscribe({listener, topic_patterns})
     {:noreply, state}
   end
 
   @doc false
-  @spec handle_cast({:unsubscribe, tuple() | module()}, term()) :: no_return()
+  @spec handle_cast({:unsubscribe, listener()}, term()) :: no_return()
   def handle_cast({:unsubscribe, listener}, state) do
     @backend.unsubscribe(listener)
     {:noreply, state}
   end
 
   @doc false
-  @spec handle_cast({:register_topic, atom()}, term()) :: no_return()
+  @spec handle_cast({:register_topic, topic()}, term()) :: no_return()
   def handle_cast({:register_topic, topic}, state) do
     @backend.register_topic(topic)
     {:noreply, state}
   end
 
   @doc false
-  @spec handle_cast({:unregister_topic, atom()}, term()) :: no_return()
+  @spec handle_cast({:unregister_topic, topic()}, term()) :: no_return()
   def handle_cast({:unregister_topic, topic}, state) do
     @backend.unregister_topic(topic)
     {:noreply, state}

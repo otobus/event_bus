@@ -5,46 +5,55 @@ defmodule EventBus.Service.Topic do
   alias EventBus.Manager.Store, as: StoreManager
   alias EventBus.Manager.Subscription, as: SubscriptionManager
 
+  @typep topic :: EventBus.topic()
+  @typep topic_list :: EventBus.topic_list()
+
   @app :event_bus
   @namespace :topics
   @modules [StoreManager, SubscriptionManager, ObservationManager]
 
   @doc false
-  @spec all() :: list(atom())
+  @spec all() :: topic_list()
   def all do
     Application.get_env(:event_bus, :topics, [])
   end
 
   @doc false
-  @spec exist?(atom()) :: boolean()
+  @spec exist?(topic()) :: boolean()
   def exist?(topic) do
     Enum.member?(all(), topic)
   end
 
   @doc false
-  @spec register_from_config() :: no_return()
+  @spec register_from_config() :: :ok
   def register_from_config do
-    for topic <- all() do
+    Enum.each(all(), fn topic ->
       Enum.each(@modules, fn mod -> mod.register_topic(topic) end)
-    end
+    end)
+
+    :ok
   end
 
   @doc false
-  @spec register(atom()) :: no_return()
+  @spec register(topic()) :: :ok
   def register(topic) do
     unless exist?(topic) do
       Application.put_env(@app, @namespace, [topic | all()], persistent: true)
       Enum.each(@modules, fn mod -> mod.register_topic(topic) end)
     end
+
+    :ok
   end
 
   @doc false
-  @spec unregister(atom()) :: no_return()
+  @spec unregister(topic()) :: :ok
   def unregister(topic) do
     if exist?(topic) do
       Enum.each(@modules, fn mod -> mod.unregister_topic(topic) end)
       topics = List.delete(all(), topic)
       Application.put_env(@app, @namespace, topics, persistent: true)
     end
+
+    :ok
   end
 end
