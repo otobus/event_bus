@@ -12,6 +12,10 @@ defmodule EventBus.Manager.Store do
   alias EventBus.Model.Event
   alias EventBus.Service.Store, as: StoreService
 
+  @typep event :: EventBus.event()
+  @typep event_shadow :: EventBus.event_shadow()
+  @typep topic :: EventBus.topic()
+
   @backend StoreService
 
   @doc false
@@ -29,7 +33,7 @@ defmodule EventBus.Manager.Store do
   It's important to keep this in blocking manner to prevent double creations in
   sub modules
   """
-  @spec exist?(String.t() | atom()) :: boolean()
+  @spec exist?(topic()) :: boolean()
   def exist?(topic) do
     GenServer.call(__MODULE__, {:exist?, topic})
   end
@@ -37,7 +41,7 @@ defmodule EventBus.Manager.Store do
   @doc """
   Register a topic to the store
   """
-  @spec register_topic(String.t() | atom()) :: :ok
+  @spec register_topic(topic()) :: :ok
   def register_topic(topic) do
     GenServer.call(__MODULE__, {:register_topic, topic})
   end
@@ -45,7 +49,7 @@ defmodule EventBus.Manager.Store do
   @doc """
   Unregister the topic from the store
   """
-  @spec unregister_topic(String.t() | atom()) :: :ok
+  @spec unregister_topic(topic()) :: :ok
   def unregister_topic(topic) do
     GenServer.call(__MODULE__, {:unregister_topic, topic})
   end
@@ -53,7 +57,7 @@ defmodule EventBus.Manager.Store do
   @doc """
   Save an event to the store
   """
-  @spec create(Event.t()) :: :ok
+  @spec create(event()) :: :ok
   def create(%Event{} = event) do
     GenServer.call(__MODULE__, {:create, event})
   end
@@ -61,7 +65,7 @@ defmodule EventBus.Manager.Store do
   @doc """
   Delete an event from the store
   """
-  @spec delete({atom(), String.t() | integer()}) :: no_return()
+  @spec delete(event_shadow()) :: :ok
   def delete({topic, id}) do
     GenServer.cast(__MODULE__, {:delete, {topic, id}})
   end
@@ -73,7 +77,7 @@ defmodule EventBus.Manager.Store do
   @doc """
   Fetch an event from the store
   """
-  @spec fetch({atom(), String.t() | integer()}) :: Event.t() | nil
+  @spec fetch(event_shadow()) :: event() | nil
   defdelegate fetch(event_shadow),
     to: @backend,
     as: :fetch
@@ -81,7 +85,7 @@ defmodule EventBus.Manager.Store do
   @doc """
   Fetch an event's data from the store
   """
-  @spec fetch_data({atom(), String.t() | integer()}) :: any()
+  @spec fetch_data(event_shadow()) :: any()
   defdelegate fetch_data(event_shadow),
     to: @backend,
     as: :fetch_data
@@ -91,14 +95,14 @@ defmodule EventBus.Manager.Store do
   ###########################################################################
 
   @doc false
-  @spec handle_call({:register_topic, atom()}, any(), term())
+  @spec handle_call({:register_topic, topic()}, any(), term())
     :: {:reply, :ok, term()}
   def handle_call({:register_topic, topic}, _from, state) do
     @backend.register_topic(topic)
     {:reply, :ok, state}
   end
 
-  @spec handle_call({:unregister_topic, atom()}, any(), term())
+  @spec handle_call({:unregister_topic, topic()}, any(), term())
     :: {:reply, :ok, term()}
   def handle_call({:unregister_topic, topic}, _from, state) do
     @backend.unregister_topic(topic)
@@ -106,21 +110,20 @@ defmodule EventBus.Manager.Store do
   end
 
   @doc false
-  @spec handle_call({:exist?, atom()}, any(), term())
-    :: {:reply, boolean(), nil}
+  @spec handle_call({:exist?, topic()}, any(), term())
+    :: {:reply, boolean(), term()}
   def handle_call({:exist?, topic}, _from, state) do
     {:reply, @backend.exist?(topic), state}
   end
 
   @doc false
-  @spec handle_call({:create, Event.t()}, any(), term()) :: no_return()
+  @spec handle_call({:create, event()}, any(), term()) :: no_return()
   def handle_call({:create, event}, _from, state) do
     @backend.create(event)
     {:reply, :ok, state}
   end
 
-  @spec handle_cast({:delete, {atom(), String.t() | integer()}}, term())
-    :: no_return()
+  @spec handle_cast({:delete, event_shadow()}, term()) :: no_return()
   def handle_cast({:delete, {topic, id}}, state) do
     @backend.delete({topic, id})
     {:noreply, state}

@@ -9,6 +9,9 @@ defmodule EventBus.Manager.Topic do
 
   alias EventBus.Service.Topic, as: TopicService
 
+  @typep topic :: EventBus.topic()
+  @typep topic_list :: EventBus.topic_list()
+
   @backend TopicService
 
   @doc false
@@ -26,7 +29,7 @@ defmodule EventBus.Manager.Topic do
   It's important to keep this in blocking manner to prevent double creations in
   sub modules
   """
-  @spec exist?(atom()) :: boolean()
+  @spec exist?(topic()) :: boolean()
   def exist?(topic) do
     GenServer.call(__MODULE__, {:exist?, topic})
   end
@@ -34,7 +37,7 @@ defmodule EventBus.Manager.Topic do
   @doc """
   Register a topic
   """
-  @spec register(atom()) :: :ok
+  @spec register(topic()) :: :ok
   def register(topic) do
     GenServer.call(__MODULE__, {:register, topic})
   end
@@ -42,7 +45,7 @@ defmodule EventBus.Manager.Topic do
   @doc """
   Unregister a topic
   """
-  @spec unregister(atom()) :: :ok
+  @spec unregister(topic()) :: :ok
   def unregister(topic) do
     GenServer.call(__MODULE__, {:unregister, topic})
   end
@@ -54,7 +57,7 @@ defmodule EventBus.Manager.Topic do
   @doc """
   List all registered topics
   """
-  @spec all() :: list(atom())
+  @spec all() :: topic_list()
   defdelegate all,
     to: @backend,
     as: :all
@@ -62,7 +65,7 @@ defmodule EventBus.Manager.Topic do
   @doc """
   Register all topics from config
   """
-  @spec register_from_config() :: no_return()
+  @spec register_from_config() :: :ok
   defdelegate register_from_config,
     to: @backend,
     as: :register_from_config
@@ -72,21 +75,21 @@ defmodule EventBus.Manager.Topic do
   ###########################################################################
 
   @doc false
-  @spec handle_call({:exist?, atom()}, any(), term())
+  @spec handle_call({:exist?, topic()}, any(), term())
     :: {:reply, boolean(), term()}
   def handle_call({:exist?, topic}, _from, state) do
     {:reply, @backend.exist?(topic), state}
   end
 
   @doc false
-  @spec handle_call({:register, atom()}, any(), term()) :: {:reply, :ok, term()}
+  @spec handle_call({:register, topic()}, any(), term()) :: {:reply, :ok, term()}
   def handle_call({:register, topic}, _from, state) do
     @backend.register(topic)
     {:reply, :ok, state}
   end
 
   @doc false
-  @spec handle_call({:unregister, atom()}, any(), term())
+  @spec handle_call({:unregister, topic()}, any(), term())
     :: {:reply, :ok, term()}
   def handle_call({:unregister, topic}, _from, state) do
     @backend.unregister(topic)

@@ -227,6 +227,7 @@ defmodule EventBus do
       [MyEventListener, {OtherListener, %{}}]
 
   """
+  @spec subscribers(topic()) :: listener_list()
   defdelegate subscribers(topic),
     to: Subscription,
     as: :subscribers
@@ -240,7 +241,7 @@ defmodule EventBus do
       %EventBus.Model.Model{}
 
   """
-  @spec fetch_event(event_shadow()) :: event()
+  @spec fetch_event(event_shadow()) :: event() | nil
   defdelegate fetch_event(event_shadow),
     to: Store,
     as: :fetch
@@ -277,7 +278,7 @@ defmodule EventBus do
       :ok
 
   """
-  @spec mark_as_completed(listener_with_event_ref()) :: no_return()
+  @spec mark_as_completed(listener_with_event_ref()) :: :ok
   defdelegate mark_as_completed(listener_with_event_ref),
     to: Observation,
     as: :mark_as_completed
@@ -296,7 +297,7 @@ defmodule EventBus do
       :ok
 
   """
-  @spec mark_as_skipped(listener_with_event_ref()) :: no_return()
+  @spec mark_as_skipped(listener_with_event_ref()) :: :ok
   defdelegate mark_as_skipped(listener_with_event_ref),
     to: Observation,
     as: :mark_as_skipped
