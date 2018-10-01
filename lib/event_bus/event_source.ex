@@ -33,14 +33,7 @@ defmodule EventBus.EventSource do
       initialized_at = MonotonicTime.now()
       params = unquote(params)
 
-      {topic, data} =
-        case unquote(yield) do
-          {:error, error} ->
-            {params[:error_topic] || params[:topic], {:error, error}}
-
-          result ->
-            {params[:topic], result}
-        end
+      {topic, data} = unquote(yield) |> EventSource.handle_yield_result(params)
 
       id = Map.get(params, :id, @eb_id_gen.unique_id())
 
@@ -73,5 +66,16 @@ defmodule EventBus.EventSource do
       EventBus.notify(event)
       event.data
     end
+  end
+
+  # Handles the yield execution results
+  @doc false
+  def handle_yield_result({:error, error}, params) do
+    {params[:error_topic] || params[:topic], {:error, error}}
+  end
+
+  @doc false
+  def handle_yield_result(result, params) do
+    {params[:topic], result}
   end
 end
