@@ -15,6 +15,7 @@ defmodule EventBus.EventSourceTest do
     data = %{id: 1, name: "me", email: "me@example.com"}
     transaction_id = "t1"
     ttl = 100
+
     params = %{
       id: id,
       topic: topic,
@@ -24,10 +25,10 @@ defmodule EventBus.EventSourceTest do
     }
 
     event =
-      EventSource.build params do
+      EventSource.build(params, fn ->
         Process.sleep(1_000)
         data
-      end
+      end)
 
     assert event.data == data
     assert event.id == id
@@ -42,30 +43,33 @@ defmodule EventBus.EventSourceTest do
 
   test "build without passing source" do
     topic = :user_created
+
     event =
-      EventSource.build %{topic: topic} do
+      EventSource.build(%{topic: topic}, fn ->
         "some event data"
-      end
+      end)
 
     assert event.source == "EventBus.EventSourceTest"
   end
 
   test "build without passing ttl, sets the ttl from app configuration" do
     topic = :user_created
+
     event =
-      EventSource.build %{topic: topic} do
+      EventSource.build(%{topic: topic}, fn ->
         "some event data"
-      end
+      end)
 
     assert event.ttl == 30_000_000
   end
 
   test "build without passing id, sets the id with unique_id function" do
     topic = :user_created
+
     event =
-      EventSource.build %{topic: topic} do
+      EventSource.build(%{topic: topic}, fn ->
         "some event data"
-      end
+      end)
 
     refute is_nil(event.id)
   end
@@ -79,15 +83,18 @@ defmodule EventBus.EventSourceTest do
     ttl = 100
 
     event =
-      EventSource.build %{
-        id: id,
-        topic: topic,
-        transaction_id: transaction_id,
-        ttl: ttl,
-        error_topic: error_topic
-      } do
-        {:error, data}
-      end
+      EventSource.build(
+        %{
+          id: id,
+          topic: topic,
+          transaction_id: transaction_id,
+          ttl: ttl,
+          error_topic: error_topic
+        },
+        fn ->
+          {:error, data}
+        end
+      )
 
     assert event.data == {:error, data}
     assert event.id == id
@@ -105,9 +112,9 @@ defmodule EventBus.EventSourceTest do
     data = %{id: 1, name: "me", email: "me@example.com"}
 
     result =
-      EventSource.notify %{id: id, topic: topic} do
+      EventSource.notify(%{id: id, topic: topic}, fn ->
         data
-      end
+      end)
 
     assert result == data
   end
