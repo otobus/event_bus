@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [1.6.X]
 - Update type names and docs for consistent naming convention (Note: there is no logic or method name change)
+- Update the Travis script to prevent breaks on merges:
+- - Include dialyzer warnings
+- - Include coverage
+- - Include credo checks
 
 ## [1.5.X]
 - Fix Elixir `v1.7.x` warnings for string to atom conversions
