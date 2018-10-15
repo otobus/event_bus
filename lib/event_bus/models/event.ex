@@ -30,13 +30,13 @@ defmodule EventBus.Model.Event do
   """
   @type t :: %__MODULE__{
           id: String.t() | integer(),
-          transaction_id: String.t() | integer(),
+          transaction_id: String.t() | integer() | nil,
           topic: atom(),
           data: any(),
-          initialized_at: integer(),
-          occurred_at: integer(),
-          source: String.t(),
-          ttl: integer()
+          initialized_at: integer() | nil,
+          occurred_at: integer() | nil,
+          source: String.t() | nil,
+          ttl: integer() | nil
         }
 
   @doc """

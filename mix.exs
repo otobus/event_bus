@@ -46,7 +46,7 @@ defmodule EventBus.Mixfile do
   defp deps do
     [
       {:credo, "~> 0.10", only: [:dev, :test]},
-      {:dialyxir, "~> 1.0.0-rc.3", only: [:dev], runtime: false},
+      {:dialyxir, "~> 1.0.0-rc.3", only: [:dev, :test], runtime: false},
       {:excoveralls, "~> 0.10", only: [:test]},
       {:ex_doc, "~> 0.19", only: [:dev]}
     ]
