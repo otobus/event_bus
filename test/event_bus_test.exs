@@ -33,13 +33,13 @@ defmodule EventBusTest do
     EventBus.subscribe({{BadOne, %{}}, [".*"]})
     EventBus.subscribe({{Calculator, %{}}, ["metrics_received"]})
     EventBus.subscribe({{MemoryLeakerOne, %{}}, [".*"]})
-    # Wait until the listeners subscribe to the topics
+    # Wait until the subscribers subscribe to the topics
     Process.sleep(100)
 
     logs =
       capture_log(fn ->
         EventBus.notify(@event)
-        # Wait until the listeners process the event
+        # Wait until the subscribers process the event
         Process.sleep(300)
       end)
 

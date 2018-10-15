@@ -6,14 +6,14 @@ defmodule EventBus.Service.Topic do
   alias EventBus.Manager.Subscription, as: SubscriptionManager
 
   @typep topic :: EventBus.topic()
-  @typep topic_list :: EventBus.topic_list()
+  @typep topics :: EventBus.topics()
 
   @app :event_bus
   @namespace :topics
   @modules [StoreManager, SubscriptionManager, ObservationManager]
 
   @doc false
-  @spec all() :: topic_list()
+  @spec all() :: topics()
   def all do
     Application.get_env(:event_bus, :topics, [])
   end

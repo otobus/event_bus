@@ -23,48 +23,49 @@ defmodule EventBus do
   @typedoc "Tuple of topic name and event id"
   @type event_shadow :: {topic(), event_id()}
 
-  @typedoc "Event listener"
-  @type listener :: listener_without_config() | listener_with_config()
+  @typedoc "Event subscriber"
+  @type subscriber :: subscriber_without_config() | subscriber_with_config()
 
-  @typedoc "Listener configuration"
-  @type listener_config :: any()
+  @typedoc "Subscriber configuration"
+  @type subscriber_config :: any()
 
-  @typedoc "List of event listeners"
-  @type listener_list :: list(listener())
+  @typedoc "List of event subscribers"
+  @type subscribers :: list(subscriber())
 
-  @typedoc "Event listener with config"
-  @type listener_with_config :: {module(), listener_config()}
+  @typedoc "Event subscriber with config"
+  @type subscriber_with_config :: {module(), subscriber_config()}
 
-  @typedoc "Tuple of listener and event reference"
-  @type listener_with_event_ref ::
-          listener_with_event_shadow() | listener_with_topic_and_event_id()
+  @typedoc "Tuple of subscriber and event reference"
+  @type subscriber_with_event_ref ::
+          subscriber_with_event_shadow() | subscriber_with_topic_and_event_id()
 
-  @typedoc "Tuple of listener and event shadow"
-  @type listener_with_event_shadow :: {listener(), event_shadow()}
+  @typedoc "Tuple of subscriber and event shadow"
+  @type subscriber_with_event_shadow :: {subscriber(), event_shadow()}
 
-  @typedoc "Tuple of listener, topic and event id"
-  @type listener_with_topic_and_event_id :: {listener(), topic(), event_id()}
+  @typedoc "Tuple of subscriber, topic and event id"
+  @type subscriber_with_topic_and_event_id ::
+          {subscriber(), topic(), event_id()}
 
-  @typedoc "Tuple of listener and list of topic patterns"
-  @type listener_with_topic_patterns :: {listener(), topic_pattern_list()}
+  @typedoc "Tuple of subscriber and list of topic patterns"
+  @type subscriber_with_topic_patterns :: {subscriber(), topic_patterns()}
 
-  @typedoc "Event listener without config"
-  @type listener_without_config :: module()
+  @typedoc "Event subscriber without config"
+  @type subscriber_without_config :: module()
 
   @typedoc "Topic name"
   @type topic :: atom()
 
   @typedoc "List of topic names"
-  @type topic_list :: list(topic())
+  @type topics :: list(topic())
 
   @typedoc "Regex pattern to match topic name"
   @type topic_pattern :: String.t()
 
   @typedoc "List of topic patterns"
-  @type topic_pattern_list :: list(topic_pattern())
+  @type topic_patterns :: list(topic_pattern())
 
   @doc """
-  Send an event to all subscribers(listeners)
+  Send an event to all subscribers
 
   ## Examples
 
@@ -101,7 +102,7 @@ defmodule EventBus do
       EventBus.topics()
       [:metrics_summed]
   """
-  @spec topics() :: topic_list()
+  @spec topics() :: topics()
   defdelegate topics,
     to: Topic,
     as: :all
@@ -135,64 +136,64 @@ defmodule EventBus do
     as: :unregister
 
   @doc """
-  Subscribe a listener to the event bus
+  Subscribe a subscriber to the event bus
 
   ## Examples
 
-      EventBus.subscribe({MyEventListener, [".*"]})
+      EventBus.subscribe({MyEventSubscriber, [".*"]})
       :ok
 
-      # For configurable listeners you can pass tuple of listener and config
+      # For configurable subscribers you can pass tuple of subscriber and config
       my_config = %{}
-      EventBus.subscribe({{OtherListener, my_config}, [".*"]})
+      EventBus.subscribe({{OtherSubscriber, my_config}, [".*"]})
       :ok
 
   """
-  @spec subscribe(listener_with_topic_patterns()) :: :ok
-  defdelegate subscribe(listener_with_topic_patterns),
+  @spec subscribe(subscriber_with_topic_patterns()) :: :ok
+  defdelegate subscribe(subscriber_with_topic_patterns),
     to: Subscription,
     as: :subscribe
 
   @doc """
-  Unsubscribe a listener from the event bus
+  Unsubscribe a subscriber from the event bus
 
   ## Examples
 
-      EventBus.unsubscribe(MyEventListener)
+      EventBus.unsubscribe(MyEventSubscriber)
       :ok
 
-      # For configurable listeners you must pass tuple of listener and config
+      # For configurable subscribers you must pass tuple of subscriber and config
       my_config = %{}
-      EventBus.unsubscribe({OtherListener, my_config})
+      EventBus.unsubscribe({OtherSubscriber, my_config})
       :ok
 
   """
-  @spec unsubscribe(listener()) :: :ok
-  defdelegate unsubscribe(listener),
+  @spec unsubscribe(subscriber()) :: :ok
+  defdelegate unsubscribe(subscriber),
     to: Subscription,
     as: :unsubscribe
 
   @doc """
-  Check if the given listener subscribed to the event bus for the given topic
+  Check if the given subscriber subscribed to the event bus for the given topic
   patterns
 
   ## Examples
 
-      EventBus.subscribe({MyEventListener, [".*"]})
+      EventBus.subscribe({MyEventSubscriber, [".*"]})
       :ok
 
-      EventBus.subscribed?({MyEventListener, [".*"]})
+      EventBus.subscribed?({MyEventSubscriber, [".*"]})
       true
 
-      EventBus.subscribed?({MyEventListener, ["some_initialized"]})
+      EventBus.subscribed?({MyEventSubscriber, ["some_initialized"]})
       false
 
-      EventBus.subscribed?({AnothEventListener, [".*"]})
+      EventBus.subscribed?({AnothEventSubscriber, [".*"]})
       false
 
   """
-  @spec subscribed?(listener_with_topic_patterns()) :: boolean()
-  defdelegate subscribed?(listener_with_topic_patterns),
+  @spec subscribed?(subscriber_with_topic_patterns()) :: boolean()
+  defdelegate subscribed?(subscriber_with_topic_patterns),
     to: Subscription,
     as: :subscribed?
 
@@ -202,14 +203,14 @@ defmodule EventBus do
   ## Examples
 
       EventBus.subscribers()
-      [MyEventListener]
+      [MyEventSubscriber]
 
-      # One usual and one configured listener with its config
+      # One usual and one configured subscriber with its config
       EventBus.subscribers()
-      [MyEventListener, {OtherListener, %{}}]
+      [MyEventSubscriber, {OtherSubscriber, %{}}]
 
   """
-  @spec subscribers() :: listener_list()
+  @spec subscribers() :: subscribers()
   defdelegate subscribers,
     to: Subscription,
     as: :subscribers
@@ -220,14 +221,14 @@ defmodule EventBus do
   ## Examples
 
       EventBus.subscribers(:metrics_received)
-      [MyEventListener]
+      [MyEventSubscriber]
 
-      # One usual and one configured listener with its config
+      # One usual and one configured subscriber with its config
       EventBus.subscribers(:metrics_received)
-      [MyEventListener, {OtherListener, %{}}]
+      [MyEventSubscriber, {OtherSubscriber, %{}}]
 
   """
-  @spec subscribers(topic()) :: listener_list()
+  @spec subscribers(topic()) :: subscribers()
   defdelegate subscribers(topic),
     to: Subscription,
     as: :subscribers
@@ -260,45 +261,45 @@ defmodule EventBus do
     as: :fetch_data
 
   @doc """
-  Mark the event as completed for the listener
+  Mark the event as completed for the subscriber
 
   ## Examples
       topic        = :hello_received
       event_id     = "124"
       event_shadow = {topic, event_id}
 
-      # For regular listeners
-      EventBus.mark_as_completed({MyEventListener, event_shadow})
+      # For regular subscribers
+      EventBus.mark_as_completed({MyEventSubscriber, event_shadow})
 
-      # For configurable listeners you must pass tuple of listener and config
+      # For configurable subscribers you must pass tuple of subscriber and config
       my_config = %{}
-      listener  = {OtherListener, my_config}
+      subscriber  = {OtherSubscriber, my_config}
 
-      EventBus.mark_as_completed({listener, event_shadow})
+      EventBus.mark_as_completed({subscriber, event_shadow})
       :ok
 
   """
-  @spec mark_as_completed(listener_with_event_ref()) :: :ok
-  defdelegate mark_as_completed(listener_with_event_ref),
+  @spec mark_as_completed(subscriber_with_event_ref()) :: :ok
+  defdelegate mark_as_completed(subscriber_with_event_ref),
     to: Observation,
     as: :mark_as_completed
 
   @doc """
-  Mark the event as skipped for the listener
+  Mark the event as skipped for the subscriber
 
   ## Examples
 
-      EventBus.mark_as_skipped({MyEventListener, {:unmatched_occurred, "124"}})
+      EventBus.mark_as_skipped({MyEventSubscriber, {:unmatched_occurred, "124"}})
 
-      # For configurable listeners you must pass tuple of listener and config
+      # For configurable subscribers you must pass tuple of subscriber and config
       my_config = %{}
-      listener  = {OtherListener, my_config}
-      EventBus.mark_as_skipped({listener, {:unmatched_occurred, "124"}})
+      subscriber  = {OtherSubscriber, my_config}
+      EventBus.mark_as_skipped({subscriber, {:unmatched_occurred, "124"}})
       :ok
 
   """
-  @spec mark_as_skipped(listener_with_event_ref()) :: :ok
-  defdelegate mark_as_skipped(listener_with_event_ref),
+  @spec mark_as_skipped(subscriber_with_event_ref()) :: :ok
+  defdelegate mark_as_skipped(subscriber_with_event_ref),
     to: Observation,
     as: :mark_as_skipped
 end

@@ -3,7 +3,7 @@ defmodule EventBus.Manager.Notification do
 
   ###########################################################################
   # Notification is responsible for saving events, creating event watcher and
-  # delivering events to listeners.
+  # delivering events to subscribers.
   ###########################################################################
 
   use GenServer
@@ -26,7 +26,7 @@ defmodule EventBus.Manager.Notification do
   end
 
   @doc """
-  Notify event to event.topic listeners in the current node
+  Notify event to event.topic subscribers in the current node
   """
   @spec notify(event()) :: :ok
   def notify(%Event{} = event) do

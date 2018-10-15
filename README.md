@@ -20,7 +20,7 @@ Traceable, extendable and minimalist event bus implementation for Elixir with bu
 
 - [Register/unregister event topics on demand](#registerunregister-event-topics-on-demand)
 
-- [Subscribe to the 'event bus' with a listener and list of given topics](#subscribe-to-the-event-bus-with-a-listener-and-list-of-given-topics-notification-manager-will-match-with-regex)
+- [Subscribe to the 'event bus' with a subscriber and list of given topics](#subscribe-to-the-event-bus-with-a-subscriber-and-list-of-given-topics-notification-manager-will-match-with-regex)
 
 - [Unsubscribe from the 'event bus'](#unsubscribe-from-the-event-bus)
 
@@ -46,7 +46,7 @@ Traceable, extendable and minimalist event bus implementation for Elixir with bu
 
 - [Use block notifier to notify event data to given topic](#use-block-notifier-to-notify-event-data-to-given-topic)
 
-[Sample Listener Implementation](#sample-listener-implementation)
+[Sample Subscriber Implementation](#sample-subscriber-implementation)
 
 [Event Storage Details](#event-storage-details)
 
@@ -139,45 +139,45 @@ EventBus.unregister_topic(:webhook_received)
 > :ok
 ```
 
-##### Subscribe to the 'event bus' with a listener and list of given topics, `Notification Manager` will match with Regex
+##### Subscribe to the 'event bus' with a subscriber and list of given topics, `Notification Manager` will match with Regex
 
 ```elixir
 # to catch every event topic
-EventBus.subscribe({MyEventListener, [".*"]})
+EventBus.subscribe({MyEventSubscriber, [".*"]})
 > :ok
 
 # to catch specific topics
-EventBus.subscribe({MyEventListener, ["purchase_", "booking_confirmed$", "flight_passed$"]})
+EventBus.subscribe({MyEventSubscriber, ["purchase_", "booking_confirmed$", "flight_passed$"]})
 > :ok
 
-# if your listener has a config
+# if your subscriber has a config
 config = %{}
-listener = {MyEventListener, config}
-EventBus.subscribe({listener, [".*"]})
+subscriber = {MyEventSubscriber, config}
+EventBus.subscribe({subscriber, [".*"]})
 > :ok
 ```
 
 ##### Unsubscribe from the 'event bus'
 ```elixir
-EventBus.unsubscribe(MyEventListener)
+EventBus.unsubscribe(MyEventSubscriber)
 > :ok
 
-# if your listener has a config
+# if your subscriber has a config
 config = %{}
-EventBus.unsubscribe({MyEventListener, config})
+EventBus.unsubscribe({MyEventSubscriber, config})
 > :ok
 ```
 
 ##### List subscribers
 ```elixir
 EventBus.subscribers()
-> [{MyEventListener, [".*"]}, {{AnotherListener, %{}}, [".*"]}]
+> [{MyEventSubscriber, [".*"]}, {{AnotherSubscriber, %{}}, [".*"]}]
 ```
 
 ##### List subscribers of a specific event
 ```elixir
 EventBus.subscribers(:hello_received)
-> [MyEventListener, {{AnotherListener, %{}}}]
+> [MyEventSubscriber, {{AnotherSubscriber, %{}}}]
 ```
 
 ##### Event data structure
@@ -248,19 +248,19 @@ EventBus.fetch_event_data({topic, id})
 
 ##### Mark as completed on Event Observation Manager
 ```elixir
-listener = MyEventListener
-# If your listener has config then pass tuple
-listener = {MyEventListener, config}
-EventBus.mark_as_completed({listener, {:bye_received, id}})
+subscriber = MyEventSubscriber
+# If your subscriber has config then pass tuple
+subscriber = {MyEventSubscriber, config}
+EventBus.mark_as_completed({subscriber, {:bye_received, id}})
 > :ok
 ```
 
 ##### Mark as skipped on Event Observation Manager
 ```elixir
-listener = MyEventListener
-# If your listener has config then pass tuple
-listener = {MyEventListener, config}
-EventBus.mark_as_skipped({listener, {:bye_received, id}})
+subscriber = MyEventSubscriber
+# If your subscriber has config then pass tuple
+subscriber = {MyEventSubscriber, config}
+EventBus.mark_as_skipped({subscriber, {:bye_received, id}})
 > :ok
 ```
 
@@ -352,13 +352,13 @@ end
 > %{email: "mrsjd@example.com", name: "Mrs Jane Doe"}
 ```
 
-### Sample Listener Implementation
+### Sample Subscriber Implementation
 
 ```elixir
-defmodule MyEventListener do
+defmodule MyEventSubscriber do
   ...
 
-  # if your listener does not have a config
+  # if your subscriber does not have a config
   def process({topic, id} = event_shadow) do
     GenServer.cast(__MODULE__, event_shadow)
     :ok
@@ -366,7 +366,7 @@ defmodule MyEventListener do
 
   ...
 
-  # if your listener has a config
+  # if your subscriber has a config
   def process({config, topic, id} = event_shadow_with_conf) do
     GenServer.cast(__MODULE__, event_shadow_with_conf)
     :ok
@@ -375,7 +375,7 @@ defmodule MyEventListener do
   ...
 
 
-  # if your listener does not have a config
+  # if your subscriber does not have a config
   def handle_cast({:bye_received, id} = event_shadow, state) do
     event = EventBus.fetch_event(event_shadow)
     # do sth with event
@@ -413,14 +413,14 @@ defmodule MyEventListener do
 
   ...
 
-  # if your listener has a config
+  # if your subscriber has a config
   def handle_cast({config, :bye_received, id}, state) do
     event = EventBus.fetch_event({:bye_received, id})
     # do sth with event
 
     # update the watcher!
-    listener = {__MODULE__, config}
-    EventBus.mark_as_completed({listener, :bye_received, id})
+    subscriber = {__MODULE__, config}
+    EventBus.mark_as_completed({subscriber, :bye_received, id})
     ...
     {:noreply, state}
   end
@@ -430,15 +430,15 @@ defmodule MyEventListener do
     # do sth with EventBus.Model.Event
 
     # update the watcher!
-    listener = {__MODULE__, config}
-    EventBus.mark_as_completed({listener, :hello_received, id})
+    subscriber = {__MODULE__, config}
+    EventBus.mark_as_completed({subscriber, :hello_received, id})
     ...
     {:noreply, state}
   end
 
   def handle_cast({config, topic, id}, state) do
-    listener = {__MODULE__, config}
-    EventBus.mark_as_skipped({listener, topic, id})
+    subscriber = {__MODULE__, config}
+    EventBus.mark_as_skipped({subscriber, topic, id})
     {:noreply, state}
   end
 
@@ -452,7 +452,7 @@ When an event configured in `config` file, 2 ETS tables will be created for the 
 
 All event data is temporarily saved to the ETS tables with the name `:eb_es_<<topic>>` until all subscribers processed the data. This table is a read heavy table. When a subscriber needs to process the event data, it queries this table to fetch event data.
 
-To watch event status, a separate watcher table is created for each event type with the name `:eb_ew_<<topic>>`. This table is used for keeping the status of the event. `Observation Manager` updates this table frequently with the notification of the event listeners/subscribers.
+To watch event status, a separate watcher table is created for each event type with the name `:eb_ew_<<topic>>`. This table is used for keeping the status of the event. `Observation Manager` updates this table frequently with the notification of the event subscribers.
 
 When all subscribers process the event data, data in the event store and watcher, automatically deleted by the `Observation Manager`. If you need to see the status of unprocessed events, event watcher table is one of the good places to query.
 
@@ -523,7 +523,7 @@ A few sample addons listed below. Please do not hesitate to add your own addon t
 | Addon Name           | Description   | Link          | Docs          |
 | -------------------- | ------------- | ------------- | ------------- |
 | `event_bus_postgres` | Fast event consumer to persist `event_bus` events to Postgres using GenStage          | [Github](https://github.com/otobus/event_bus_postgres) | [HexDocs](https://hexdocs.pm/event_bus_postgres) |
-| `event_bus_logger`   | Deadly simple log listener implementation                                             | [Github](https://github.com/otobus/event_bus_logger)   | [HexDocs](https://hexdocs.pm/event_bus_logger)   |
+| `event_bus_logger`   | Deadly simple log subscriber implementation                                             | [Github](https://github.com/otobus/event_bus_logger)   | [HexDocs](https://hexdocs.pm/event_bus_logger)   |
 | `event_bus_metrics`  | Metrics UI and metrics API endpoints for EventBus events for debugging and monitoring | [Hex](https://hex.pm/packages/event_bus_metrics)       | [HexDocs](https://hexdocs.pm/event_bus_metrics)  |
 
 Note: The addons under [https://github.com/otobus](https://github.com/otobus) organization implemented as a sample, but feel free to use them in your project with respecting their licenses.

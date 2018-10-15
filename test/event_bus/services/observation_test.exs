@@ -50,7 +50,7 @@ defmodule EventBus.Service.ObservationTest do
     topic = :some_event_occurred1
     id = "E1"
 
-    listeners = [
+    subscribers = [
       {InputLogger, %{}},
       {Calculator, %{}},
       {MemoryLeakerOne, %{}},
@@ -58,16 +58,16 @@ defmodule EventBus.Service.ObservationTest do
     ]
 
     Observation.register_topic(topic)
-    Observation.save({topic, id}, {listeners, [], []})
+    Observation.save({topic, id}, {subscribers, [], []})
 
-    assert {listeners, [], []} == Observation.fetch({topic, id})
+    assert {subscribers, [], []} == Observation.fetch({topic, id})
   end
 
   test "complete" do
     topic = :some_event_occurred2
     id = "E1"
 
-    listeners = [
+    subscribers = [
       {InputLogger, %{}},
       {Calculator, %{}},
       {MemoryLeakerOne, %{}},
@@ -75,17 +75,17 @@ defmodule EventBus.Service.ObservationTest do
     ]
 
     Observation.register_topic(topic)
-    Observation.save({topic, id}, {listeners, [], []})
+    Observation.save({topic, id}, {subscribers, [], []})
     Observation.mark_as_completed({{InputLogger, %{}}, {topic, id}})
 
-    assert {listeners, [{InputLogger, %{}}], []} == Observation.fetch({topic, id})
+    assert {subscribers, [{InputLogger, %{}}], []} == Observation.fetch({topic, id})
   end
 
   test "skip" do
     id = "E1"
     topic = :some_event_occurred3
 
-    listeners = [
+    subscribers = [
       {InputLogger, %{}},
       {Calculator, %{}},
       {MemoryLeakerOne, %{}},
@@ -93,9 +93,9 @@ defmodule EventBus.Service.ObservationTest do
     ]
 
     Observation.register_topic(topic)
-    Observation.save({topic, id}, {listeners, [], []})
+    Observation.save({topic, id}, {subscribers, [], []})
     Observation.mark_as_skipped({{InputLogger, %{}}, {topic, id}})
 
-    assert {listeners, [], [{InputLogger, %{}}]} == Observation.fetch({topic, id})
+    assert {subscribers, [], [{InputLogger, %{}}]} == Observation.fetch({topic, id})
   end
 end

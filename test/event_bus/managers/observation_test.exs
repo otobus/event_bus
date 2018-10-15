@@ -37,7 +37,7 @@ defmodule EventBus.Manager.ObservationTest do
     topic = :some_event_occurred1
     id = "E1"
 
-    listeners = [
+    subscribers = [
       {InputLogger, %{}},
       {Calculator, %{}},
       {MemoryLeakerOne, %{}},
@@ -46,14 +46,14 @@ defmodule EventBus.Manager.ObservationTest do
 
     Observation.register_topic(topic)
 
-    assert :ok == Observation.create({listeners, {topic, id}})
+    assert :ok == Observation.create({subscribers, {topic, id}})
   end
 
   test "complete" do
     topic = :some_event_occurred2
     id = "E1"
 
-    listeners = [
+    subscribers = [
       {InputLogger, %{}},
       {Calculator, %{}},
       {MemoryLeakerOne, %{}},
@@ -61,23 +61,23 @@ defmodule EventBus.Manager.ObservationTest do
     ]
 
     Observation.register_topic(topic)
-    Observation.create({listeners, {topic, id}})
+    Observation.create({subscribers, {topic, id}})
 
-    listener = {InputLogger, %{}}
-    another_listener = {Calculator, %{}}
+    subscriber = {InputLogger, %{}}
+    another_subscriber = {Calculator, %{}}
 
     # With an event_shadow tuple
-    assert :ok === Observation.mark_as_completed({listener, {topic, id}})
+    assert :ok === Observation.mark_as_completed({subscriber, {topic, id}})
 
     # With an open tuple
-    assert :ok === Observation.mark_as_completed({another_listener, topic, id})
+    assert :ok === Observation.mark_as_completed({another_subscriber, topic, id})
   end
 
   test "skip" do
     topic = :some_event_occurred3
     id = "E1"
 
-    listeners = [
+    subscribers = [
       {InputLogger, %{}},
       {Calculator, %{}},
       {MemoryLeakerOne, %{}},
@@ -85,15 +85,15 @@ defmodule EventBus.Manager.ObservationTest do
     ]
 
     Observation.register_topic(topic)
-    Observation.create({listeners, {topic, id}})
+    Observation.create({subscribers, {topic, id}})
 
-    listener = {InputLogger, %{}}
-    another_listener = {Calculator, %{}}
+    subscriber = {InputLogger, %{}}
+    another_subscriber = {Calculator, %{}}
 
     # With an event_shadow tuple
-    assert :ok == Observation.mark_as_skipped({listener, {topic, id}})
+    assert :ok == Observation.mark_as_skipped({subscriber, {topic, id}})
 
     # With an open tuple
-    assert :ok == Observation.mark_as_skipped({another_listener, topic, id})
+    assert :ok == Observation.mark_as_skipped({another_subscriber, topic, id})
   end
 end
