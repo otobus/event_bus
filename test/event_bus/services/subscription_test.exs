@@ -54,7 +54,7 @@ defmodule EventBus.Service.SubscriptionTest do
            ] == Subscription.subscribers()
   end
 
-  test "does not subscribe same listener" do
+  test "does not subscribe same subscriber" do
     Subscription.subscribe({{InputLogger, %{}}, [".*"]})
     Subscription.subscribe({{InputLogger, %{}}, [".*"]})
     Subscription.subscribe({{InputLogger, %{}}, [".*"]})

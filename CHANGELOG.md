@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.6.X]
+- Update type names and docs for consistent naming convention (Note: there is no logic or method name change)
+
 ## [1.5.X]
 - Fix Elixir `v1.7.x` warnings for string to atom conversions
 - Remove deprecated `EventBus.Util.String` module
@@ -31,7 +34,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Delegate optional variables to optional library configuration when building/notifying events with Event builder
 - Add random id generator for Event builder
 - Introduce `fetch_event_data` function to fetch only event data
-- Log empty topic listeners
+- Log empty topic subscribers
 - Add missing tests for existence check
 - Update time spent calculation for EventSource block
 - Remove support for system event tracing (Updated the wiki to create wrapper for system event tracing)
@@ -71,7 +74,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 
 - Add `source` attribute to increase traceability
-- Add optional configuration to Subscriber to use the same module/function with different configurations to process the event. The aim of this change is increasing re-useability of the listener with several configurations. For example, this will allow writing an HTTP consumer or an AWS lambda caller function with different configurations.
+- Add optional configuration to Subscriber to use the same module/function with different configurations to process the event. The aim of this change is increasing re-useability of the subscriber with several configurations. For example, this will allow writing an HTTP consumer or an AWS lambda caller function with different configurations.
 
 ### TODO
 

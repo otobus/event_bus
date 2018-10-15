@@ -10,7 +10,7 @@ defmodule EventBus.Manager.Topic do
   alias EventBus.Service.Topic, as: TopicService
 
   @typep topic :: EventBus.topic()
-  @typep topic_list :: EventBus.topic_list()
+  @typep topics :: EventBus.topics()
 
   @backend TopicService
 
@@ -57,7 +57,7 @@ defmodule EventBus.Manager.Topic do
   @doc """
   List all registered topics
   """
-  @spec all() :: topic_list()
+  @spec all() :: topics()
   defdelegate all,
     to: @backend,
     as: :all

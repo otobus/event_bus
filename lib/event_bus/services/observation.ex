@@ -5,10 +5,10 @@ defmodule EventBus.Service.Observation do
   alias :ets, as: Ets
 
   @typep event_shadow :: EventBus.event_shadow()
-  @typep listener_list :: EventBus.listener_list()
-  @typep listener_with_event_ref :: EventBus.listener_with_event_ref()
+  @typep subscribers :: EventBus.subscribers()
+  @typep subscriber_with_event_ref :: EventBus.subscriber_with_event_ref()
   @typep topic :: EventBus.topic()
-  @typep watcher :: {listener_list(), listener_list(), listener_list()}
+  @typep watcher :: {subscribers(), subscribers(), subscribers()}
 
   @ets_opts [
     :set,
@@ -42,17 +42,17 @@ defmodule EventBus.Service.Observation do
   end
 
   @doc false
-  @spec mark_as_completed(listener_with_event_ref()) :: :ok
-  def mark_as_completed({listener, event_shadow}) do
-    {listeners, completers, skippers} = fetch(event_shadow)
-    save_or_delete(event_shadow, {listeners, [listener | completers], skippers})
+  @spec mark_as_completed(subscriber_with_event_ref()) :: :ok
+  def mark_as_completed({subscriber, event_shadow}) do
+    {subscribers, completers, skippers} = fetch(event_shadow)
+    save_or_delete(event_shadow, {subscribers, [subscriber | completers], skippers})
   end
 
   @doc false
-  @spec mark_as_skipped(listener_with_event_ref()) :: :ok
-  def mark_as_skipped({listener, event_shadow}) do
-    {listeners, completers, skippers} = fetch(event_shadow)
-    save_or_delete(event_shadow, {listeners, completers, [listener | skippers]})
+  @spec mark_as_skipped(subscriber_with_event_ref()) :: :ok
+  def mark_as_skipped({subscriber, event_shadow}) do
+    {subscribers, completers, skippers} = fetch(event_shadow)
+    save_or_delete(event_shadow, {subscribers, completers, [subscriber | skippers]})
   end
 
   @doc false
@@ -72,8 +72,8 @@ defmodule EventBus.Service.Observation do
   end
 
   @spec complete?(watcher()) :: boolean()
-  defp complete?({listeners, completers, skippers}) do
-    length(listeners) == length(completers) + length(skippers)
+  defp complete?({subscribers, completers, skippers}) do
+    length(subscribers) == length(completers) + length(skippers)
   end
 
   @spec save_or_delete(event_shadow(), watcher()) :: :ok

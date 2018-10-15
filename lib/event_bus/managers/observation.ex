@@ -4,7 +4,7 @@ defmodule EventBus.Manager.Observation do
   ###########################################################################
   # Event Observation module is a helper to get info for the events and also an
   # organizer for the events happened in time. It automatically deletes
-  # processed events from the ETS table. Event listeners are responsible for
+  # processed events from the ETS table. Event subscribers are responsible for
   # notifying the Event Observation on completions and skips.
   ###########################################################################
 
@@ -13,11 +13,11 @@ defmodule EventBus.Manager.Observation do
   alias EventBus.Service.Observation, as: ObservationService
 
   @typep event_shadow :: EventBus.event_shadow()
-  @typep listener_list :: EventBus.listener_list()
-  @typep listener_list_with_event_shadow :: {listener_list(), event_shadow()}
-  @typep listener_with_event_ref :: EventBus.listener_with_event_ref()
+  @typep subscribers :: EventBus.subscribers()
+  @typep subscribers_with_event_shadow :: {subscribers(), event_shadow()}
+  @typep subscriber_with_event_ref :: EventBus.subscriber_with_event_ref()
   @typep topic :: EventBus.topic()
-  @typep watcher :: {listener_list(), listener_list(), listener_list()}
+  @typep watcher :: {subscribers(), subscribers(), subscribers()}
 
   @backend ObservationService
 
@@ -60,33 +60,33 @@ defmodule EventBus.Manager.Observation do
   @doc """
   Mark event as completed on the watcher
   """
-  @spec mark_as_completed(listener_with_event_ref()) :: :ok
-  def mark_as_completed({listener, topic, id}) do
-    GenServer.cast(__MODULE__, {:mark_as_completed, {listener, {topic, id}}})
+  @spec mark_as_completed(subscriber_with_event_ref()) :: :ok
+  def mark_as_completed({subscriber, topic, id}) do
+    GenServer.cast(__MODULE__, {:mark_as_completed, {subscriber, {topic, id}}})
   end
 
-  def mark_as_completed({listener, {topic, id}}) do
-    GenServer.cast(__MODULE__, {:mark_as_completed, {listener, {topic, id}}})
+  def mark_as_completed({subscriber, {topic, id}}) do
+    GenServer.cast(__MODULE__, {:mark_as_completed, {subscriber, {topic, id}}})
   end
 
   @doc """
   Mark event as skipped on the watcher
   """
-  @spec mark_as_skipped(listener_with_event_ref()) :: :ok
-  def mark_as_skipped({listener, topic, id}) do
-    GenServer.cast(__MODULE__, {:mark_as_skipped, {listener, {topic, id}}})
+  @spec mark_as_skipped(subscriber_with_event_ref()) :: :ok
+  def mark_as_skipped({subscriber, topic, id}) do
+    GenServer.cast(__MODULE__, {:mark_as_skipped, {subscriber, {topic, id}}})
   end
 
-  def mark_as_skipped({listener, {topic, id}}) do
-    GenServer.cast(__MODULE__, {:mark_as_skipped, {listener, {topic, id}}})
+  def mark_as_skipped({subscriber, {topic, id}}) do
+    GenServer.cast(__MODULE__, {:mark_as_skipped, {subscriber, {topic, id}}})
   end
 
   @doc """
   Create an watcher
   """
-  @spec create(listener_list_with_event_shadow()) :: :ok
-  def create({listeners, {topic, id}}) do
-    GenServer.call(__MODULE__, {:save, {topic, id}, {listeners, [], []}})
+  @spec create(subscribers_with_event_shadow()) :: :ok
+  def create({subscribers, {topic, id}}) do
+    GenServer.call(__MODULE__, {:save, {topic, id}, {subscribers, [], []}})
   end
 
   ###########################################################################
@@ -136,18 +136,18 @@ defmodule EventBus.Manager.Observation do
   end
 
   @doc false
-  @spec handle_cast({:mark_as_completed, listener_with_event_ref()}, term())
+  @spec handle_cast({:mark_as_completed, subscriber_with_event_ref()}, term())
     :: no_return()
-  def handle_cast({:mark_as_completed, {listener, {topic, id}}}, state) do
-    @backend.mark_as_completed({listener, {topic, id}})
+  def handle_cast({:mark_as_completed, {subscriber, {topic, id}}}, state) do
+    @backend.mark_as_completed({subscriber, {topic, id}})
     {:noreply, state}
   end
 
   @doc false
-  @spec handle_cast({:mark_as_skipped, listener_with_event_ref()}, term())
+  @spec handle_cast({:mark_as_skipped, subscriber_with_event_ref()}, term())
     :: no_return()
-  def handle_cast({:mark_as_skipped, {listener, {topic, id}}}, state) do
-    @backend.mark_as_skipped({listener, {topic, id}})
+  def handle_cast({:mark_as_skipped, {subscriber, {topic, id}}}, state) do
+    @backend.mark_as_skipped({subscriber, {topic, id}})
     {:noreply, state}
   end
 end

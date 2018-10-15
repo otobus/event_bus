@@ -51,7 +51,7 @@ defmodule EventBus.Service.NotificationTest do
     EventBus.subscribe({{Calculator, %{}}, ["metrics_received$"]})
     EventBus.subscribe({{MemoryLeakerOne, %{}}, [".*"]})
 
-    # This listener deos not have a config!!!
+    # This subscriber deos not have a config!!!
     EventBus.subscribe({AnotherCalculator, ["metrics_received$"]})
 
     # Sleep until subscriptions complete

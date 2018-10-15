@@ -10,50 +10,50 @@ defmodule EventBus.Service.Notification do
 
   @typep event :: EventBus.event()
   @typep event_shadow :: EventBus.event_shadow()
-  @typep listener :: EventBus.listener()
-  @typep listener_list :: EventBus.listener_list()
+  @typep subscriber :: EventBus.subscriber()
+  @typep subscribers :: EventBus.subscribers()
   @typep topic :: EventBus.topic()
 
   @doc false
   @spec notify(event()) :: :ok
   def notify(%Event{id: id, topic: topic} = event) do
-    listeners = SubscriptionManager.subscribers(topic)
+    subscribers = SubscriptionManager.subscribers(topic)
 
-    if listeners == [] do
+    if subscribers == [] do
       warn_missing_topic_subscription(topic)
     else
       :ok = StoreManager.create(event)
-      :ok = ObservationManager.create({listeners, {topic, id}})
+      :ok = ObservationManager.create({subscribers, {topic, id}})
 
-      notify_listeners(listeners, {topic, id})
+      notify_subscribers(subscribers, {topic, id})
     end
 
     :ok
   end
 
-  @spec notify_listeners(listener_list(), event_shadow()) :: :ok
-  defp notify_listeners(listeners, event_shadow) do
-    Enum.each(listeners, fn listener ->
-      notify_listener(listener, event_shadow)
+  @spec notify_subscribers(subscribers(), event_shadow()) :: :ok
+  defp notify_subscribers(subscribers, event_shadow) do
+    Enum.each(subscribers, fn subscriber ->
+      notify_subscriber(subscriber, event_shadow)
     end)
     :ok
   end
 
-  @spec notify_listener(listener(), event_shadow()) :: no_return()
-  defp notify_listener({listener, config}, {topic, id}) do
-    listener.process({config, topic, id})
+  @spec notify_subscriber(subscriber(), event_shadow()) :: no_return()
+  defp notify_subscriber({subscriber, config}, {topic, id}) do
+    subscriber.process({config, topic, id})
   rescue
     error ->
-      log_error(listener, error)
-      ObservationManager.mark_as_skipped({{listener, config}, {topic, id}})
+      log_error(subscriber, error)
+      ObservationManager.mark_as_skipped({{subscriber, config}, {topic, id}})
   end
 
-  defp notify_listener(listener, {topic, id}) do
-    listener.process({topic, id})
+  defp notify_subscriber(subscriber, {topic, id}) do
+    subscriber.process({topic, id})
   rescue
     error ->
-      log_error(listener, error)
-      ObservationManager.mark_as_skipped({listener, {topic, id}})
+      log_error(subscriber, error)
+      ObservationManager.mark_as_skipped({subscriber, {topic, id}})
   end
 
   @spec registration_status(topic()) :: String.t()
@@ -70,8 +70,8 @@ defmodule EventBus.Service.Notification do
   end
 
   @spec log_error(module(), any()) :: no_return()
-  defp log_error(listener, error) do
-    msg = "#{listener}.process/1 raised an error!\n#{inspect(error)}"
+  defp log_error(subscriber, error) do
+    msg = "#{subscriber}.process/1 raised an error!\n#{inspect(error)}"
     Logger.info(msg)
   end
 end
