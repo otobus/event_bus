@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - - Include credo checks
 - Update `EventBus.Model.Event` struct optional attribute type specs to allow `nil` values
 
-## [1.5.X]
+## [1.5.X] 2018.09.27
 - Fix Elixir `v1.7.x` warnings for string to atom conversions
 - Remove deprecated `EventBus.Util.String` module
 - Move the time calculation logic into the new `MonotonicTime` utility module
