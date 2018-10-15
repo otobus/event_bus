@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - - Include dialyzer warnings
 - - Include coverage
 - - Include credo checks
+- Update `EventBus.Model.Event` struct optional attribute type specs to allow `nil` values
 
 ## [1.5.X]
 - Fix Elixir `v1.7.x` warnings for string to atom conversions
