@@ -68,7 +68,6 @@ defmodule EventBus.Service.Observation do
   @spec save(event_shadow(), watcher()) :: :ok
   def save({topic, id}, watcher) do
     save_or_delete({topic, id}, watcher)
-    :ok
   end
 
   @spec complete?(watcher()) :: boolean()
