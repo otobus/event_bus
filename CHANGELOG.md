@@ -5,6 +5,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [1.6.X]
+
 - Update type names and docs for consistent naming convention (Note: there is no logic or method name change)
 - Update the Travis script to prevent breaks on merges:
 - - Include dialyzer warnings
@@ -13,6 +14,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Update `EventBus.Model.Event` struct optional attribute type specs to allow `nil` values
 
 ## [1.5.X] 2018.09.27
+
 - Fix Elixir `v1.7.x` warnings for string to atom conversions
 - Remove deprecated `EventBus.Util.String` module
 - Move the time calculation logic into the new `MonotonicTime` utility module
@@ -42,19 +44,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Log empty topic subscribers
 - Add missing tests for existence check
 - Update time spent calculation for EventSource block
-- Remove support for system event tracing (Updated the wiki to create wrapper for system event tracing)
+- Remove support for system event tracing (Update the wiki to create wrapper for system event tracing)
 - Dialyzer enhancements
 - Test and documentation enhancements
 
 ## [1.2.X] - 2018.02.24
 
-- Removed support for system event tracing for `notify` action (unnecessary)
-- Moved internal modules under managers namespace for better documentation
+- Remove support for system event tracing for `notify` action (unnecessary)
+- Move internal modules under managers namespace for better documentation
 - Add `subscribed?` function to check subscriptions
 
 ## [1.1.X] - 2018.02.21
-
-### Added
 
 - Optional system events which notify the `eb_action_called` topic for the actions: `notify`, `register_topic`, `unregister_topic`, `subscribe`, `unsubscribe`, `mark_as_completed`, `mark_as_skipped`
 - Add public exist? function to Topic, Watcher, and Store
@@ -62,8 +62,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Register/Unregister topic in a blocking manner
 
 ## [1.0.0] - 2018.01.23
-
-### Added
 
 - Move build and notify blocks into EventSource
 - Add use keyword for Source for developer friendly require and aliases
@@ -76,16 +74,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [0.9.0] - 2018.01.06
 
-### Added
-
 - Add `source` attribute to increase traceability
 - Add optional configuration to Subscriber to use the same module/function with different configurations to process the event. The aim of this change is increasing re-useability of the subscriber with several configurations. For example, this will allow writing an HTTP consumer or an AWS lambda caller function with different configurations.
 
-### TODO
-
 ## [0.8.0] - 2018.01.06
-
-### Added
 
 - Register/unregister topics on-demand (`EventBus.register_topic/1` and `EventBus.unregister/1`)
 - Add block/yield builder for Event with auto `initialized_at` and `occurred_at` attribute assignments
@@ -93,7 +85,5 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Add changelog file
 
 ## [0.7.0] - 2018.01.06
-
-### Added
 
 - Add `initialized_at` attribute
