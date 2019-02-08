@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - - Include coverage
 - - Include credo checks
 - Update `EventBus.Model.Event` struct optional attribute type specs to allow `nil` values
+- Update license year
 
 ## [1.5.X] 2018.09.27
 
