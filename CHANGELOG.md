@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - - Include credo checks
 - Update `EventBus.Model.Event` struct optional attribute type specs to allow `nil` values
 - Update license year
+- Change `EventBus.Service.Store.fetch` to return a safe value when ETS data is missing and log it
 
 ## [1.5.X] 2018.09.27
 

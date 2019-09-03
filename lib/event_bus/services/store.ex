@@ -1,6 +1,8 @@
 defmodule EventBus.Service.Store do
   @moduledoc false
 
+  require Logger
+
   alias EventBus.Model.Event
   alias :ets, as: Ets
 
@@ -38,7 +40,12 @@ defmodule EventBus.Service.Store do
   def fetch({topic, id}) do
     case Ets.lookup(table_name(topic), id) do
       [{_, %Event{} = event}] -> event
-      _ -> nil
+      _ ->
+        Logger.log(:info, fn ->
+          "[EVENTBUS][STORE]\s#{topic}.#{id}.ets_fetch_error"
+        end)
+
+        nil
     end
   end
 
