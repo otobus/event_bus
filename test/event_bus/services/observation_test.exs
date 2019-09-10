@@ -63,6 +63,15 @@ defmodule EventBus.Service.ObservationTest do
     assert {subscribers, [], []} == Observation.fetch({topic, id})
   end
 
+  test "fetch a non-existent id" do
+    topic = :some_event_occurred1
+    id = "NA"
+
+    Observation.register_topic(topic)
+
+    assert nil == Observation.fetch({topic, id})
+  end
+
   test "complete" do
     topic = :some_event_occurred2
     id = "E1"
