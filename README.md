@@ -85,7 +85,7 @@ Traceable, extendable and minimalist event bus implementation for Elixir with bu
 
 - Extendable with addons.
 
-- Tracable with optional attributes. Optional attributes compatiable with opentracing platform.
+- Traceable with optional attributes. Optional attributes compatible with opentracing platform.
 
 - Minimal with required attributes(Incase, you want it work minimal use 3 required attributes to deliver your events).
 
@@ -127,7 +127,7 @@ end
 ##### Register event topics in `config.exs`
 
 ```elixir
-config :event_bus, topics: [:message_received, :another_event_occured]
+config :event_bus, topics: [:message_received, :another_event_occurred]
 ```
 
 ##### Register/unregister event topics on demand
@@ -469,7 +469,7 @@ For example; to get the list unprocessed events for `:hello_received` event:
 > [{id, {subscribers, completers, skippers}}, ...]
 ```
 
-ETS storage SHOULD NOT be considered as a persistent storage. If you need to store events to a persistant data store, then subscribe to all event types by a module with `[".*"]` event topic then save every event data.
+ETS storage SHOULD NOT be considered as a persistent storage. If you need to store events to a persistent data store, then subscribe to all event types by a module with `[".*"]` event topic then save every event data.
 
 For example;
 
@@ -489,7 +489,7 @@ defmodule MyDataStore do
 
   def handle_cast({topic, id}, state) do
     event = EventBus.fetch_event({topic, id})
-    # write your logic to save event_data to a persistant store
+    # write your logic to save event_data to a persistent store
 
     EventBus.mark_as_completed({__MODULE__, {topic, id}})
     {:noreply, state}
@@ -499,7 +499,7 @@ end
 
 ## Traceability
 
-EventBus comes with a good enough data structure to track the event life cycle with its optional parameters. For a traceable system, it is highly recommend to fill optional fields on event data. It is also encouraged to use `EventSource.nofify` block/yield to automatically set the `initialized_at` and `occurred_at` values.
+EventBus comes with a good enough data structure to track the event life cycle with its optional parameters. For a traceable system, it is highly recommend to fill optional fields on event data. It is also encouraged to use `EventSource.notify` block/yield to automatically set the `initialized_at` and `occurred_at` values.
 
 ### System Events
 
@@ -507,7 +507,7 @@ This feature removed with the version 1.3 to keep the core library simple. If yo
 
 ### EventBus.Metrics Library
 
-EventBus has some addons to extend its optional functionalities. One of them is `event_bus_metrics` libray which comes with a UI, RESTFul endpoints and SSE streams to provide instant metrics for event_bus topics.
+EventBus has some addons to extend its optional functionalities. One of them is `event_bus_metrics` library which comes with a UI, RESTFul endpoints and SSE streams to provide instant metrics for event_bus topics.
 
 [EventBus.Metrics Instructions](https://github.com/otobus/event_bus/wiki/EventBus-Metrics-and-UI)
 
