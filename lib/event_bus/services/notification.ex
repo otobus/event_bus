@@ -14,6 +14,9 @@ defmodule EventBus.Service.Notification do
   @typep subscribers :: EventBus.subscribers()
   @typep topic :: EventBus.topic()
 
+  @eb_app :event_bus
+  @error_handler Application.get_env(@eb_app, :error_handler)
+
   @doc false
   @spec notify(event()) :: :ok
   def notify(%Event{id: id, topic: topic} = event) do
@@ -36,6 +39,7 @@ defmodule EventBus.Service.Notification do
     Enum.each(subscribers, fn subscriber ->
       notify_subscriber(subscriber, event_shadow)
     end)
+
     :ok
   end
 
@@ -44,7 +48,7 @@ defmodule EventBus.Service.Notification do
     subscriber.process({config, topic, id})
   rescue
     error ->
-      log_error(subscriber, error)
+      log_error(subscriber, error, __STACKTRACE__)
       ObservationManager.mark_as_skipped({{subscriber, config}, {topic, id}})
   end
 
@@ -52,7 +56,7 @@ defmodule EventBus.Service.Notification do
     subscriber.process({topic, id})
   rescue
     error ->
-      log_error(subscriber, error)
+      log_error(subscriber, error, __STACKTRACE__)
       ObservationManager.mark_as_skipped({subscriber, {topic, id}})
   end
 
@@ -69,9 +73,19 @@ defmodule EventBus.Service.Notification do
     Logger.warn(msg)
   end
 
-  @spec log_error(module(), any()) :: no_return()
-  defp log_error(subscriber, error) do
-    msg = "#{subscriber}.process/1 raised an error!\n#{inspect(error)}"
+  @spec log_error(module(), any(), any()) :: no_return()
+  defp log_error(subscriber, error, stacktrace) do
+    msg =
+      "#{subscriber}.process/1 raised an error!\n#{
+        Exception.format_banner(:error, error, stacktrace)
+      }"
+
+    case @error_handler do
+      nil -> nil
+      {module, function} -> apply(module, function, [error, stacktrace])
+      _ -> Logger.warn("Error handler must be { Module, :function_atom }")
+    end
+
     Logger.info(msg)
   end
 end
