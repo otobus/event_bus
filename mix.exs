@@ -1,7 +1,7 @@
 defmodule EventBus.Mixfile do
   use Mix.Project
 
-  @source_url "https://github.com/mustafaturan/event_bus"
+  @source_url "https://github.com/otobus/event_bus"
   @version "1.6.2"
 
   def project do
