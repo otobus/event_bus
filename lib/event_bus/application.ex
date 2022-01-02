@@ -14,11 +14,31 @@ defmodule EventBus.Application do
     import Supervisor.Spec, warn: false
 
     children = [
-      worker(Topic, [], id: make_ref(), restart: :permanent),
-      worker(Subscription, [], id: make_ref(), restart: :permanent),
-      worker(Notification, [], id: make_ref(), restart: :permanent),
-      worker(Store, [], id: make_ref(), restart: :permanent),
-      worker(Observation, [], id: make_ref(), restart: :permanent)
+      %{
+        id: make_ref(),
+        restart: :permanent,
+        start: {Topic, :start_link, []}
+      },
+      %{
+        id: make_ref(),
+        restart: :permanent,
+        start: {Subscription, :start_link, []}
+      },
+      %{
+        id: make_ref(),
+        restart: :permanent,
+        start: {Notification, :start_link, []}
+      },
+      %{
+        id: make_ref(),
+        restart: :permanent,
+        start: {Store, :start_link, []}
+      },
+      %{
+        id: make_ref(),
+        restart: :permanent,
+        start: {Observation, :start_link, []}
+      }
     ]
 
     opts = [strategy: :one_for_one, name: EventBus.Supervisor]

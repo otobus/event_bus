@@ -18,7 +18,6 @@ defmodule EventBus.Util.Regex do
   @spec build_regex_pattern(list(String.t() | atom())) :: String.t()
   defp build_regex_pattern(keys) do
     keys
-    |> Enum.map(fn key -> "^(#{key})" end)
-    |> Enum.join("|")
+    |> Enum.map_join("|", fn key -> "^(#{key})" end)
   end
 end

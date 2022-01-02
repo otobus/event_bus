@@ -16,9 +16,7 @@ defmodule EventBus.EventSource do
       alias EventBus.Util.Base62
 
       @eb_app :event_bus
-      @eb_id_gen Application.get_env(@eb_app, :id_generator, Base62)
       @eb_source String.replace("#{__MODULE__}", "Elixir.", "")
-      @eb_ttl Application.get_env(@eb_app, :ttl)
     end
   end
 
@@ -42,7 +40,9 @@ defmodule EventBus.EventSource do
             {params[:topic], result}
         end
 
-      id = Map.get(params, :id, @eb_id_gen.unique_id())
+      eb_ttl = Application.get_env(@eb_app, :ttl)
+      eb_id_gen = Application.get_env(@eb_app, :id_generator, Base62)
+      id = Map.get(params, :id, eb_id_gen.unique_id())
 
       %Event{
         id: id,
@@ -52,7 +52,7 @@ defmodule EventBus.EventSource do
         initialized_at: initialized_at,
         occurred_at: MonotonicTime.now(),
         source: Map.get(params, :source, @eb_source),
-        ttl: Map.get(params, :ttl, @eb_ttl)
+        ttl: Map.get(params, :ttl, eb_ttl)
       }
     end
   end
