@@ -38,7 +38,7 @@ defmodule EventBus.Mixfile do
 
   defp deps do
     [
-      {:credo, "~> 1.5", only: [:dev, :test]},
+      {:credo, "~> 1.6", only: [:dev, :test]},
       {:dialyxir, "~> 1.0", only: [:dev, :test], runtime: false},
       {:excoveralls, "~> 0.13", only: [:test]},
       {:ex_doc, ">= 0.0.0", only: [:dev], runtime: false}

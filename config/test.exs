@@ -1,4 +1,4 @@
-use Mix.Config
+import Config
 
 config :event_bus,
   topics: [:metrics_received, :metrics_summed],
