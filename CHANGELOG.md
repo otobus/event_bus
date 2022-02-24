@@ -55,42 +55,42 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Dialyzer enhancements
 - Test and documentation enhancements
 
-## [1.2.X] - 2018.02.24
+## [1.2.X] 2018.02.24
 
 - Remove support for system event tracing for `notify` action (unnecessary)
 - Move internal modules under managers namespace for better documentation
 - Add `subscribed?` function to check subscriptions
 
-## [1.1.X] - 2018.02.21
+## [1.1.X] 2018.02.21
 
 - Optional system events which notify the `eb_action_called` topic for the actions: `notify`, `register_topic`, `unregister_topic`, `subscribe`, `unsubscribe`, `mark_as_completed`, `mark_as_skipped`
 - Add public exist? function to Topic, Watcher, and Store
 - Check existence of topic in a blocking manner
 - Register/Unregister topic in a blocking manner
 
-## [1.0.0] - 2018.01.23
+## [1.0.0] 2018.01.23
 
 - Move build and notify blocks into EventSource
 - Add use keyword for Source for developer friendly require and aliases
 - Split GenServers and Services
 - Move utility functions into its own module
 - Add addons section to README
-- Switch to microseconds when auto event structuring with `EventSource` to increase compability with Zipkin and Datadog APM
+- Switch to microseconds when auto event structuring with `EventSource` to increase compatibility with Zipkin and Datadog APM
 - Error topic introduced for dynamic event builder/notifier with `EventSource`. Now you can pass `:error_topic` key, EvetSource automatically check the result of execution block for `{:error, _}` tuple and create an event structure for the given `:error_topic`.
 - Add elixir formatter config to format code
 
-## [0.9.0] - 2018.01.06
+## [0.9.0] 2018.01.06
 
 - Add `source` attribute to increase traceability
 - Add optional configuration to Subscriber to use the same module/function with different configurations to process the event. The aim of this change is increasing re-useability of the subscriber with several configurations. For example, this will allow writing an HTTP consumer or an AWS lambda caller function with different configurations.
 
-## [0.8.0] - 2018.01.06
+## [0.8.0] 2018.01.06
 
 - Register/unregister topics on-demand (`EventBus.register_topic/1` and `EventBus.unregister/1`)
 - Add block/yield builder for Event with auto `initialized_at` and `occurred_at` attribute assignments
 - Add block/yield notifier for delivering/notifying events creation with same benefits of build block
 - Add changelog file
 
-## [0.7.0] - 2018.01.06
+## [0.7.0] 2018.01.06
 
 - Add `initialized_at` attribute
