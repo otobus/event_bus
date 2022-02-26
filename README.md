@@ -89,7 +89,7 @@ Traceable, extendable and minimalist event bus implementation for Elixir with bu
 
 - Traceable with optional attributes. Optional attributes compatible with opentracing platform.
 
-- Minimal with required attributes(Incase, you want it work minimal use 3 required attributes to deliver your events).
+- Minimal with required attributes(In case, you want it work minimal use 3 required attributes to deliver your events).
 
 ## Getting Started
 
@@ -343,11 +343,11 @@ use EventBus.EventSource
 
 id = "some unique id"
 topic = :user_created
-error_topic = :user_create_erred # optional (incase error tuple return in yield execution, it will use :error_topic value as :topic for event creation)
+error_topic = :user_create_erred # optional (in case error tuple return in yield execution, it will use :error_topic value as :topic for event creation)
 transaction_id = "tx" # optional
 ttl = 600_000 # optional
 source = "my event creator" # optional
-EventBus.register_topic(topic) # incase you didn't register it in `config.exs`
+EventBus.register_topic(topic) # in case you didn't register it in `config.exs`
 
 params = %{id: id, topic: topic, transaction_id: transaction_id, ttl: ttl, source: source, error_topic: error_topic}
 EventSource.notify(params) do
