@@ -41,7 +41,7 @@ defmodule EventBus.Service.Notification do
 
   @spec notify_subscriber(subscriber(), event_shadow()) :: no_return()
   defp notify_subscriber({subscriber, config}, {topic, id}) do
-    subscriber.process({topic, id})
+    subscriber.process({config, topic, id})
   rescue
     error ->
       log_error(subscriber, error, __STACKTRACE__)
