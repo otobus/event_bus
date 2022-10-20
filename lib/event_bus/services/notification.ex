@@ -41,10 +41,10 @@ defmodule EventBus.Service.Notification do
 
   @spec notify_subscriber(subscriber(), event_shadow()) :: no_return()
   defp notify_subscriber({subscriber, config}, {topic, id}) do
-    subscriber.process({config, topic, id})
+    subscriber.process({topic, id})
   rescue
     error ->
-      log_error(subscriber, error)
+      log_error(subscriber, error, __STACKTRACE__)
       ObservationManager.mark_as_skipped({{subscriber, config}, {topic, id}})
   end
 
@@ -52,7 +52,7 @@ defmodule EventBus.Service.Notification do
     subscriber.process({topic, id})
   rescue
     error ->
-      log_error(subscriber, error)
+      log_error(subscriber, error, __STACKTRACE__)
       ObservationManager.mark_as_skipped({subscriber, {topic, id}})
   end
 
@@ -69,9 +69,9 @@ defmodule EventBus.Service.Notification do
     Logger.warn(msg)
   end
 
-  @spec log_error(module(), any()) :: no_return()
-  defp log_error(subscriber, error) do
-    msg = "#{subscriber}.process/1 raised an error!\n#{inspect(error)}"
-    Logger.info(msg)
+  @spec log_error(module(), any(), any()) :: no_return()
+  defp log_error(subscriber, error, stacktrace) do
+    msg = "#{subscriber}.process/1 raised an error!\n" <> Exception.format(:error, error, stacktrace)
+    Logger.error(msg)
   end
 end
