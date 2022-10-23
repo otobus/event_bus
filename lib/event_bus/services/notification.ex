@@ -20,23 +20,21 @@ defmodule EventBus.Service.Notification do
     subscribers = SubscriptionManager.subscribers(topic)
 
     if subscribers == [] do
-      warn_missing_topic_subscription(topic)
+      {:error, warn_missing_topic_subscription(topic)}
     else
       :ok = StoreManager.create(event)
       :ok = ObservationManager.create({subscribers, {topic, id}})
 
       notify_subscribers(subscribers, {topic, id})
     end
-
-    :ok
   end
 
   @spec notify_subscribers(subscribers(), event_shadow()) :: :ok
   defp notify_subscribers(subscribers, event_shadow) do
-    Enum.each(subscribers, fn subscriber ->
-      notify_subscriber(subscriber, event_shadow)
+    Enum.map(subscribers, fn subscriber ->
+      res = notify_subscriber(subscriber, event_shadow)
+      {subscriber, res}
     end)
-    :ok
   end
 
   @spec notify_subscriber(subscriber(), event_shadow()) :: no_return()
@@ -46,6 +44,7 @@ defmodule EventBus.Service.Notification do
     error ->
       log_error(subscriber, error, __STACKTRACE__)
       ObservationManager.mark_as_skipped({{subscriber, config}, {topic, id}})
+      {subscriber, {:error, error}}
   end
 
   defp notify_subscriber(subscriber, {topic, id}) do
@@ -54,6 +53,7 @@ defmodule EventBus.Service.Notification do
     error ->
       log_error(subscriber, error, __STACKTRACE__)
       ObservationManager.mark_as_skipped({subscriber, {topic, id}})
+      {subscriber, {:error, error}}
   end
 
   @spec registration_status(topic()) :: String.t()
@@ -66,7 +66,8 @@ defmodule EventBus.Service.Notification do
     msg =
       "Topic(:#{topic}#{registration_status(topic)}) doesn't have subscribers"
 
-    Logger.warn(msg)
+    :ok = Logger.warn(msg)
+    msg
   end
 
   @spec log_error(module(), any(), any()) :: no_return()
