@@ -81,6 +81,23 @@ defmodule EventBus do
     as: :notify
 
   @doc """
+  Send an event to all subscribers, returning the results of all the computation
+  for each subscriber. I called this `declare` as a stronger "notify" - stronger
+  because we get the results returned from each Subscriber.
+
+  ## Examples
+
+      event = %Event{id: 1, topic: :webhook_received,
+        data: %{"message" => "Hi all!"}}
+      EventBus.declare(event)
+      {:ok, [{FirstSubscriber, results}, {SecondSubscriber, results}]}
+
+  """
+  defdelegate declare(event),
+    to: Notification,
+    as: :declare
+
+  @doc """
   Check if a topic registered.
 
   ## Examples
